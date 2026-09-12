@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Учебный Хаб • Группа 25А</title>
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #131722;
+      --card-hover: #181e2b;
+      --border: #202738;
+      --text: #e2e8f0;
+      --text-dim: #79879c;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.15);
+      --orange: #f59e0b;
+      --orange-glow: rgba(245, 158, 11, 0.15);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.15);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding: 10px 10px 90px 10px; max-width: 560px; margin: 0 auto; min-height: 100vh; }
+
+    /* Навигация 7 табов */
+    .view-switcher {
+      display: flex;
+      gap: 3px;
+      background: #0f131c;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      position: sticky;
+      top: 6px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .view-switcher::-webkit-scrollbar { display: none; }
+    .view-btn {
+      flex: 1;
+      min-width: 62px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 7px 2px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .view-btn.active {
+      background: var(--card);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+    }
+
+    /* Тост */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 9px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* Виджет времени и шапка */
+    .dashboard {
+      background: linear-gradient(145deg, #171e2e, #111520);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .dash-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+    .status-badge { background: var(--accent-glow); color: var(--accent); padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    
+    .dash-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); flex-shrink: 0; }
+    .indicator.break { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+    .indicator.idle { background: var(--text-dim); box-shadow: none; }
+    .dash-sub { font-size: 12px; color: var(--text-dim); }
+
+    /* Панель оперативных действий */
+    .action-bar { display: flex; gap: 6px; margin-bottom: 10px; }
+    .btn-action {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 8px 6px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .btn-action:hover { border-color: var(--accent); color: #fff; }
+    .btn-action.highlight { background: rgba(59, 130, 246, 0.15); border-color: var(--accent); color: #93c5fd; }
+
+    /* Переключатель недель */
+    .week-toggle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+    }
+    .week-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
+    .week-btn-group { display: flex; gap: 4px; }
+    .week-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Дни недели */
+    .tabs-row { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px; }
+    .tab-btn {
+      flex: 1;
+      min-width: 44px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 9px 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tab-btn.today { border-bottom: 3px solid var(--green); }
+
+    /* Карточки пар */
+    .cards-box { display: flex; flex-direction: column; gap: 8px; }
+    .pair-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s ease;
+    }
+    .pair-item.current {
+      border-color: var(--green);
+      background: #141b2a;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+    .pair-item.empty-slot {
+      opacity: 0.5;
+      border-style: dashed;
+      background: rgba(19, 23, 34, 0.45);
+      padding: 9px 12px;
+    }
+    .pair-item.empty-slot:hover {
+      opacity: 0.9;
+      border-color: var(--accent);
+    }
+
+    .pair-progress-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      transition: width 0.3s linear;
+    }
+
+    .pair-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .time-slot { min-width: 65px; border-right: 1px solid var(--border); padding-right: 8px; }
+    .pair-order { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; }
+    .time-range { font-size: 12px; font-weight: 700; line-height: 1.3; }
+    .pair-details { flex: 1; }
+    .tag-line { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; flex-wrap: wrap; }
+    .type-pill { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    .type-lecture { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
+    .type-seminar { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
+    .type-essay { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+    .type-empty { background: rgba(255, 255, 255, 0.05); color: var(--text-dim); }
+
+    .lesson-title { font-size: 14px; font-weight: 700; line-height: 1.25; margin-bottom: 2px; }
+    .teacher-name { font-size: 12px; color: var(--text-dim); }
+
+    .room-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .room-tag {
+      background: #1d2536;
+      border: 1px solid var(--border);
+      padding: 4px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .room-floor { font-size: 10px; color: var(--text-dim); font-weight: 600; text-align: right; }
+
+    /* Домашка */
+    .task-bar {
+      border-top: 1px dashed var(--border);
+      padding-top: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .task-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; flex: 1; }
+    .task-label.done span { text-decoration: line-through; color: var(--text-dim); }
+    .task-checkbox { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+    .attach-link {
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: #93c5fd;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    /* Формы и карточки */
+    .search-box { margin-bottom: 12px; }
+    .search-input, .form-input, .form-select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input:focus, .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+    .lecture-card, .deadline-card, .prof-card, .score-card, .req-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .deadline-card.completed { opacity: 0.55; border-color: rgba(32, 39, 56, 0.7); }
+    .deadline-card.completed .dl-title { text-decoration: line-through; }
+
+    .badge-urgent { background: var(--red-glow); color: var(--red); border: 1px solid var(--red); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+    .badge-soon { background: var(--orange-glow); color: var(--orange); border: 1px solid var(--orange); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+    .badge-ok { background: var(--green-glow); color: var(--green); border: 1px solid var(--green); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+    .badge-done { background: rgba(121, 135, 156, 0.2); color: var(--text-dim); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+
+    /* Требования */
+    .req-box {
+      background: #0f131c;
+      border-radius: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--accent);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+    .req-box b { color: #fff; }
+    .req-pill-group { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
+    .req-tag { background: #1b2233; border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 700; color: #93c5fd; }
+    .req-tag.alert { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: #fca5a5; }
+
+    .gost-banner {
+      background: linear-gradient(145deg, #181f30, #121622);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+    .gost-banner b { color: #38bdf8; }
+
+    /* БРС */
+    .score-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .score-subject { font-size: 14px; font-weight: 700; color: #fff; }
+    .score-target { font-size: 11px; font-weight: 700; color: var(--text-dim); }
+
+    .meter-box {
+      background: #0f131c;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .meter-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    .bar-bg { height: 7px; background: #1e2638; border-radius: 4px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.25s ease; }
+    .bar-fill.pass { background: var(--orange); }
+    .bar-fill.good { background: #38bdf8; }
+    .bar-fill.auto { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .counter-ctrl { display: flex; align-items: center; gap: 8px; }
+    .btn-counter {
+      background: #1e2638;
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-counter:active { background: var(--accent); }
+
+    /* Формы */
+    .form-box { background: #0f131c; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+    .form-box h4 { font-size: 13px; margin-bottom: 8px; color: var(--text); }
+    .form-grid { display: flex; flex-direction: column; gap: 7px; }
+    .btn-submit { background: var(--accent); border: none; color: #fff; padding: 9px 12px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+
+    /* Модалки */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 250;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: #131722;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .edit-btn { background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 11px; font-weight: 700; }
+    .edit-btn:hover { color: #93c5fd; text-decoration: underline; }
+    .delete-btn { background: transparent; border: none; color: var(--red); font-size: 11px; cursor: pointer; font-weight: 700; }
+    .delete-btn:hover { text-decoration: underline; }
+    .card-actions-row { display: flex; align-items: center; gap: 10px; }
+    .empty-note { text-align: center; color: var(--text-dim); padding: 25px 0; font-size: 13px; }
+
+    /* Преподаватели */
+    .prof-dept { font-size: 12px; color: var(--accent); font-weight: 600; }
+    .prof-loc {
+      background: #0f131c;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      color: #cbd5e1;
+      border-left: 3px solid var(--green);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    /* Бэкап и облако */
+    .backup-panel { display: flex; flex-direction: column; gap: 10px; }
+    .backup-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .backup-btn.danger { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+  <!-- Навигация: 7 табов -->
+  <div class="view-switcher">
+    <button class="view-btn active" data-view="schedule"><span>📅</span><span>Пары</span></button>
+    <button class="view-btn" data-view="requirements"><span>📋</span><span>Требования</span></button>
+    <button class="view-btn" data-view="deadlines"><span>📌</span><span>Задания</span></button>
+    <button class="view-btn" data-view="performance"><span>📊</span><span>БРС</span></button>
+    <button class="view-btn" data-view="lectures"><span>📚</span><span>Лекции</span></button>
+    <button class="view-btn" data-view="teachers"><span>🔍</span><span>Преподы</span></button>
+    <button class="view-btn" data-view="settings"><span>⚙️</span><span>Облако</span></button>
+  </div>
+
+  <div id="toast">Уведомление</div>
+
+  <!-- ЭКРАН 1: ПАРЫ -->
+  <div id="view-schedule">
+    <div class="dashboard">
+      <div class="dash-top">
+        <span id="clock">--:--</span>
+        <span class="status-badge" id="current-week-tag">Авто</span>
+      </div>
+      <div class="dash-title">
+        <div class="indicator idle" id="live-indicator"></div>
+        <span id="live-title">Определение...</span>
+      </div>
+      <div class="dash-sub" id="live-desc">Синхронизация времени</div>
+    </div>
+
+    <!-- Оперативка -->
+    <div class="action-bar">
+      <button class="btn-action highlight" id="btn-open-parser">⚡ Парсер недели</button>
+      <button class="btn-action" id="btn-cloud-sync">🔄 Обновить</button>
+      <button class="btn-action" id="btn-copy-today">📋 В беседу</button>
+      <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
+    </div>
+
+    <div class="week-toggle-bar">
+      <span class="week-toggle-label">Смотреть неделю:</span>
+      <div class="week-btn-group">
+        <button class="week-btn" id="week-num-btn">Числитель</button>
+        <button class="week-btn" id="week-den-btn">Знаменатель</button>
+      </div>
+    </div>
+
+    <div class="tabs-row">
+      <button class="tab-btn" data-d="1">ПН</button>
+      <button class="tab-btn" data-d="2">ВТ</button>
+      <button class="tab-btn" data-d="3">СР</button>
+      <button class="tab-btn" data-d="4">ЧТ</button>
+      <button class="tab-btn" data-d="5">ПТ</button>
+      <button class="tab-btn" data-d="6">СБ</button>
+    </div>
+
+    <div class="cards-box" id="schedule-list"></div>
+  </div>
+
+  <!-- ЭКРАН 2: ТРЕБОВАНИЯ ПРЕПОДАВАТЕЛЕЙ -->
+  <div id="view-requirements" style="display: none;">
+    <div class="gost-banner">
+      💡 <b>Дефолтный стандарт кафедры:</b> Шрифт Times New Roman 14, интервал 1.5. Поля: левое 30 мм, правое 10 мм, верх/низ 20 мм. Свежие источники в списке (не старше 5 лет).
+    </div>
+
+    <div class="form-box">
+      <h4>+ Добавить новый регламент кафедры</h4>
+      <div class="form-grid">
+        <input type="text" class="form-input" id="new-req-prof" placeholder="Преподаватель (напр. Инжиева Д.М.)">
+        <select class="form-select" id="new-req-subject"></select>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" class="form-input" id="new-req-worktype" placeholder="Вид работы (Реферат, РГР, Эссе)">
+          <input type="text" class="form-input" id="new-req-volume" placeholder="Объем (15-20 стр)">
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" class="form-input" id="new-req-orig" placeholder="Антиплагиат (от 65%)">
+          <input type="text" class="form-input" id="new-req-deadline" placeholder="Срок / Защита">
+        </div>
+        <textarea class="form-input" id="new-req-details" placeholder="На чем валит, особенности защиты, структура..." rows="2"></textarea>
+        <button class="btn-submit" id="btn-add-req">Зафиксировать регламент</button>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="req-search" placeholder="Поиск по преподавателю, предмету или типу работы...">
+    </div>
+    <div id="requirements-list"></div>
+  </div>
+
+  <!-- ЭКРАН 3: ДЕДЛАЙНЫ И ЗАДАНИЯ -->
+  <div id="view-deadlines" style="display: none;">
+    <div class="form-box">
+      <h4>+ Добавить дедлайн</h4>
+      <div class="form-grid">
+        <select class="form-select" id="new-dl-subject"></select>
+        <input type="text" class="form-input" id="new-dl-topic" placeholder="Тема задания (напр. Расчетная работа №1)">
+        <div style="display: flex; gap: 6px;">
+          <select class="form-select" id="new-dl-type">
+            <option value="Реферат">Реферат</option>
+            <option value="Расчетная работа">Расчетная работа</option>
+            <option value="Лабораторная">Лабораторная</option>
+            <option value="Эссе">Эссе</option>
+            <option value="Контрольная">Контрольная</option>
+          </select>
+          <input type="date" class="form-input" id="new-dl-date">
+        </div>
+        <input type="text" class="form-input" id="new-dl-reqs" placeholder="Требования к оформлению...">
+        <button class="btn-submit" id="btn-add-deadline">Внести в план</button>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="deadline-search" placeholder="Поиск задания, дисциплины...">
+    </div>
+    <div id="deadlines-list"></div>
+  </div>
+
+  <!-- ЭКРАН 4: БРС И ПРОПУСКИ (ЭНКИ) -->
+  <div id="view-performance" style="display: none;">
+    <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
+      💡 <b>Шкала БРС:</b> 60+ (допуск), 75+ (хорошо), 90+ (автомат на отлично). Лимит пропусков — до 4 пар (8 часов). Баллы сохраняются персонально в твоем телефоне.
+    </div>
+    <div id="performance-list"></div>
+  </div>
+
+  <!-- ЭКРАН 5: ЛЕКЦИИ И КОНСПЕКТЫ -->
+  <div id="view-lectures" style="display: none;">
+    <div class="search-box">
+      <input type="text" class="search-input" id="lecture-search" placeholder="Поиск по теме или конспекту...">
+    </div>
+    <div class="tabs-row" id="subject-filter-bar" style="overflow-x: auto;"></div>
+
+    <div class="form-box">
+      <h4>+ Записать лекцию / ссылку на диск</h4>
+      <div class="form-grid">
+        <select class="form-select" id="new-lec-subject"></select>
+        <input type="text" class="form-input" id="new-lec-title" placeholder="Тема лекции">
+        <textarea class="form-input" id="new-lec-notes" placeholder="Тезисы, формулы или конспект..." rows="2"></textarea>
+        <input type="url" class="form-input" id="new-lec-link" placeholder="Ссылка на Google Drive / Облако">
+        <button class="btn-submit" id="btn-add-lecture">Сохранить</button>
+      </div>
+    </div>
+
+    <div id="lectures-list"></div>
+  </div>
+
+  <!-- ЭКРАН 6: ПРЕПОДАВАТЕЛИ -->
+  <div id="view-teachers" style="display: none;">
+    <div class="form-box">
+      <h4>+ Добавить преподавателя в базу</h4>
+      <div class="form-grid">
+        <input type="text" class="form-input" id="new-prof-name" placeholder="ФИО преподавателя (напр. Моторина Д. В.)">
+        <input type="text" class="form-input" id="new-prof-dept" placeholder="Кафедра (напр. Кафедра Финансов и кредита)">
+        <input type="text" class="form-input" id="new-prof-subjects" placeholder="Дисциплины (напр. Финансы, кредит)">
+        <input type="text" class="form-input" id="new-prof-loc" placeholder="Где найти (кабинет, часы, контакты)">
+        <button class="btn-submit" id="btn-add-prof">Сохранить преподавателя</button>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="prof-search" placeholder="Поиск по фамилии, предмету или кафедре...">
+    </div>
+    <div id="teachers-list"></div>
+  </div>
+
+  <!-- ЭКРАН 7: НАСТРОЙКИ, ОБЛАКО И БЭКАП -->
+  <div id="view-settings" style="display: none;">
+    <div class="backup-panel">
+      <!-- Настройки облачной базы -->
+      <div class="form-box" style="border-style: solid; border-color: var(--accent);">
+        <h4 style="display: flex; justify-content: space-between; align-items: center;">
+          <span>☁️ Облачная синхронизация</span>
+          <span id="cloud-status-indicator" style="font-size: 11px; font-weight: normal; color: var(--text-dim);">Проверка...</span>
+        </h4>
+        <div style="font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px;">
+          Укажи URL твоей базы npoint.io для синхронизации с группой.
+        </div>
+        <div class="form-grid">
+          <input type="url" class="form-input" id="cloud-api-url" placeholder="URL базы (напр. https://api.npoint.io/...)">
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-action highlight" style="flex: 1;" id="btn-save-cloud-config">Сохранить URL</button>
+            <button class="btn-action" style="flex: 1;" id="btn-test-cloud">Проверить связь</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Смена пароля модератора -->
+      <div class="form-box">
+        <h4>🔑 Безопасная смена пароля модератора</h4>
+        <div class="form-grid">
+          <input type="password" class="form-input" id="settings-old-pass" placeholder="Текущий (старый) пароль">
+          <input type="password" class="form-input" id="settings-new-pass" placeholder="Новый пароль">
+          <input type="password" class="form-input" id="settings-confirm-pass" placeholder="Повторите новый пароль">
+          <button class="btn-submit" id="btn-change-pass">Обновить пароль</button>
+        </div>
+      </div>
+
+      <div class="backup-btn" id="btn-export-json">
+        <div>
+          <div>💾 Скачать резервный JSON-файл</div>
+          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Полная выгрузка расписания, требований и базы</div>
+        </div>
+        <span>⬇️</span>
+      </div>
+
+      <label class="backup-btn" for="import-file" style="margin: 0;">
+        <div>
+          <div>📂 Восстановить из файла</div>
+          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Загрузить ранее сохраненный JSON</div>
+        </div>
+        <span>⬆️</span>
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+      </label>
+
+      <div class="backup-btn danger" id="btn-reset-data">
+        <div>
+          <div>⚠️ Сбросить к базе группы 25А</div>
+          <div style="font-size: 11px; color: #f87171; font-weight: normal;">Вернет исходную сетку 25А со всеми требованиями кафедр</div>
+        </div>
+        <span>🔄</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 1: РЕДАКТИРОВАНИЕ ПАРЫ / СЛОТА -->
+  <div class="modal-overlay" id="edit-pair-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;" id="modal-pair-title">Редактировать пару</h3>
+      <div class="form-grid">
+        <input type="hidden" id="edit-pair-id">
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Название предмета (пусто для пропуска)</label>
+          <input type="text" class="form-input" id="edit-pair-name" placeholder="Название предмета или пусто">
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Аудитория</label>
+            <input type="text" class="form-input" id="edit-pair-room" placeholder="209">
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Тип пары</label>
+            <select class="form-select" id="edit-pair-type">
+              <option value="lecture">Лекция</option>
+              <option value="seminar">Семинар / Практика</option>
+              <option value="essay">Контроль / Зачет</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Преподаватель</label>
+          <input type="text" class="form-input" id="edit-pair-prof" placeholder="Фамилия И.О.">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Задание к паре</label>
+          <input type="text" class="form-input" id="edit-pair-task" placeholder="Тема доклада, конспект...">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-submit" style="flex: 1;" id="btn-save-pair">Сохранить</button>
+          <button class="btn-action" style="flex: 1; border-color: rgba(239,68,68,0.4); color: #fca5a5;" id="btn-clear-slot">Сделать пропуском</button>
+          <button class="btn-action" style="flex: 1;" id="btn-close-pair-modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 2: РЕДАКТИРОВАНИЕ ТРЕБОВАНИЯ ПРЕПОДА -->
+  <div class="modal-overlay" id="edit-req-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать регламент</h3>
+      <div class="form-grid">
+        <input type="hidden" id="edit-req-id">
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Преподаватель</label>
+          <input type="text" class="form-input" id="edit-req-prof">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина</label>
+          <select class="form-select" id="edit-req-subject"></select>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Вид работы</label>
+            <input type="text" class="form-input" id="edit-req-worktype">
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Объем</label>
+            <input type="text" class="form-input" id="edit-req-volume">
+          </div>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Антиплагиат</label>
+            <input type="text" class="form-input" id="edit-req-orig">
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Срок сдачи / Защита</label>
+            <input type="text" class="form-input" id="edit-req-deadline">
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Критерии, на чем валит, защита</label>
+          <textarea class="form-input" id="edit-req-details" rows="3"></textarea>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-submit" style="flex: 1;" id="btn-save-req">Сохранить</button>
+          <button class="btn-action" style="flex: 1;" id="btn-close-req-modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 3: РЕДАКТИРОВАНИЕ ДЕДЛАЙНА -->
+  <div class="modal-overlay" id="edit-dl-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать задание</h3>
+      <div class="form-grid">
+        <input type="hidden" id="edit-dl-id">
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина</label>
+          <select class="form-select" id="edit-dl-subject"></select>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Тема задания</label>
+          <input type="text" class="form-input" id="edit-dl-topic">
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Вид работы</label>
+            <select class="form-select" id="edit-dl-type">
+              <option value="Реферат">Реферат</option>
+              <option value="Расчетная работа">Расчетная работа</option>
+              <option value="Лабораторная">Лабораторная</option>
+              <option value="Эссе">Эссе</option>
+              <option value="Контрольная">Контрольная</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Дата сдачи</label>
+            <input type="date" class="form-input" id="edit-dl-date">
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Требования</label>
+          <input type="text" class="form-input" id="edit-dl-reqs">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-submit" style="flex: 1;" id="btn-save-dl">Сохранить</button>
+          <button class="btn-action" style="flex: 1;" id="btn-close-dl-modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 4: РЕДАКТИРОВАНИЕ КОНСПЕКТА / ЛЕКЦИИ -->
+  <div class="modal-overlay" id="edit-lec-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать лекцию</h3>
+      <div class="form-grid">
+        <input type="hidden" id="edit-lec-id">
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина</label>
+          <select class="form-select" id="edit-lec-subject"></select>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Тема лекции</label>
+          <input type="text" class="form-input" id="edit-lec-title">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Дата</label>
+          <input type="text" class="form-input" id="edit-lec-date" placeholder="14.09.2026">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Тезисы / Конспект</label>
+          <textarea class="form-input" id="edit-lec-notes" rows="3"></textarea>
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Ссылка на материалы</label>
+          <input type="url" class="form-input" id="edit-lec-link" placeholder="https://...">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-submit" style="flex: 1;" id="btn-save-lec">Сохранить</button>
+          <button class="btn-action" style="flex: 1;" id="btn-close-lec-modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 5: РЕДАКТИРОВАНИЕ ПРЕПОДАВАТЕЛЯ -->
+  <div class="modal-overlay" id="edit-prof-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать преподавателя</h3>
+      <div class="form-grid">
+        <input type="hidden" id="edit-prof-id">
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">ФИО преподавателя</label>
+          <input type="text" class="form-input" id="edit-prof-name">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Кафедра</label>
+          <input type="text" class="form-input" id="edit-prof-dept">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплины</label>
+          <input type="text" class="form-input" id="edit-prof-subjects">
+        </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Где найти (кабинет, часы консультаций)</label>
+          <input type="text" class="form-input" id="edit-prof-loc">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-submit" style="flex: 1;" id="btn-save-prof">Сохранить</button>
+          <button class="btn-action" style="flex: 1;" id="btn-close-prof-modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА 6: УМНЫЙ ТЕКСТОВЫЙ ПАРСЕР -->
+  <div class="modal-overlay" id="parser-modal">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Умный текстовый парсер (Группа 25А)</h3>
+      <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
+        Вставь текст сообщения старосты или скопированные строки. Парсер автоматически расставит пары по их номерам звонков (1-7), а пустые часы оставит пропусками.
+      </p>
+
+      <div class="form-grid">
+        <textarea class="form-input" id="parser-input" rows="8" placeholder="Пример:&#10;Понедельник&#10;1 пара Финансы с.2 Моторина Д.В. (211)&#10;2 пара Финансы л.5 Моторина Д.В. (209)&#10;3 пара Экономика организаций л.3 Мазниченко В.Л. (1107)&#10;&#10;Вторник&#10;1 пара Статистика л.3 Фурин А.Д. (209)&#10;2 пара Основы финансовой грамотности л.3 Моисеенко Д.Д. (1002)&#10;3 пара Экономика организаций л.4 Мазниченко В.Л. (1107)&#10;4 пара Осн. фин. грам. с.1 Моисеенко Д.Д. (1102)"></textarea>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Неделя:</label>
+            <select class="form-select" id="parser-week-target" style="padding: 5px 8px; font-size: 11px;">
+              <option value="all">Все недели (по умолчанию)</option>
+              <option value="num">Только Числитель</option>
+              <option value="den">Только Знаменатель</option>
+            </select>
+          </div>
+          <label style="font-size: 11px; color: #cbd5e1; display: flex; align-items: center; gap: 5px; cursor: pointer; margin-top: 14px;">
+            <input type="checkbox" id="parser-clear-old" checked style="accent-color: var(--accent);">
+            <span>Заменить всё</span>
+          </label>
+        </div>
+
+        <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить шаблон недели (25А)</button>
+        <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и применить</button>
+        <button class="btn-action" id="btn-close-parser">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. СЕТКА ЗВОНКОВ
+    const BELLS = [
+      { num: 1, start: "08:30", end: "09:50" },
+      { num: 2, start: "10:00", end: "11:20" },
+      { num: 3, start: "11:30", end: "12:50" },
+      { num: 4, start: "13:10", end: "14:30" },
+      { num: 5, start: "14:40", end: "16:00" },
+      { num: 6, start: "16:10", end: "17:30" },
+      { num: 7, start: "17:40", end: "19:00" }
+    ];
+
+    const DAYS_NAMES = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+    const DAYS_SHORT = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+
+    // 2. ДИСЦИПЛИНЫ КУРСА
+    const SUBJECTS_LIST = [
+      "Финансы, денежное обращение и кредит",
+      "Статистика",
+      "Основы финансовой грамотности",
+      "Экономика организаций",
+      "ИТ в проф деятельности",
+      "Ин. яз. в проф. деятельности",
+      "История России",
+      "Менеджмент",
+      "Профессиональная этика",
+      "Безопасность жизнедеятельности"
+    ];
+
+    // 3. БАЗА ТРЕБОВАНИЙ ПРЕПОДАВАТЕЛЕЙ
+    const DEFAULT_REQUIREMENTS = [
+      {
+        id: 1,
+        prof: "Инжиева Д. М.",
+        subject: "Менеджмент",
+        workType: "Реферат + Доклад на семинаре",
+        volume: "15-20 страниц",
+        originality: "от 65%",
+        deadlineRule: "До 28 сентября / защита строго на паре",
+        criticalPoints: "Презентация 5-7 слайдов (PowerPoint/PDF). Доклад ровно на 4-5 минут, с листа не читать. Задает 2-3 вопроса по терминам школам управления. Список источников строго по ГОСТу не старше 5 лет."
+      },
+      {
+        id: 2,
+        prof: "Фурин А. Д.",
+        subject: "Статистика",
+        workType: "Расчетно-графическая работа (РГР)",
+        volume: "10-15 страниц (с таблицами)",
+        originality: "Индивидуальный расчет",
+        deadlineRule: "Сдача на практических занятиях (каб. 806)",
+        criticalPoints: "Строго свой вариант из методички. Обязательны сводные таблицы, расчет медианы, моды и дисперсии. Графики (полигон, гистограмма) строить с легендой. Проверяет промежуточные формулы, за чужие цифры сразу отправляет на перерасчет."
+      },
+      {
+        id: 3,
+        prof: "Моторина Д. В.",
+        subject: "Финансы, денежное обращение и кредит",
+        workType: "Семинарский опрос + Конспект тем",
+        volume: "Тетрадь конспектов + тезисы к докладу",
+        originality: "Смысловая точность терминов",
+        deadlineRule: "Каждый семинар (каб. 211)",
+        criticalPoints: "Требует четкую структуру бюджетной и финансовой системы РФ. Вопросы по статьям БК РФ и НК РФ. За отсутствие конспекта вводных лекций ставит минус в БРС. При ответе у доски важно нарисовать схему движения денежных фондов."
+      },
+      {
+        id: 4,
+        prof: "Мазниченко В. Л.",
+        subject: "Экономика организаций",
+        workType: "Типовой расчет предприятия + Защита",
+        volume: "12-18 страниц",
+        originality: "от 60%",
+        deadlineRule: "Защита лично в руки на кафедре (1107)",
+        criticalPoints: "Расчет показателей основных средств, амортизации, себестоимости и рентабельности. На защите тычет в любую строчку расчета и спрашивает экономический смысл показателя. Без понимания формул защиту не закрывает."
+      },
+      {
+        id: 5,
+        prof: "Григор О. Г.",
+        subject: "Профессиональная этика",
+        workType: "Эссе / Аналитический реферат",
+        volume: "8-12 страниц",
+        originality: "от 70% (строго)",
+        deadlineRule: "До зачетной недели (каб. 802/1006)",
+        criticalPoints: "Тема по кодексам корпоративной этики финансистов и госслужащих. Приветствуется разбор реального кейса конфликта интересов. Жестко проверяет цитирование: если нет сносок на литературу — отправляет переделывать."
+      },
+      {
+        id: 6,
+        prof: "Бридель Т. В.",
+        subject: "ИТ в проф деятельности",
+        workType: "Лабораторный практикум Excel",
+        volume: "Файл .xlsx + отчет 3-5 стр",
+        originality: "100% рабочие формулы",
+        deadlineRule: "В конце каждой пары в компьютерном классе (каб. 606)",
+        criticalPoints: "Все расчеты только через динамические формулы (ВПР, СУММЕСЛИ, сводные таблицы). Если в ячейке вбито готовое число руками вместо формулы — работа не засчитана. Задает вопросы по горячим клавишам."
+      },
+      {
+        id: 7,
+        prof: "Страхова И. В.",
+        subject: "История России",
+        workType: "Доклад с презентацией + тест",
+        volume: "10-15 страниц",
+        originality: "от 65%",
+        deadlineRule: "По графику тем на семинарах (каб. 1003)",
+        criticalPoints: "Хронология событий и реформ. Важно указать историографию (мнения историков). Презентация без простыней текста — только карты, портреты и опорные даты. Лимит регламента 5 минут."
+      },
+      {
+        id: 8,
+        prof: "Конкова А. М.",
+        subject: "Ин. яз. в проф. деятельности",
+        workType: "Сдача текстов, словарей и Unit-тестов",
+        volume: "2500 знаков перевода на юнит",
+        originality: "Устный перевод без переводчика",
+        deadlineRule: "Еженедельно на парах (каб. 201)",
+        criticalPoints: "Проверка чтения, фонетики и перевод профессиональных терминов (banking, credit, balance). Проверяет знание словаря наизусть. За онлайн-переводчик без понимания грамматики снижает балл."
+      },
+      {
+        id: 9,
+        prof: "Моисеенко Д. Д.",
+        subject: "Основы финансовой грамотности",
+        workType: "Практический кейс / Финансовый план",
+        volume: "7-10 страниц",
+        originality: "от 60%",
+        deadlineRule: "На семинарах (каб. 1102)",
+        criticalPoints: "Составление личного финансового плана, расчет инвестиционных рисков и налоговых вычетов. Оценивает реалистичность расчетов и логику распределения доходов."
+      },
+      {
+        id: 10,
+        prof: "Войнов С. В.",
+        subject: "Безопасность жизнедеятельности",
+        workType: "Реферат по ЧС + Сдача нормативов",
+        volume: "12-15 страниц",
+        originality: "от 55%",
+        deadlineRule: "Консультационные часы кафедры БЖД",
+        criticalPoints: "Обязателен раздел по оказанию первой доврачебной помощи. Знание классификации чрезвычайных ситуаций техногенного и природного характера."
+      }
+    ];
+
+    // 4. БАЗА ПРЕПОДАВАТЕЛЕЙ
+    const DEFAULT_TEACHERS = [
+      { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 209, 211. Перед парой / после лекции." },
+      { id: 2, name: "Фурин А. Д.", dept: "Кафедра Статистики и эконометрики", subjects: "Статистика", catchInfo: "каб. 209, 806. Проверка типовых расчетов и таблиц." },
+      { id: 3, name: "Моисеенко Д. Д.", dept: "Кафедра Финансов", subjects: "Основы финансовой грамотности", catchInfo: "каб. 1002, 1102. Кафедра финансов." },
+      { id: 4, name: "Мазниченко В. Л.", dept: "Кафедра Экономики предприятий", subjects: "Экономика организаций", catchInfo: "каб. 1107. Защита расчетов лично." },
+      { id: 5, name: "Бридель Т. В.", dept: "Кафедра Информационных систем и технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 209, 606 / ВЦ." },
+      { id: 6, name: "Конкова А. М.", dept: "Кафедра Иностранных языков", subjects: "Ин. яз. в проф. деятельности", catchInfo: "каб. 201. Языковые кабинеты, сдача переводов." },
+      { id: 7, name: "Страхова И. В.", dept: "Кафедра Истории и социально-гуманитарных наук", subjects: "История России", catchInfo: "каб. 1002, 1003. Консультационные часы на кафедре." },
+      { id: 8, name: "Инжиева Д. М.", dept: "Кафедра Менеджмента", subjects: "Менеджмент", catchInfo: "каб. 504. Темы докладов и рефератов." },
+      { id: 9, name: "Григор О. Г.", dept: "Кафедра Философии и социально-гуманитарных дисциплин", subjects: "Профессиональная этика", catchInfo: "каб. 802, 1006. Сразу после семинаров." },
+      { id: 10, name: "Войнов С. В.", dept: "Кафедра БЖД", subjects: "Безопасность жизнедеятельности", catchInfo: "каб. 504, 705. Нормативы и рефераты." }
+    ];
+
+    function generateEmptyWeekGrid() {
+      const list = [];
+      for (let d = 1; d <= 6; d++) {
+        for (let n = 1; n <= 7; n++) {
+          list.push({
+            id: d * 100 + n,
+            day: d,
+            num: n,
+            name: "",
+            prof: "",
+            room: "",
+            type: "lecture",
+            task: "",
+            link: "",
+            week: "all",
+            taskDone: false
+          });
+        }
+      }
+      return list;
+    }
+
+    function createDefaultSchedule25A() {
+      const grid = generateEmptyWeekGrid();
+      const filled = {
+        "1-1": { name: "Финансы, ден.обращ. и кредит", prof: "Моторина Д.В.", room: "211", type: "seminar", task: "Семинар №2" },
+        "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №5" },
+        "1-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Конспект вводной темы (л.3)" },
+        "2-1": { name: "Статистика", prof: "Фурин А.Д.", room: "209", type: "lecture", task: "Тема: Ряды распределения (л.3)" },
+        "2-2": { name: "Основы финансовой грамотности", prof: "Моисеенко Д.Д.", room: "1002", type: "lecture", task: "Лекция №3" },
+        "2-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Лекция №4" },
+        "2-4": { name: "Осн. фин. грамотности", prof: "Моисеенко Д.Д.", room: "1102", type: "seminar", task: "Семинар №1" },
+        "3-3": { name: "Статистика", prof: "Фурин А.Д.", room: "806", type: "seminar", task: "Практика №1" },
+        "3-4": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №6" },
+        "3-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "209", type: "lecture", task: "Лекция №3" },
+        "3-6": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "201", type: "seminar", task: "Практика №4, Unit 1" },
+        "4-5": { name: "История России", prof: "Страхова И.В.", room: "1002", type: "lecture", task: "Лекция №4" },
+        "4-6": { name: "История России", prof: "Страхова И.В.", room: "1003", type: "seminar", task: "Семинар №1" },
+        "5-2": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Лекция №3" },
+        "5-3": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "1006", type: "seminar", task: "Семинар №2" },
+        "5-4": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Лекция №3" },
+        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2" }
+      };
+
+      return grid.map(item => {
+        const key = `${item.day}-${item.num}`;
+        if (filled[key]) return { ...item, ...filled[key] };
+        return item;
+      });
+    }
+
+    const DEFAULT_SCHEDULE_25A = createDefaultSchedule25A();
+
+    const DEFAULT_DEADLINES = [
+      { id: 1, subject: "Менеджмент", type: "Реферат", date: "2026-09-28", topic: "Эволюция школ менеджмента и методы мотивации", reqs: "15-20 страниц, оригинальность от 65%", link: "", completed: false },
+      { id: 2, subject: "Статистика", type: "Расчетная работа", date: "2026-10-12", topic: "Сводка и группировка статистических данных", reqs: "Вариант из методички, расчет медианы и моды", link: "", completed: false },
+      { id: 3, subject: "ИТ в проф деятельности", type: "Лабораторная", date: "2026-09-22", topic: "Обработка массивов данных в электронных таблицах", reqs: "Сдача файла на проверку", link: "", completed: false }
+    ];
+
+    const DEFAULT_LECTURES = [
+      { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов. Финансовая система", date: "14.09.2026", notes: "3 функции: распределительная, контрольная, стабилизирующая.", link: "" },
+      { id: 2, subject: "Статистика", title: "Абсолютные и относительные величины", date: "15.09.2026", notes: "Темпы роста и прироста. Базисный и цепной методы.", link: "" }
+    ];
+
+    const DEFAULT_PERFORMANCE = SUBJECTS_LIST.map((sub, idx) => ({
+      id: idx + 1,
+      subject: sub,
+      score: 0,
+      absences: 0,
+      maxAbsences: 4
+    }));
+
+    function loadDB(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch (e) {
+        return defaultVal;
+      }
+    }
+    function saveDB(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    let scheduleData = loadDB("HUB_SCHEDULE_25A_V11", DEFAULT_SCHEDULE_25A);
+    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V11", DEFAULT_REQUIREMENTS);
+    let deadlinesData = loadDB("HUB_DEADLINES_25A_V11", DEFAULT_DEADLINES);
+    let lecturesData = loadDB("HUB_LECTURES_25A_V11", DEFAULT_LECTURES);
+    let teachersData = loadDB("HUB_TEACHERS_25A_V11", DEFAULT_TEACHERS);
+    let performanceData = loadDB("HUB_PERF_25A_V11", DEFAULT_PERFORMANCE);
+    
+    let isModerator = loadDB("HUB_IS_MODERATOR", false);
+    let moderatorPassword = localStorage.getItem("HUB_MOD_PASS") || "25а";
+    let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || "";
+    let activeLectureFilter = "Все";
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2400);
+    }
+
+    function checkModeratorAccess() {
+      if (isModerator) return true;
+      const pass = prompt("🔒 Действие защищено! Введите пароль старосты / модератора:");
+      if (pass === moderatorPassword) {
+        isModerator = true;
+        saveDB("HUB_IS_MODERATOR", true);
+        showToast("Режим модератора активирован!");
+        return true;
+      } else if (pass !== null) {
+        alert("Неверный пароль модератора. Действие отменено.");
+      }
+      return false;
+    }
+
+    // ИСПРАВЛЕННЫЙ СИНХРОНИЗАТОР ДЛЯ NPOINT (метод PUT с правильным форматом данных)
+    async function syncToCloud() {
+      if (!cloudApiUrl) return;
+
+      const payload = {
+        timestamp: new Date().toISOString(),
+        schedule: scheduleData,
+        requirements: requirementsData,
+        deadlines: deadlinesData,
+        lectures: lecturesData,
+        teachers: teachersData
+      };
+
+      try {
+        const res = await fetch(cloudApiUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast("☁️ Изменения отправлены в облако npoint!");
+        }
+      } catch (err) {
+        console.warn("Cloud sync error:", err);
+      }
+    }
+
+    async function fetchFromCloud(manual = false) {
+      if (!cloudApiUrl) {
+        if (manual) showToast("Облачный URL не настроен");
+        return;
+      }
+
+      try {
+        const res = await fetch(cloudApiUrl);
+        if (res.ok) {
+          const data = await res.json();
+          const source = data.record || data;
+          if (source.schedule && source.requirements) {
+            scheduleData = source.schedule;
+            requirementsData = source.requirements;
+            deadlinesData = source.deadlines || deadlinesData;
+            lecturesData = source.lectures || lecturesData;
+            teachersData = source.teachers || teachersData;
+
+            saveDB("HUB_SCHEDULE_25A_V11", scheduleData);
+            saveDB("HUB_REQUIREMENTS_25A_V11", requirementsData);
+            saveDB("HUB_DEADLINES_25A_V11", deadlinesData);
+            saveDB("HUB_LECTURES_25A_V11", lecturesData);
+            saveDB("HUB_TEACHERS_25A_V11", teachersData);
+
+            renderSchedule();
+            renderRequirements();
+            renderDeadlines();
+            renderLectures();
+            renderTeachers();
+
+            document.getElementById("cloud-status-indicator").innerText = "🟢 Подключено";
+            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
+            if (manual) showToast("База успешно загружена из облака!");
+          } else {
+            // Если в npoint лежит дефолтный пустой объект, заливаем туда текущие данные
+            syncToCloud();
+            document.getElementById("cloud-status-indicator").innerText = "🟢 Подключено (инициализировано)";
+            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
+            if (manual) showToast("База синхронизирована с облаком!");
+          }
+        }
+      } catch (err) {
+        document.getElementById("cloud-status-indicator").innerText = "🔴 Ошибка связи";
+        document.getElementById("cloud-status-indicator").style.color = "var(--red)";
+        if (manual) showToast("Не удалось подключиться к облаку");
+      }
+    }
+
+    function commitData() {
+      saveDB("HUB_SCHEDULE_25A_V11", scheduleData);
+      saveDB("HUB_REQUIREMENTS_25A_V11", requirementsData);
+      saveDB("HUB_DEADLINES_25A_V11", deadlinesData);
+      saveDB("HUB_LECTURES_25A_V11", lecturesData);
+      saveDB("HUB_TEACHERS_25A_V11", teachersData);
+      syncToCloud();
+    }
+
+    function getRoomDetails(room) {
+      if (!room || !room.trim()) return "";
+      const clean = room.toString().trim();
+      if (clean.toUpperCase().startsWith("ВЦ")) return "Выч. центр";
+      const num = parseInt(clean);
+      if (!isNaN(num)) {
+        const floor = Math.floor(num / 100);
+        return `${floor} этаж`;
+      }
+      return "Корпус уточняется";
+    }
+
+    function calculateRealWeekType() {
+      const now = new Date();
+      const firstJan = new Date(now.getFullYear(), 0, 1);
+      const days = Math.floor((now - firstJan) / (24 * 60 * 60 * 1000));
+      return Math.ceil((days + firstJan.getDay() + 1) / 7) % 2 === 0 ? "den" : "num";
+    }
+
+    let realWeekType = calculateRealWeekType();
+    let viewingWeekType = realWeekType;
+    let activeDay = new Date().getDay() || 1;
+    if (activeDay === 0) activeDay = 1;
+
+    function timeToMins(t) {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    // 1. РЕНДЕР РАСПИСАНИЯ
+    function renderSchedule() {
+      const box = document.getElementById("schedule-list");
+      box.innerHTML = "";
+
+      const pairs = [];
+      for (let num = 1; num <= 7; num++) {
+        let p = scheduleData.find(x => x.day === activeDay && x.num === num && (x.week === "all" || x.week === viewingWeekType));
+        if (!p) {
+          p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
+        }
+        pairs.push(p);
+      }
+
+      const now = new Date();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+      const isActuallyToday = activeDay === (now.getDay() || 7) && viewingWeekType === realWeekType;
+
+      pairs.forEach(p => {
+        const bell = BELLS.find(b => b.num === p.num) || { start: "--:--", end: "--:--" };
+        const bStart = timeToMins(bell.start);
+        const bEnd = timeToMins(bell.end);
+        const hasClass = p.name && p.name.trim().length > 0;
+        const isCurrent = isActuallyToday && hasClass && currentMins >= bStart && currentMins <= bEnd;
+
+        let progressWidth = 0;
+        if (isCurrent && bEnd > bStart) {
+          progressWidth = Math.min(100, Math.max(0, Math.round(((currentMins - bStart) / (bEnd - bStart)) * 100)));
+        }
+
+        const card = document.createElement("div");
+
+        if (!hasClass) {
+          card.className = "pair-item empty-slot";
+          card.innerHTML = `
+            <div class="pair-main">
+              <div class="time-slot">
+                <div class="pair-order">${p.num} пара</div>
+                <div class="time-range">${bell.start}<br>${bell.end}</div>
+              </div>
+              <div class="pair-details">
+                <div class="tag-line">
+                  <span class="type-pill type-empty">Пропуск</span>
+                  <button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ + пара</button>
+                </div>
+                <div class="lesson-title" style="color: var(--text-dim); font-weight: 500; font-size: 13px;">—</div>
+              </div>
+              <div class="room-wrap">
+                <div class="room-tag" style="background: transparent; border-color: rgba(255,255,255,0.06); color: var(--text-dim);">—</div>
+              </div>
+            </div>
+          `;
+          box.appendChild(card);
+          return;
+        }
+
+        let typeClass = "type-lecture";
+        let typeText = "Лекция";
+        if (p.type === "seminar") { typeClass = "type-seminar"; typeText = "Семинар / Практика"; }
+        if (p.type === "essay") { typeClass = "type-essay"; typeText = "Контроль"; }
+
+        card.className = `pair-item ${isCurrent ? 'current' : ''}`;
+
+        let taskRowHtml = "";
+        if (p.task || p.link) {
+          taskRowHtml = `
+            <div class="task-bar">
+              <label class="task-label ${p.taskDone ? 'done' : ''}">
+                <input type="checkbox" class="task-checkbox" ${p.taskDone ? 'checked' : ''} onchange="togglePairTask(${p.id})">
+                <span>${p.task || 'Задание к занятию'}</span>
+              </label>
+              ${p.link ? `<a href="${p.link}" target="_blank" class="attach-link">Файл ↗</a>` : ''}
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          ${isCurrent ? `<div class="pair-progress-fill" style="width: ${progressWidth}%;"></div>` : ''}
+          <div class="pair-main">
+            <div class="time-slot">
+              <div class="pair-order">${p.num} пара</div>
+              <div class="time-range">${bell.start}<br>${bell.end}</div>
+            </div>
+            <div class="pair-details">
+              <div class="tag-line">
+                <span class="type-pill ${typeClass}">${typeText}</span>
+                <button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ изм.</button>
+              </div>
+              <div class="lesson-title">${p.name}</div>
+              <div class="teacher-name">${p.prof || 'Преподаватель не указан'}</div>
+            </div>
+            <div class="room-wrap">
+              <div class="room-tag">каб. ${p.room}</div>
+              <div class="room-floor">${getRoomDetails(p.room)}</div>
+            </div>
+          </div>
+          ${taskRowHtml}
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.togglePairTask = function(id) {
+      const item = scheduleData.find(p => p.id === id);
+      if (item) {
+        item.taskDone = !item.taskDone;
+        saveDB("HUB_SCHEDULE_25A_V11", scheduleData);
+        renderSchedule();
+      }
+    };
+
+    window.openEditPairModal = function(id) {
+      let p = scheduleData.find(x => x.id === id);
+      if (!p) {
+        const d = Math.floor(id / 100);
+        const n = id % 100;
+        p = { id, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
+        scheduleData.push(p);
+      }
+      document.getElementById("edit-pair-id").value = p.id;
+      document.getElementById("modal-pair-title").innerText = `Пара №${p.num} (${DAYS_NAMES[p.day]})`;
+      document.getElementById("edit-pair-name").value = p.name || "";
+      document.getElementById("edit-pair-room").value = p.room || "";
+      document.getElementById("edit-pair-type").value = p.type || "lecture";
+      document.getElementById("edit-pair-prof").value = p.prof || "";
+      document.getElementById("edit-pair-task").value = p.task || "";
+      document.getElementById("edit-pair-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-pair-modal").onclick = () => {
+      document.getElementById("edit-pair-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-pair").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-pair-id").value);
+      let p = scheduleData.find(x => x.id === id);
+      if (!p) {
+        const d = Math.floor(id / 100);
+        const n = id % 100;
+        p = { id, day: d, num: n, week: "all", taskDone: false };
+        scheduleData.push(p);
+      }
+      p.name = document.getElementById("edit-pair-name").value.trim();
+      p.room = document.getElementById("edit-pair-room").value.trim();
+      p.type = document.getElementById("edit-pair-type").value;
+      p.prof = document.getElementById("edit-pair-prof").value.trim();
+      p.task = document.getElementById("edit-pair-task").value.trim();
+
+      commitData();
+      renderSchedule();
+      updateLiveStatus();
+      document.getElementById("edit-pair-modal").classList.remove("open");
+      showToast(p.name ? "Пара сохранена!" : "Слот сделан пропуском");
+    };
+
+    document.getElementById("btn-clear-slot").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-pair-id").value);
+      let p = scheduleData.find(x => x.id === id);
+      if (p) {
+        p.name = "";
+        p.room = "";
+        p.prof = "";
+        p.task = "";
+        p.link = "";
+        commitData();
+        renderSchedule();
+        updateLiveStatus();
+        document.getElementById("edit-pair-modal").classList.remove("open");
+        showToast("Слот очищен (пропуск)");
+      }
+    };
+
+    // 2. ТРЕБОВАНИЯ ПРЕПОДАВАТЕЛЕЙ
+    function renderRequirements(filterText = "") {
+      const box = document.getElementById("requirements-list");
+      box.innerHTML = "";
+      const q = filterText.toLowerCase().trim();
+
+      const list = requirementsData.filter(r => 
+        r.prof.toLowerCase().includes(q) ||
+        r.subject.toLowerCase().includes(q) ||
+        r.workType.toLowerCase().includes(q) ||
+        r.criticalPoints.toLowerCase().includes(q)
+      );
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Требований не найдено</div>';
+        return;
+      }
+
+      list.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "req-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${r.subject}</span>
+              <div style="font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px;">${r.prof}</div>
+            </div>
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditReqModal(${r.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteRequirement(${r.id})">Удалить</button>
+            </div>
+          </div>
+
+          <div class="req-pill-group">
+            <span class="req-tag">📄 ${r.workType}</span>
+            <span class="req-tag">📏 ${r.volume}</span>
+            <span class="req-tag alert">🔍 Антиплагиат: ${r.originality}</span>
+            <span class="req-tag">⏳ ${r.deadlineRule}</span>
+          </div>
+
+          <div class="req-box" style="margin-top: 6px;">
+            <b>Критерии и защита:</b> ${r.criticalPoints}
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-req").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const prof = document.getElementById("new-req-prof").value.trim();
+      const subject = document.getElementById("new-req-subject").value;
+      const workType = document.getElementById("new-req-worktype").value.trim() || "Реферат / Семинар";
+      const volume = document.getElementById("new-req-volume").value.trim() || "15-20 стр";
+      const originality = document.getElementById("new-req-orig").value.trim() || "от 65%";
+      const deadlineRule = document.getElementById("new-req-deadline").value.trim() || "На семинаре";
+      const criticalPoints = document.getElementById("new-req-details").value.trim();
+
+      if (!prof || !criticalPoints) {
+        alert("Укажи преподавателя и ключевые требования/критерии сдачи!");
+        return;
+      }
+
+      requirementsData.unshift({
+        id: Date.now(),
+        prof,
+        subject,
+        workType,
+        volume,
+        originality,
+        deadlineRule,
+        criticalPoints
+      });
+
+      commitData();
+      document.getElementById("new-req-prof").value = "";
+      document.getElementById("new-req-worktype").value = "";
+      document.getElementById("new-req-volume").value = "";
+      document.getElementById("new-req-orig").value = "";
+      document.getElementById("new-req-deadline").value = "";
+      document.getElementById("new-req-details").value = "";
+      renderRequirements();
+      showToast("Регламент добавлен!");
+    };
+
+    window.openEditReqModal = function(id) {
+      const r = requirementsData.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById("edit-req-id").value = r.id;
+      document.getElementById("edit-req-prof").value = r.prof;
+      document.getElementById("edit-req-subject").value = r.subject;
+      document.getElementById("edit-req-worktype").value = r.workType;
+      document.getElementById("edit-req-volume").value = r.volume;
+      document.getElementById("edit-req-orig").value = r.originality;
+      document.getElementById("edit-req-deadline").value = r.deadlineRule;
+      document.getElementById("edit-req-details").value = r.criticalPoints;
+      document.getElementById("edit-req-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-req-modal").onclick = () => {
+      document.getElementById("edit-req-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-req").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-req-id").value);
+      const r = requirementsData.find(x => x.id === id);
+      if (r) {
+        r.prof = document.getElementById("edit-req-prof").value.trim();
+        r.subject = document.getElementById("edit-req-subject").value;
+        r.workType = document.getElementById("edit-req-worktype").value.trim();
+        r.volume = document.getElementById("edit-req-volume").value.trim();
+        r.originality = document.getElementById("edit-req-orig").value.trim();
+        r.deadlineRule = document.getElementById("edit-req-deadline").value.trim();
+        r.criticalPoints = document.getElementById("edit-req-details").value.trim();
+
+        commitData();
+        renderRequirements(document.getElementById("req-search").value);
+        document.getElementById("edit-req-modal").classList.remove("open");
+        showToast("Требования обновлены!");
+      }
+    };
+
+    window.deleteRequirement = function(id) {
+      if (!checkModeratorAccess()) return;
+      if (confirm("Удалить требование по этому преподавателю?")) {
+        requirementsData = requirementsData.filter(x => x.id !== id);
+        commitData();
+        renderRequirements(document.getElementById("req-search").value);
+        showToast("Требование удалено");
+      }
+    };
+
+    // 3. ДЕДЛАЙНЫ
+    function renderDeadlines(filterText = "") {
+      const box = document.getElementById("deadlines-list");
+      box.innerHTML = "";
+      const query = filterText.toLowerCase();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const list = [...deadlinesData]
+        .filter(d => d.subject.toLowerCase().includes(query) || d.topic.toLowerCase().includes(query) || d.type.toLowerCase().includes(query))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          return new Date(a.date) - new Date(b.date);
+        });
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Дедлайнов не найдено</div>';
+        return;
+      }
+
+      list.forEach(d => {
+        const card = document.createElement("div");
+        card.className = `deadline-card ${d.completed ? 'completed' : ''}`;
+
+        const dDate = new Date(d.date);
+        dDate.setHours(0,0,0,0);
+        const diffDays = Math.ceil((dDate - today) / (1000 * 60 * 60 * 24));
+
+        let badgeHtml = "";
+        if (d.completed) {
+          badgeHtml = '<span class="badge-done">Зачтено</span>';
+        } else if (diffDays < 0) {
+          badgeHtml = `<span class="badge-urgent">Просрочено (${Math.abs(diffDays)} дн)</span>`;
+        } else if (diffDays === 0) {
+          badgeHtml = '<span class="badge-urgent">🔥 Дедлайн сегодня!</span>';
+        } else if (diffDays <= 2) {
+          badgeHtml = `<span class="badge-soon">⚠️ Осталось: ${diffDays} дн</span>`;
+        } else {
+          badgeHtml = `<span class="badge-ok">До сдачи: ${diffDays} дн</span>`;
+        }
+
+        const dateFormatted = d.date.split("-").reverse().join(".");
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="checkbox" class="task-checkbox" ${d.completed ? 'checked' : ''} onchange="toggleDeadlineStatus(${d.id})">
+              <span class="type-pill type-seminar">${d.type}</span>
+            </div>
+            ${badgeHtml}
+          </div>
+          <div class="dl-title" style="font-size: 14px; font-weight: 700; margin-top: 2px;">${d.subject}: ${d.topic}</div>
+          <div style="font-size: 12px; color: var(--text-dim);">${d.reqs || 'Требования стандартные'}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--text-dim);">
+            <span>Срок: <b>${dateFormatted}</b></span>
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditDeadlineModal(${d.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteDeadline(${d.id})">Удалить</button>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.toggleDeadlineStatus = function(id) {
+      const dl = deadlinesData.find(x => x.id === id);
+      if (dl) {
+        dl.completed = !dl.completed;
+        saveDB("HUB_DEADLINES_25A_V11", deadlinesData);
+        renderDeadlines(document.getElementById("deadline-search").value);
+      }
+    };
+
+    window.openEditDeadlineModal = function(id) {
+      const dl = deadlinesData.find(x => x.id === id);
+      if (!dl) return;
+      document.getElementById("edit-dl-id").value = dl.id;
+      document.getElementById("edit-dl-subject").value = dl.subject;
+      document.getElementById("edit-dl-topic").value = dl.topic;
+      document.getElementById("edit-dl-type").value = dl.type;
+      document.getElementById("edit-dl-date").value = dl.date;
+      document.getElementById("edit-dl-reqs").value = dl.reqs;
+      document.getElementById("edit-dl-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-dl-modal").onclick = () => {
+      document.getElementById("edit-dl-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-dl").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-dl-id").value);
+      const dl = deadlinesData.find(x => x.id === id);
+      if (dl) {
+        dl.subject = document.getElementById("edit-dl-subject").value;
+        dl.topic = document.getElementById("edit-dl-topic").value.trim();
+        dl.type = document.getElementById("edit-dl-type").value;
+        dl.date = document.getElementById("edit-dl-date").value;
+        dl.reqs = document.getElementById("edit-dl-reqs").value.trim();
+
+        commitData();
+        renderDeadlines(document.getElementById("deadline-search").value);
+        document.getElementById("edit-dl-modal").classList.remove("open");
+        showToast("Задание обновлено!");
+      }
+    };
+
+    window.deleteDeadline = function(id) {
+      if (!checkModeratorAccess()) return;
+      if (confirm("Удалить это задание?")) {
+        deadlinesData = deadlinesData.filter(x => x.id !== id);
+        commitData();
+        renderDeadlines(document.getElementById("deadline-search").value);
+        showToast("Задание удалено");
+      }
+    };
+
+    document.getElementById("btn-add-deadline").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const subject = document.getElementById("new-dl-subject").value;
+      const topic = document.getElementById("new-dl-topic").value.trim();
+      const type = document.getElementById("new-dl-type").value;
+      const date = document.getElementById("new-dl-date").value;
+      const reqs = document.getElementById("new-dl-reqs").value.trim();
+
+      if (!topic || !date) {
+        alert("Укажи тему и дату сдачи");
+        return;
+      }
+
+      deadlinesData.push({ id: Date.now(), subject, topic, type, date, reqs, completed: false });
+      commitData();
+      document.getElementById("new-dl-topic").value = "";
+      document.getElementById("new-dl-reqs").value = "";
+      renderDeadlines();
+      showToast("Дедлайн добавлен!");
+    };
+
+    // 4. БРС И ПРОПУСКИ
+    function renderPerformance() {
+      const box = document.getElementById("performance-list");
+      box.innerHTML = "";
+
+      performanceData.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "score-card";
+
+        let scoreClass = "pass";
+        let scoreVerdict = "Недопуск";
+        if (item.score >= 90) { scoreClass = "auto"; scoreVerdict = "Автомат (отлично)"; }
+        else if (item.score >= 75) { scoreClass = "good"; scoreVerdict = "Автомат (хорошо)"; }
+        else if (item.score >= 60) { scoreClass = "pass"; scoreVerdict = "Допуск к зачету"; }
+
+        const absPercent = Math.min(100, Math.round((item.absences / item.maxAbsences) * 100));
+        let absColor = "var(--green)";
+        if (item.absences >= item.maxAbsences) absColor = "var(--red)";
+        else if (item.absences >= item.maxAbsences - 1) absColor = "var(--orange)";
+
+        card.innerHTML = `
+          <div class="score-head">
+            <span class="score-subject">${item.subject}</span>
+            <span class="score-target" style="color: ${scoreClass === 'auto' ? 'var(--green)' : 'var(--text-dim)'};">${scoreVerdict}</span>
+          </div>
+
+          <div class="meter-box">
+            <div class="meter-row">
+              <span>Баллы БРС: <b>${item.score} / 100</b></span>
+              <div class="counter-ctrl">
+                <button class="btn-counter" onclick="changeScore(${item.id}, -5)">-5</button>
+                <button class="btn-counter" onclick="changeScore(${item.id}, 5)">+5</button>
+              </div>
+            </div>
+            <div class="bar-bg">
+              <div class="bar-fill ${scoreClass}" style="width: ${Math.min(100, item.score)}%;"></div>
+            </div>
+          </div>
+
+          <div class="meter-box" style="margin-top: 6px;">
+            <div class="meter-row">
+              <span>Пропуски (энок): <b style="color: ${absColor};">${item.absences} / ${item.maxAbsences} пар</b></span>
+              <div class="counter-ctrl">
+                <button class="btn-counter" onclick="changeAbsence(${item.id}, -1)">-</button>
+                <button class="btn-counter" onclick="changeAbsence(${item.id}, 1)">+</button>
+              </div>
+            </div>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: ${absPercent}%; background: ${absColor};"></div>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.changeScore = function(id, delta) {
+      const item = performanceData.find(x => x.id === id);
+      if (item) {
+        item.score = Math.max(0, Math.min(100, item.score + delta));
+        saveDB("HUB_PERF_25A_V11", performanceData);
+        renderPerformance();
+      }
+    };
+
+    window.changeAbsence = function(id, delta) {
+      const item = performanceData.find(x => x.id === id);
+      if (item) {
+        item.absences = Math.max(0, item.absences + delta);
+        if (item.absences >= item.maxAbsences) {
+          showToast(`Лимит пропусков по ${item.subject} исчерпан!`);
+        }
+        saveDB("HUB_PERF_25A_V11", performanceData);
+        renderPerformance();
+      }
+    };
+
+    // 5. ЛЕКЦИИ И КОНСПЕКТЫ
+    function renderLectureFilters() {
+      const bar = document.getElementById("subject-filter-bar");
+      bar.innerHTML = "";
+      ["Все", ...SUBJECTS_LIST].forEach(sub => {
+        const btn = document.createElement("button");
+        btn.className = `tab-btn ${activeLectureFilter === sub ? 'active' : ''}`;
+        btn.style.minWidth = "auto";
+        btn.style.padding = "6px 12px";
+        btn.style.whiteSpace = "nowrap";
+        btn.innerText = sub;
+        btn.onclick = () => {
+          activeLectureFilter = sub;
+          renderLectureFilters();
+          renderLectures(document.getElementById("lecture-search").value);
+        };
+        bar.appendChild(btn);
+      });
+
+      ["new-lec-subject", "edit-lec-subject", "new-req-subject", "edit-req-subject", "new-dl-subject", "edit-dl-subject"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = "";
+        SUBJECTS_LIST.forEach(sub => {
+          const opt = document.createElement("option");
+          opt.value = sub;
+          opt.innerText = sub;
+          el.appendChild(opt);
+        });
+      });
+    }
+
+    function renderLectures(searchQuery = "") {
+      const box = document.getElementById("lectures-list");
+      box.innerHTML = "";
+      const q = searchQuery.toLowerCase().trim();
+
+      let list = lecturesData;
+      if (activeLectureFilter !== "Все") list = list.filter(l => l.subject === activeLectureFilter);
+      if (q) list = list.filter(l => l.title.toLowerCase().includes(q) || l.subject.toLowerCase().includes(q) || l.notes.toLowerCase().includes(q));
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Конспектов пока нет</div>';
+        return;
+      }
+
+      list.forEach(l => {
+        const card = document.createElement("div");
+        card.className = "lecture-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${l.subject}</span>
+            <span style="font-size: 11px; color: var(--text-dim);">${l.date}</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 700;">${l.title}</div>
+          ${l.notes ? `<div style="font-size: 12px; color: #94a3b8; line-height: 1.4; white-space: pre-line;">${l.notes}</div>` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            ${l.link ? `<a href="${l.link}" target="_blank" class="attach-link">Диск / Файл ↗</a>` : '<span></span>'}
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditLectureModal(${l.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteLecture(${l.id})">Удалить</button>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-lecture").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const subject = document.getElementById("new-lec-subject").value;
+      const title = document.getElementById("new-lec-title").value.trim();
+      const notes = document.getElementById("new-lec-notes").value.trim();
+      const link = document.getElementById("new-lec-link").value.trim();
+
+      if (!title) {
+        alert("Введи тему лекции");
+        return;
+      }
+
+      const d = new Date();
+      const dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`;
+
+      lecturesData.unshift({ id: Date.now(), subject, title, date: dateStr, notes, link });
+      commitData();
+
+      document.getElementById("new-lec-title").value = "";
+      document.getElementById("new-lec-notes").value = "";
+      document.getElementById("new-lec-link").value = "";
+      renderLectures();
+      showToast("Конспект сохранен");
+    };
+
+    window.openEditLectureModal = function(id) {
+      const l = lecturesData.find(x => x.id === id);
+      if (!l) return;
+      document.getElementById("edit-lec-id").value = l.id;
+      document.getElementById("edit-lec-subject").value = l.subject;
+      document.getElementById("edit-lec-title").value = l.title;
+      document.getElementById("edit-lec-date").value = l.date;
+      document.getElementById("edit-lec-notes").value = l.notes;
+      document.getElementById("edit-lec-link").value = l.link || "";
+      document.getElementById("edit-lec-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-lec-modal").onclick = () => {
+      document.getElementById("edit-lec-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-lec").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-lec-id").value);
+      const l = lecturesData.find(x => x.id === id);
+      if (l) {
+        l.subject = document.getElementById("edit-lec-subject").value;
+        l.title = document.getElementById("edit-lec-title").value.trim();
+        l.date = document.getElementById("edit-lec-date").value.trim();
+        l.notes = document.getElementById("edit-lec-notes").value.trim();
+        l.link = document.getElementById("edit-lec-link").value.trim();
+
+        commitData();
+        renderLectures(document.getElementById("lecture-search").value);
+        document.getElementById("edit-lec-modal").classList.remove("open");
+        showToast("Конспект обновлен!");
+      }
+    };
+
+    window.deleteLecture = function(id) {
+      if (!checkModeratorAccess()) return;
+      if (confirm("Удалить конспект?")) {
+        lecturesData = lecturesData.filter(l => l.id !== id);
+        commitData();
+        renderLectures(document.getElementById("lecture-search").value);
+      }
+    };
+
+    // 6. ПРЕПОДАВАТЕЛИ
+    function renderTeachers(filterText = "") {
+      const box = document.getElementById("teachers-list");
+      box.innerHTML = "";
+      const q = filterText.toLowerCase();
+
+      const list = teachersData.filter(t => t.name.toLowerCase().includes(q) || t.subjects.toLowerCase().includes(q) || t.dept.toLowerCase().includes(q));
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Преподаватель не найден</div>';
+        return;
+      }
+
+      list.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "prof-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: #fff;">${t.name}</div>
+              <div class="prof-dept">${t.dept}</div>
+            </div>
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditTeacherModal(${t.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteTeacher(${t.id})">Удалить</button>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;"><b>Курсы:</b> ${t.subjects}</div>
+          <div class="prof-loc">📍 <b>Где искать:</b> ${t.catchInfo}</div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-prof").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const name = document.getElementById("new-prof-name").value.trim();
+      const dept = document.getElementById("new-prof-dept").value.trim();
+      const subjects = document.getElementById("new-prof-subjects").value.trim();
+      const loc = document.getElementById("new-prof-loc").value.trim();
+
+      if (!name) {
+        alert("Укажи ФИО преподавателя");
+        return;
+      }
+
+      teachersData.unshift({
+        id: Date.now(),
+        name,
+        dept: dept || "Кафедра уточняется",
+        subjects: subjects || "Дисциплина курса",
+        catchInfo: loc || "Кафедра преподавателя"
+      });
+
+      commitData();
+      document.getElementById("new-prof-name").value = "";
+      document.getElementById("new-prof-dept").value = "";
+      document.getElementById("new-prof-subjects").value = "";
+      document.getElementById("new-prof-loc").value = "";
+      renderTeachers();
+      showToast("Преподаватель добавлен!");
+    };
+
+    window.openEditTeacherModal = function(id) {
+      const t = teachersData.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("edit-prof-id").value = t.id;
+      document.getElementById("edit-prof-name").value = t.name;
+      document.getElementById("edit-prof-dept").value = t.dept;
+      document.getElementById("edit-prof-subjects").value = t.subjects;
+      document.getElementById("edit-prof-loc").value = t.catchInfo;
+      document.getElementById("edit-prof-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-prof-modal").onclick = () => {
+      document.getElementById("edit-prof-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-prof").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const id = Number(document.getElementById("edit-prof-id").value);
+      const t = teachersData.find(x => x.id === id);
+      if (t) {
+        t.name = document.getElementById("edit-prof-name").value.trim();
+        t.dept = document.getElementById("edit-prof-dept").value.trim();
+        t.subjects = document.getElementById("edit-prof-subjects").value.trim();
+        t.catchInfo = document.getElementById("edit-prof-loc").value.trim();
+
+        commitData();
+        renderTeachers(document.getElementById("prof-search").value);
+        document.getElementById("edit-prof-modal").classList.remove("open");
+        showToast("Данные преподавателя обновлены!");
+      }
+    };
+
+    window.deleteTeacher = function(id) {
+      if (!checkModeratorAccess()) return;
+      if (confirm("Удалить преподавателя из справочника?")) {
+        teachersData = teachersData.filter(x => x.id !== id);
+        commitData();
+        renderTeachers(document.getElementById("prof-search").value);
+        showToast("Преподаватель удален");
+      }
+    };
+
+    // 7. УМНЫЙ ПАРСЕР
+    document.getElementById("btn-open-parser").onclick = () => {
+      document.getElementById("parser-modal").classList.add("open");
+    };
+    document.getElementById("btn-close-parser").onclick = () => {
+      document.getElementById("parser-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-insert-sample").onclick = () => {
+      const sampleText = `14.09.26 Понедельник
+1 пара Финансы, ден.обращ. и кредит с.2 Моторина Д.В. (211)
+2 пара Финансы, денежное обращение и кредит л.5 Моторина Д.В. (209)
+3 пара Экономика организаций л.3 Мазниченко В.Л. (1107)
+
+15.09.26 Вторник
+1 пара Статистика л.3 Фурин А.Д. (209)
+2 пара Основы финансовой грамотности л.3 Моисеенко Д.Д. (1002)
+3 пара Экономика организаций л.4 Мазниченко В.Л. (1107)
+4 пара Осн. фин. грам. с.1 Моисеенко Д.Д. (1102)
+
+16.09.26 Среда
+3 пара Статистика п.1 Фурин А.Д. (806)
+4 пара Финансы, денежное обращение и кредит л.6 Моторина Д.В. (209)
+5 пара ИТ в проф деят л.3 Бридель Т.В. (209)
+6 пара Ин. яз. в проф. деят. п.4 Конкова А.М. (201)
+
+17.09.26 Четверг
+5 пара История России л.4 Страхова И.В. (1002)
+6 пара История России с.1 Страхова И.В. (1003)
+
+18.09.26 Пятница
+2 пара Менеджмент л.3 Инжиева Д.М. (504)
+3 пара Проф. этика с.2 Григор О.Г. (1006)
+4 пара Профессиональная этика л.3 Григор О.Г. (802)
+5 пара ИТ в проф деят п.2 Бридель Т.В. (606)`;
+      document.getElementById("parser-input").value = sampleText;
+    };
+
+    document.getElementById("btn-run-parser").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const raw = document.getElementById("parser-input").value;
+      if (!raw.trim()) {
+        alert("Вставь текст расписания в поле!");
+        return;
+      }
+
+      const targetWeek = document.getElementById("parser-week-target").value;
+      const clearOld = document.getElementById("parser-clear-old").checked;
+
+      let baseGrid = clearOld ? generateEmptyWeekGrid() : [...scheduleData];
+
+      const lines = raw.split(/\r?\n/);
+      let currentDay = null;
+      let parsedCount = 0;
+
+      const daysMap = [
+        { regex: /понедельник|пн/i, day: 1 },
+        { regex: /вторник|вт/i, day: 2 },
+        { regex: /среда|ср/i, day: 3 },
+        { regex: /четверг|чт/i, day: 4 },
+        { regex: /пятница|пт/i, day: 5 },
+        { regex: /суббота|сб/i, day: 6 }
+      ];
+
+      lines.forEach(rawLine => {
+        let line = rawLine.trim();
+        if (!line) return;
+
+        for (let d of daysMap) {
+          if (d.regex.test(line)) {
+            if (/понедельник|вторник|среда|четверг|пятница|суббота/i.test(line) || /^(пн|вт|ср|чт|пт|сб)[:\s-]/i.test(line)) {
+              currentDay = d.day;
+              line = line.replace(/(\d{1,2}\.\d{1,2}(?:\.\d{2,4})?)?\s*(понедельник|вторник|среда|четверг|пятница|суббота|пн|вт|ср|чт|пт|сб)[:\s-]*/i, '').trim();
+              break;
+            }
+          }
+        }
+
+        if (!currentDay || !line) return;
+
+        let pairNum = null;
+        let rest = line;
+
+        const pMatch = line.match(/^(?:пара\s*)?([1-7])(?:\s*пара|\.|\)|\-|\:)?\s*(.*)/i);
+        if (pMatch) {
+          pairNum = parseInt(pMatch[1]);
+          rest = pMatch[2].trim().replace(/^(?:пара\b|\.|\)|\-|\:)\s*/i, '');
+        }
+
+        if (pairNum && rest) {
+          rest = rest.replace(/^\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*/, '');
+
+          let room = "";
+          const roomParentheses = rest.match(/\(([^)]+)\)/);
+          if (roomParentheses) {
+            room = roomParentheses[1].replace(/каб\.?|ауд\.?/gi, '').trim();
+            rest = rest.replace(roomParentheses[0], ' ');
+          } else {
+            const roomLabel = rest.match(/(?:каб\.?|ауд\.?|ком\.?)\s*([0-9a-zA-Zа-яА-Я\-]+)/i);
+            if (roomLabel) {
+              room = roomLabel[1].trim();
+              rest = rest.replace(roomLabel[0], ' ');
+            }
+          }
+
+          let prof = "";
+          const profMatch = rest.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s*[А-ЯЁ]\.?)/);
+          if (profMatch) {
+            prof = `${profMatch[1]} ${profMatch[2]}`;
+            rest = rest.replace(profMatch[0], ' ');
+          }
+
+          let ptype = "lecture";
+          if (/\b[сc]\.\d*\b/i.test(rest) || /семинар|практика|\bп\.\d*\b|лаб/i.test(rest)) {
+            ptype = "seminar";
+          } else if (/\b[лl]\.\d*\b/i.test(rest) || /лек/i.test(rest)) {
+            ptype = "lecture";
+          }
+
+          let subjName = rest
+            .replace(/\b[лспlc]\.\d*\b/gi, '')
+            .replace(/^(?:лекция|семинар|практика|лаб\.?)\s*[:\-]?\s*/i, '')
+            .replace(/\s+/g, ' ')
+            .replace(/[\s\-:;,]+$/, '')
+            .trim();
+
+          if (subjName) {
+            const targetId = currentDay * 100 + pairNum;
+            const idx = baseGrid.findIndex(x => x.id === targetId);
+            const entry = {
+              id: targetId,
+              day: currentDay,
+              num: pairNum,
+              name: subjName,
+              prof: prof || "",
+              room: room || "—",
+              type: ptype,
+              task: "",
+              link: "",
+              week: targetWeek,
+              taskDone: false
+            };
+
+            if (idx !== -1) baseGrid[idx] = entry;
+            else baseGrid.push(entry);
+            parsedCount++;
+          }
+        }
+      });
+
+      if (parsedCount === 0) {
+        alert("Не удалось распознать пары. Проверь формат ввода (день недели и номера пар от 1 до 7)");
+        return;
+      }
+
+      scheduleData = baseGrid;
+      commitData();
+      renderSchedule();
+      updateLiveStatus();
+      document.getElementById("parser-modal").classList.remove("open");
+      showToast(`Импортировано пар: ${parsedCount}!`);
+    };
+
+    // Копирование в буфер
+    document.getElementById("btn-copy-today").onclick = () => {
+      const activePairs = scheduleData
+        .filter(p => p.day === activeDay && (p.week === "all" || p.week === viewingWeekType) && p.name && p.name.trim().length > 0)
+        .sort((a, b) => a.num - b.num);
+
+      const dayName = DAYS_SHORT[activeDay];
+      const weekName = viewingWeekType === "num" ? "Числитель" : "Знаменатель";
+
+      if (activePairs.length === 0) {
+        navigator.clipboard.writeText(`Расписание 25А на ${dayName} (${weekName}): Пар нет! Свободный день 🎉`);
+        showToast("Скопировано: Пар нет!");
+        return;
+      }
+
+      let text = `📅 Расписание 25А на ${dayName} (${weekName}):\n`;
+      activePairs.forEach(p => {
+        const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
+        const typeRu = p.type === "seminar" ? "Сем" : "Лек";
+        text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${typeRu}] каб. ${p.room} (${p.prof})\n`;
+        if (p.task && !p.taskDone) {
+          text += `   ⚠️ Задание: ${p.task}\n`;
+        }
+      });
+
+      navigator.clipboard.writeText(text);
+      showToast("Расписание скопировано для беседы!");
+    };
+
+    // Календарь (.ics)
+    document.getElementById("btn-export-ics").onclick = () => {
+      let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//StudyHub//Schedule25A//RU\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+      const now = new Date();
+
+      for (let weekOffset = 0; weekOffset < 12; weekOffset++) {
+        for (let dayIndex = 1; dayIndex <= 6; dayIndex++) {
+          const targetDate = new Date(now);
+          const currentDayOfWeek = now.getDay() || 7;
+          targetDate.setDate(now.getDate() - (currentDayOfWeek - 1) + (weekOffset * 7) + (dayIndex - 1));
+
+          const firstJan = new Date(targetDate.getFullYear(), 0, 1);
+          const daysPassed = Math.floor((targetDate - firstJan) / (24 * 60 * 60 * 1000));
+          const weekType = Math.ceil((daysPassed + firstJan.getDay() + 1) / 7) % 2 === 0 ? "den" : "num";
+
+          const dayPairs = scheduleData.filter(p => p.day === dayIndex && (p.week === "all" || p.week === weekType) && p.name && p.name.trim().length > 0);
+
+          dayPairs.forEach(p => {
+            const bell = BELLS.find(b => b.num === p.num);
+            if (!bell) return;
+
+            const [sh, sm] = bell.start.split(":").map(Number);
+            const [eh, em] = bell.end.split(":").map(Number);
+
+            const startDt = new Date(targetDate);
+            startDt.setHours(sh, sm, 0, 0);
+
+            const endDt = new Date(targetDate);
+            endDt.setHours(eh, em, 0, 0);
+
+            const formatICSDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+            icsContent += "BEGIN:VEVENT\n";
+            icsContent += `UID:studyhub-25a-${p.id}-${startDt.getTime()}@hub\n`;
+            icsContent += `DTSTAMP:${formatICSDate(new Date())}\n`;
+            icsContent += `DTSTART:${formatICSDate(startDt)}\n`;
+            icsContent += `DTEND:${formatICSDate(endDt)}\n`;
+            icsContent += `SUMMARY:${p.name} (${p.type === 'seminar' ? 'Семинар' : 'Лекция'})\n`;
+            icsContent += `LOCATION:каб. ${p.room} (${getRoomDetails(p.room)})\n`;
+            icsContent += `DESCRIPTION:Преподаватель: ${p.prof}${p.task ? '\\nЗадание: ' + p.task : ''}\n`;
+            icsContent += "END:VEVENT\n";
+          });
+        }
+      }
+      icsContent += "END:VCALENDAR";
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "raspisanie_25A.ics";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Календарь (.ics) сформирован!");
+    };
+
+    // Живой статус
+    function updateLiveStatus() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById("clock").innerText = `${h}:${m}`;
+
+      const curDay = now.getDay();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+      const ind = document.getElementById("live-indicator");
+      const title = document.getElementById("live-title");
+      const desc = document.getElementById("live-desc");
+
+      document.getElementById("current-week-tag").innerText = realWeekType === "num" ? "Числитель" : "Знаменатель";
+
+      const todayPairs = scheduleData
+        .filter(p => p.day === curDay && (p.week === "all" || p.week === realWeekType) && p.name && p.name.trim().length > 0)
+        .sort((a, b) => a.num - b.num);
+
+      if (curDay === 0 || todayPairs.length === 0) {
+        ind.className = "indicator idle";
+        title.innerText = "Пар сегодня нет";
+        desc.innerText = "Свободный график";
+        return;
+      }
+
+      let active = null;
+      for (let p of todayPairs) {
+        const bell = BELLS.find(b => b.num === p.num);
+        if (bell && currentMins >= timeToMins(bell.start) && currentMins <= timeToMins(bell.end)) {
+          active = { ...p, bell };
+          break;
+        }
+      }
+
+      if (active) {
+        ind.className = "indicator";
+        title.innerText = `Идет ${active.num} пара: ${active.name}`;
+        desc.innerText = `каб. ${active.room} (${getRoomDetails(active.room)}) • Осталось: ${timeToMins(active.bell.end) - currentMins} мин`;
+        return;
+      }
+
+      let next = null;
+      for (let p of todayPairs) {
+        const bell = BELLS.find(b => b.num === p.num);
+        if (bell && currentMins < timeToMins(bell.start)) {
+          next = { ...p, bell };
+          break;
+        }
+      }
+
+      if (next) {
+        const diff = timeToMins(next.bell.start) - currentMins;
+        ind.className = "indicator break";
+        if (diff > 30) {
+          title.innerText = `Окно • След: каб. ${next.room} (${next.num} пара)`;
+          desc.innerText = `${next.name} через ${diff} мин`;
+        } else {
+          title.innerText = `Перемена • След: каб. ${next.room}`;
+          desc.innerText = `${next.name} через ${diff} мин`;
+        }
+      } else {
+        ind.className = "indicator idle";
+        title.innerText = "Пары завершены";
+        desc.innerText = "Свободное время";
+      }
+    }
+
+    // 8. НАСТРОЙКИ ОБЛАКА И БЕЗОПАСНОСТИ
+    document.getElementById("btn-save-cloud-config").onclick = () => {
+      const url = document.getElementById("cloud-api-url").value.trim();
+      cloudApiUrl = url;
+      localStorage.setItem("HUB_CLOUD_URL", url);
+      showToast("URL базы сохранен!");
+      fetchFromCloud(true);
+    };
+
+    document.getElementById("btn-test-cloud").onclick = () => {
+      fetchFromCloud(true);
+    };
+
+    document.getElementById("btn-cloud-sync").onclick = () => {
+      fetchFromCloud(true);
+    };
+
+    document.getElementById("btn-change-pass").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      const oldP = document.getElementById("settings-old-pass").value.trim();
+      const newP = document.getElementById("settings-new-pass").value.trim();
+      const confirmP = document.getElementById("settings-confirm-pass").value.trim();
+
+      if (oldP !== moderatorPassword) {
+        alert("Текущий (старый) пароль введен неверно!");
+        return;
+      }
+      if (newP.length < 2) {
+        alert("Новый пароль слишком короткий");
+        return;
+      }
+      if (newP !== confirmP) {
+        alert("Новые пароли не совпадают!");
+        return;
+      }
+
+      moderatorPassword = newP;
+      localStorage.setItem("HUB_MOD_PASS", newP);
+      document.getElementById("settings-old-pass").value = "";
+      document.getElementById("settings-new-pass").value = "";
+      document.getElementById("settings-confirm-pass").value = "";
+      showToast("Пароль модератора успешно изменен!");
+    };
+
+    // БЭКАП И ЭКСПОРТ
+    document.getElementById("btn-export-json").onclick = () => {
+      const fullDump = {
+        group: "25A",
+        version: "11.0",
+        timestamp: new Date().toISOString(),
+        schedule: scheduleData,
+        requirements: requirementsData,
+        deadlines: deadlinesData,
+        lectures: lecturesData,
+        teachers: teachersData,
+        performance: performanceData
+      };
+
+      const blob = new Blob([JSON.stringify(fullDump, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `study_hub_25A_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("Резервная копия скачана!");
+    };
+
+    document.getElementById("import-file").onchange = (e) => {
+      if (!checkModeratorAccess()) {
+        e.target.value = "";
+        return;
+      }
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed.schedule && parsed.deadlines && parsed.performance) {
+            scheduleData = parsed.schedule;
+            requirementsData = parsed.requirements || DEFAULT_REQUIREMENTS;
+            deadlinesData = parsed.deadlines;
+            lecturesData = parsed.lectures || [];
+            teachersData = parsed.teachers || DEFAULT_TEACHERS;
+            performanceData = parsed.performance;
+
+            commitData();
+            renderSchedule();
+            renderRequirements();
+            renderDeadlines();
+            renderPerformance();
+            renderLectures();
+            renderTeachers();
+            showToast("База успешно восстановлена и синхронизирована!");
+          } else {
+            alert("Некорректный формат файла бэкапа");
+          }
+        } catch (err) {
+          alert("Ошибка чтения JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    document.getElementById("btn-reset-data").onclick = () => {
+      if (!checkModeratorAccess()) return;
+      if (confirm("Сбросить базу к исходным данным группы 25А?")) {
+        localStorage.clear();
+        scheduleData = createDefaultSchedule25A();
+        requirementsData = [...DEFAULT_REQUIREMENTS];
+        deadlinesData = [...DEFAULT_DEADLINES];
+        lecturesData = [...DEFAULT_LECTURES];
+        teachersData = [...DEFAULT_TEACHERS];
+        performanceData = [...DEFAULT_PERFORMANCE];
+        isModerator = true;
+        saveDB("HUB_IS_MODERATOR", true);
+
+        commitData();
+        renderSchedule();
+        renderRequirements();
+        renderDeadlines();
+        renderPerformance();
+        renderLectures();
+        renderTeachers();
+        showToast("Сброшено к базе 25А");
+      }
+    };
+
+    // ИНИЦИАЛИЗАЦИЯ
+    function init() {
+      if (cloudApiUrl) {
+        document.getElementById("cloud-api-url").value = cloudApiUrl;
+      }
+
+      renderLectureFilters();
+
+      document.querySelectorAll(".view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const view = btn.dataset.view;
+          document.getElementById("view-schedule").style.display = view === "schedule" ? "block" : "none";
+          document.getElementById("view-requirements").style.display = view === "requirements" ? "block" : "none";
+          document.getElementById("view-deadlines").style.display = view === "deadlines" ? "block" : "none";
+          document.getElementById("view-performance").style.display = view === "performance" ? "block" : "none";
+          document.getElementById("view-lectures").style.display = view === "lectures" ? "block" : "none";
+          document.getElementById("view-teachers").style.display = view === "teachers" ? "block" : "none";
+          document.getElementById("view-settings").style.display = view === "settings" ? "block" : "none";
+
+          if (view === "requirements") renderRequirements();
+          if (view === "deadlines") renderDeadlines();
+          if (view === "performance") renderPerformance();
+          if (view === "lectures") renderLectures();
+          if (view === "teachers") renderTeachers();
+        });
+      });
+
+      const numBtn = document.getElementById("week-num-btn");
+      const denBtn = document.getElementById("week-den-btn");
+
+      function updateWeekButtons() {
+        numBtn.classList.toggle("active", viewingWeekType === "num");
+        denBtn.classList.toggle("active", viewingWeekType === "den");
+      }
+      updateWeekButtons();
+
+      numBtn.onclick = () => { viewingWeekType = "num"; updateWeekButtons(); renderSchedule(); };
+      denBtn.onclick = () => { viewingWeekType = "den"; updateWeekButtons(); renderSchedule(); };
+
+      const todayNum = new Date().getDay() || 7;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const d = Number(btn.dataset.d);
+        if (d === todayNum) btn.classList.add("today");
+
+        btn.onclick = () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeDay = d;
+          renderSchedule();
+        };
+      });
+
+      const startTab = document.querySelector(`.tab-btn[data-d="${activeDay}"]`);
+      if (startTab) startTab.classList.add("active");
+
+      document.getElementById("req-search").oninput = (e) => renderRequirements(e.target.value);
+      document.getElementById("lecture-search").oninput = (e) => renderLectures(e.target.value);
+      document.getElementById("deadline-search").oninput = (e) => renderDeadlines(e.target.value);
+      document.getElementById("prof-search").oninput = (e) => renderTeachers(e.target.value);
+
+      renderSchedule();
+      renderRequirements();
+      updateLiveStatus();
+      setInterval(() => {
+        updateLiveStatus();
+        renderSchedule();
+      }, 15000);
+
+      fetchFromCloud();
+      setInterval(fetchFromCloud, 45000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
