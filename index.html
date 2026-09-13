@@ -27,90 +27,260 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--bg); color: var(--text); padding: 10px 10px 90px 10px; max-width: 560px; margin: 0 auto; min-height: 100vh; }
 
-    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 4px 2px; }
-    .app-brand { font-size: 14px; font-weight: 800; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; }
+    /* Верхняя панель статуса пользователя */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 4px 2px;
+    }
+    .app-brand {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     .role-badge-btn {
-      background: var(--card); border: 1px solid var(--border); color: #93c5fd; padding: 5px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #93c5fd;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
     }
     .role-badge-btn.role-abiturient { color: #94a3b8; border-color: #334155; }
     .role-badge-btn.role-deputy { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .role-badge-btn.role-director { color: #4ade80; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
 
+    /* 1. Скрытие инструментов редактирования от Абитуриента */
     body.is-abiturient .admin-only,
     body.is-abiturient .edit-btn,
     body.is-abiturient .delete-btn,
     body.is-abiturient .admin-form,
-    body.is-abiturient #btn-open-parser { display: none !important; }
+    body.is-abiturient #btn-open-parser {
+      display: none !important;
+    }
 
-    body:not(.is-director) .director-only { display: none !important; }
+    /* 2. Скрытие инструментов управления от Зама и Абитуриента (ТОЛЬКО ДЛЯ ДИРЕКТОРА) */
+    body:not(.is-director) .director-only {
+      display: none !important;
+    }
 
+    /* Навигация 7 табов */
     .view-switcher {
-      display: flex; gap: 3px; background: #0f131c; padding: 4px; border-radius: 12px; border: 1px solid var(--border);
-      margin-bottom: 12px; position: sticky; top: 6px; z-index: 100; backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none;
+      display: flex;
+      gap: 3px;
+      background: #0f131c;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      position: sticky;
+      top: 6px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      overflow-x: auto;
+      scrollbar-width: none;
     }
     .view-switcher::-webkit-scrollbar { display: none; }
     .view-btn {
-      flex: 1; min-width: 60px; background: transparent; border: none; color: var(--text-dim); padding: 7px 2px;
-      border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.15s ease; white-space: nowrap;
+      flex: 1;
+      min-width: 60px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 7px 2px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
     }
-    .view-btn.active { background: var(--card); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid var(--border); }
+    .view-btn.active {
+      background: var(--card);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+    }
 
+    /* Тост */
     #toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: #fff;
-      border: 1px solid var(--accent); padding: 9px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-      z-index: 999; opacity: 0; transition: all 0.25s ease; pointer-events: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 9px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
     }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+    /* Виджет времени и шапка */
     .dashboard {
-      background: linear-gradient(145deg, #171e2e, #111520); border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      background: linear-gradient(145deg, #171e2e, #111520);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .dash-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
     .status-badge { background: var(--accent-glow); color: var(--accent); padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    
     .dash-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
     .indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); flex-shrink: 0; }
     .indicator.break { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
     .indicator.idle { background: var(--text-dim); box-shadow: none; }
     .dash-sub { font-size: 12px; color: var(--text-dim); }
 
+    /* Панель оперативных действий */
     .action-bar { display: flex; gap: 6px; margin-bottom: 10px; }
     .btn-action {
-      flex: 1; background: var(--card); border: 1px solid var(--border); color: #cbd5e1; padding: 8px 6px;
-      border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s ease;
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 8px 6px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s ease;
     }
     .btn-action:hover { border-color: var(--accent); color: #fff; }
     .btn-action.highlight { background: rgba(59, 130, 246, 0.15); border-color: var(--accent); color: #93c5fd; }
 
-    .calendar-month-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
-    .calendar-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-dim); }
-    .calendar-weeks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-    .cal-week-btn {
-      background: #0f131c; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 2px;
-      border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s ease;
+    /* Календарный блок: 4 Недели месяца */
+    .calendar-month-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    .cal-week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .cal-week-btn.current-month-week { border-bottom: 2px solid var(--green); }
+    .calendar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+    .calendar-weeks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    .cal-week-btn {
+      background: #0f131c;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 2px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .cal-week-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .cal-week-btn.current-month-week {
+      border-bottom: 2px solid var(--green);
+    }
 
+    /* Дни недели */
     .tabs-row { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px; }
     .tab-btn {
-      flex: 1; min-width: 44px; background: var(--card); border: 1px solid var(--border); color: var(--text-dim);
-      padding: 9px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center;
+      flex: 1;
+      min-width: 44px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 9px 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
     }
     .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .tab-btn.today { border-bottom: 3px solid var(--green); }
 
+    /* Карточки пар */
     .cards-box { display: flex; flex-direction: column; gap: 8px; }
     .pair-item {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px;
-      display: flex; flex-direction: column; gap: 7px; position: relative; overflow: hidden; transition: all 0.15s ease;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s ease;
     }
-    .pair-item.current { border-color: var(--green); background: #141b2a; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
-    .pair-item.empty-slot { opacity: 0.5; border-style: dashed; background: rgba(19, 23, 34, 0.45); padding: 9px 12px; }
-    .pair-item.empty-slot:hover { opacity: 0.9; border-color: var(--accent); }
+    .pair-item.current {
+      border-color: var(--green);
+      background: #141b2a;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+    .pair-item.empty-slot {
+      opacity: 0.5;
+      border-style: dashed;
+      background: rgba(19, 23, 34, 0.45);
+      padding: 9px 12px;
+    }
+    .pair-item.empty-slot:hover {
+      opacity: 0.9;
+      border-color: var(--accent);
+    }
 
-    .pair-progress-fill { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--green); box-shadow: 0 0 8px var(--green); transition: width 0.3s linear; }
+    .pair-progress-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      transition: width 0.3s linear;
+    }
+
     .pair-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .time-slot { min-width: 65px; border-right: 1px solid var(--border); padding-right: 8px; }
     .pair-order { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; }
@@ -125,21 +295,67 @@
 
     .lesson-title { font-size: 14px; font-weight: 700; line-height: 1.25; margin-bottom: 2px; }
     .teacher-name { font-size: 12px; color: var(--text-dim); }
+
     .room-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .room-tag { background: #1d2536; border: 1px solid var(--border); padding: 4px 7px; border-radius: 6px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .room-tag {
+      background: #1d2536;
+      border: 1px solid var(--border);
+      padding: 4px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
     .room-floor { font-size: 10px; color: var(--text-dim); font-weight: 600; text-align: right; }
 
-    .task-bar { border-top: 1px dashed var(--border); padding-top: 7px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    /* Домашка */
+    .task-bar {
+      border-top: 1px dashed var(--border);
+      padding-top: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
     .task-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; flex: 1; }
     .task-label.done span { text-decoration: line-through; color: var(--text-dim); }
     .task-checkbox { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
-    .attach-link { background: var(--accent-glow); border: 1px solid var(--accent); color: #93c5fd; padding: 3px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .attach-link {
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: #93c5fd;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
 
+    /* Формы и карточки */
     .search-box { margin-bottom: 12px; }
-    .search-input, .form-input, .form-select { width: 100%; background: var(--card); border: 1px solid var(--border); color: #fff; padding: 9px 12px; border-radius: 8px; font-size: 13px; outline: none; }
+    .search-input, .form-input, .form-select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
     .search-input:focus, .form-input:focus, .form-select:focus { border-color: var(--accent); }
 
-    .lecture-card, .deadline-card, .prof-card, .score-card, .req-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .lecture-card, .deadline-card, .prof-card, .score-card, .req-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
     .deadline-card.completed { opacity: 0.55; border-color: rgba(32, 39, 56, 0.7); }
     .deadline-card.completed .dl-title { text-decoration: line-through; }
 
@@ -148,20 +364,47 @@
     .badge-ok { background: var(--green-glow); color: var(--green); border: 1px solid var(--green); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
     .badge-done { background: rgba(121, 135, 156, 0.2); color: var(--text-dim); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
 
-    .req-box { background: #0f131c; border-radius: 8px; padding: 8px 10px; border-left: 3px solid var(--accent); font-size: 12px; line-height: 1.45; color: #cbd5e1; }
+    /* Требования */
+    .req-box {
+      background: #0f131c;
+      border-radius: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--accent);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
     .req-box b { color: #fff; }
     .req-pill-group { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
     .req-tag { background: #1b2233; border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 700; color: #93c5fd; }
     .req-tag.alert { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: #fca5a5; }
 
-    .gost-banner { background: linear-gradient(145deg, #181f30, #121622); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 11px; line-height: 1.4; color: #94a3b8; margin-bottom: 12px; }
+    .gost-banner {
+      background: linear-gradient(145deg, #181f30, #121622);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
     .gost-banner b { color: #38bdf8; }
 
+    /* БРС */
     .score-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .score-subject { font-size: 14px; font-weight: 700; color: #fff; }
     .score-target { font-size: 11px; font-weight: 700; color: var(--text-dim); }
 
-    .meter-box { background: #0f131c; border-radius: 8px; border: 1px solid var(--border); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .meter-box {
+      background: #0f131c;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
     .meter-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
     .bar-bg { height: 7px; background: #1e2638; border-radius: 4px; overflow: hidden; position: relative; }
     .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.25s ease; }
@@ -170,17 +413,51 @@
     .bar-fill.auto { background: var(--green); box-shadow: 0 0 8px var(--green); }
 
     .counter-ctrl { display: flex; align-items: center; gap: 8px; }
-    .btn-counter { background: #1e2638; border: 1px solid var(--border); color: #fff; width: 26px; height: 26px; border-radius: 6px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-counter {
+      background: #1e2638;
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .btn-counter:active { background: var(--accent); }
 
+    /* Формы */
     .form-box { background: #0f131c; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
     .form-box h4 { font-size: 13px; margin-bottom: 8px; color: var(--text); }
     .form-grid { display: flex; flex-direction: column; gap: 7px; }
     .btn-submit { background: var(--accent); border: none; color: #fff; padding: 9px 12px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 250; display: none; align-items: center; justify-content: center; padding: 14px; }
+    /* Модалки */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 250;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
     .modal-overlay.open { display: flex; }
-    .modal-card { background: #131722; border: 1px solid var(--border); border-radius: 14px; padding: 16px; width: 100%; max-width: 480px; box-shadow: 0 15px 30px rgba(0,0,0,0.7); max-height: 90vh; overflow-y: auto; }
+    .modal-card {
+      background: #131722;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
 
     .edit-btn { background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 11px; font-weight: 700; }
     .edit-btn:hover { color: #93c5fd; text-decoration: underline; }
@@ -189,18 +466,55 @@
     .card-actions-row { display: flex; align-items: center; gap: 10px; }
     .empty-note { text-align: center; color: var(--text-dim); padding: 25px 0; font-size: 13px; }
 
+    /* Преподаватели */
     .prof-dept { font-size: 12px; color: var(--accent); font-weight: 600; }
-    .prof-loc { background: #0f131c; border-radius: 6px; padding: 8px; font-size: 12px; color: #cbd5e1; border-left: 3px solid var(--green); line-height: 1.4; margin-top: 4px; }
+    .prof-loc {
+      background: #0f131c;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      color: #cbd5e1;
+      border-left: 3px solid var(--green);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
 
+    /* Бэкап и облако */
     .backup-panel { display: flex; flex-direction: column; gap: 10px; }
-    .backup-btn { background: var(--card); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .backup-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     .backup-btn.danger { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
 
-    .timer-circle { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--red); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: var(--red); margin: 12px auto; }
+    /* Таймер сброса */
+    .timer-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--red);
+      margin: 12px auto;
+    }
   </style>
 </head>
 <body class="is-abiturient">
 
+  <!-- ВЕРХНЯЯ СТРОКА: БРЕНД И ПЕРЕКЛЮЧАТЕЛЬ РОЛЕЙ -->
   <div class="top-header">
     <div class="app-brand">
       <span>🎓</span>
@@ -212,6 +526,7 @@
     </button>
   </div>
 
+  <!-- Навигация: 7 табов -->
   <div class="view-switcher">
     <button class="view-btn active" data-view="schedule"><span>📅</span><span>Пары</span></button>
     <button class="view-btn" data-view="requirements"><span>📋</span><span>Требования</span></button>
@@ -238,6 +553,7 @@
       <div class="dash-sub" id="live-desc">Синхронизация времени</div>
     </div>
 
+    <!-- Оперативка -->
     <div class="action-bar">
       <button class="btn-action highlight admin-only" id="btn-open-parser">⚡ Парсер недели</button>
       <button class="btn-action" id="btn-cloud-sync">🔄 Обновить базу</button>
@@ -245,6 +561,7 @@
       <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
     </div>
 
+    <!-- Календарный блок на 4 недели месяца -->
     <div class="calendar-month-bar">
       <div class="calendar-head">
         <span>Сетка месяца:</span>
@@ -270,7 +587,7 @@
     <div class="cards-box" id="schedule-list"></div>
   </div>
 
-  <!-- ЭКРАН 2: ТРЕБОВАНИЯ -->
+  <!-- ЭКРАН 2: ТРЕБОВАНИЯ ПРЕПОДАВАТЕЛЕЙ -->
   <div id="view-requirements" style="display: none;">
     <div class="gost-banner">
       💡 <b>Дефолтный стандарт кафедры:</b> Шрифт Times New Roman 14, интервал 1.5. Поля: левое 30 мм, правое 10 мм, верх/низ 20 мм. Свежие источники в списке (не старше 5 лет).
@@ -300,7 +617,7 @@
     <div id="requirements-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: ДЕДЛАЙНЫ -->
+  <!-- ЭКРАН 3: ДЕДЛАЙНЫ И ЗАДАНИЯ -->
   <div id="view-deadlines" style="display: none;">
     <div class="form-box admin-form admin-only">
       <h4>+ Добавить дедлайн</h4>
@@ -328,7 +645,7 @@
     <div id="deadlines-list"></div>
   </div>
 
-  <!-- ЭКРАН 4: БРС -->
+  <!-- ЭКРАН 4: БРС И ПРОПУСКИ (ЭНКИ) -->
   <div id="view-performance" style="display: none;">
     <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
       💡 <b>Шкала БРС:</b> 60+ (допуск), 75+ (хорошо), 90+ (автомат на отлично). Лимит пропусков — до 4 пар (8 часов). Баллы сохраняются персонально в твоем телефоне.
@@ -336,7 +653,7 @@
     <div id="performance-list"></div>
   </div>
 
-  <!-- ЭКРАН 5: ЛЕКЦИИ -->
+  <!-- ЭКРАН 5: ЛЕКЦИИ И КОНСПЕКТЫ -->
   <div id="view-lectures" style="display: none;">
     <div class="search-box">
       <input type="text" class="search-input" id="lecture-search" placeholder="Поиск по теме или конспекту...">
@@ -380,7 +697,7 @@
   <div id="view-settings" style="display: none;">
     <div class="backup-panel">
 
-      <!-- Блок облака -->
+      <!-- Настройки облачной базы -->
       <div class="form-box" style="border-style: solid; border-color: var(--accent);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>☁️ Облачное расписание группы</span>
@@ -390,17 +707,18 @@
           База синхронизируется в реальном времени. Все изменения автоматически поступают в группу.
         </div>
 
-        <!-- Смена URL: ТОЛЬКО ДИРЕКТОР -->
+        <!-- Смена URL облака: ТОЛЬКО ДИРЕКТОР -->
         <div class="director-only" style="margin-bottom: 8px;">
           <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px;">Смена URL базы npoint.io (только Директор):</label>
           <input type="url" class="form-input" id="cloud-api-url" placeholder="https://api.npoint.io/2ef88e1143df232788ac">
           <button class="btn-action highlight" style="width: 100%; margin-top: 6px;" id="btn-save-cloud-config">💾 Сохранить новый URL базы</button>
         </div>
 
+        <!-- Проверка связи доступна всем -->
         <button class="btn-action" style="width: 100%;" id="btn-test-cloud">🔄 Проверить связь и загрузить</button>
       </div>
 
-      <!-- Блок авторизации -->
+      <!-- Блок авторизации и профиля доступа -->
       <div class="form-box" style="border-style: solid; border-color: var(--border);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>🔐 Вход в систему (Для редакторов)</span>
@@ -410,7 +728,7 @@
           По умолчанию включен режим «Абитуриент» (только просмотр). Пароли открывают панель управления.
         </div>
         <div class="form-grid">
-          <input type="password" class="form-input" id="auth-pass-input" placeholder="Введите пароль доступа...">
+          <input type="password" class="form-input" id="auth-pass-input" placeholder="Введите пароль доступа (зам25 / директор25)">
           <div style="display: flex; gap: 6px;">
             <button class="btn-submit" style="flex: 1;" id="btn-auth-login">Войти</button>
             <button class="btn-action" style="flex: 1;" id="btn-auth-logout">Сбросить в Абитуриента</button>
@@ -441,7 +759,7 @@
         <span>⬇️</span>
       </div>
 
-      <!-- Восстановление: ТОЛЬКО ДИРЕКТОР -->
+      <!-- Восстановление из файла: ТОЛЬКО ДИРЕКТОР -->
       <label class="backup-btn director-only" for="import-file" style="margin: 0;">
         <div>
           <div>📂 Восстановить из файла (Директор)</div>
@@ -467,7 +785,7 @@
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 8px; color: #fff;">Вход в систему управления</h3>
       <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4;">
-        Введите пароль <b>Зам. директора</b> или <b>Директора</b>.
+        Введите пароль <b>Зам. директора</b> (для правок расписания) или <b>Директора</b> (полный доступ).
       </p>
       <div class="form-grid">
         <input type="password" class="form-input" id="quick-pass-input" placeholder="Пароль доступа...">
@@ -479,14 +797,14 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 1: ПАРА -->
+  <!-- МОДАЛКА 1: РЕДАКТИРОВАНИЕ ПАРЫ / СЛОТА -->
   <div class="modal-overlay" id="edit-pair-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;" id="modal-pair-title">Редактировать пару</h3>
       <div class="form-grid">
         <input type="hidden" id="edit-pair-id">
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Название предмета</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Название предмета (пусто для пропуска)</label>
           <input type="text" class="form-input" id="edit-pair-name" placeholder="Название предмета или пусто">
         </div>
         <div style="display: flex; gap: 6px;">
@@ -532,7 +850,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 2: ТРЕБОВАНИЕ -->
+  <!-- МОДАЛКА 2: РЕДАКТИРОВАНИЕ ТРЕБОВАНИЯ ПРЕПОДА -->
   <div class="modal-overlay" id="edit-req-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать регламент</h3>
@@ -578,7 +896,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 3: ДЕДЛАЙН -->
+  <!-- МОДАЛКА 3: РЕДАКТИРОВАНИЕ ДЕДЛАЙНА -->
   <div class="modal-overlay" id="edit-dl-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать задание</h3>
@@ -620,7 +938,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 4: ЛЕКЦИЯ -->
+  <!-- МОДАЛКА 4: РЕДАКТИРОВАНИЕ КОНСПЕКТА / ЛЕКЦИИ -->
   <div class="modal-overlay" id="edit-lec-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать лекцию</h3>
@@ -654,7 +972,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 5: ПРЕПОДАВАТЕЛЬ -->
+  <!-- МОДАЛКА 5: РЕДАКТИРОВАНИЕ ПРЕПОДАВАТЕЛЯ -->
   <div class="modal-overlay" id="edit-prof-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать преподавателя</h3>
@@ -673,7 +991,7 @@
           <input type="text" class="form-input" id="edit-prof-subjects">
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Где найти</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Где найти (кабинет, часы консультаций)</label>
           <input type="text" class="form-input" id="edit-prof-loc">
         </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
@@ -684,15 +1002,17 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 6: ПАРСЕР -->
+  <!-- МОДАЛКА 6: УМНЫЙ ТЕКСТОВЫЙ ПАРСЕР -->
   <div class="modal-overlay" id="parser-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Умный текстовый парсер (Группа 25А)</h3>
       <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
         Вставь текст сообщения. Парсер автоматически расставит пары по их номерам звонков (1-7), пустые часы оставит пропусками.
       </p>
+
       <div class="form-grid">
         <textarea class="form-input" id="parser-input" rows="7" placeholder="Понедельник&#10;1 пара Финансы с.2 Моторина Д.В. (211)&#10;2 пара Финансы л.5 Моторина Д.В. (209)"></textarea>
+        
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label style="font-size: 11px; color: var(--text-dim);">Назначить на неделю:</label>
@@ -709,6 +1029,7 @@
             <span>Заменить</span>
           </label>
         </div>
+
         <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить шаблон недели (25А)</button>
         <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и применить</button>
         <button class="btn-action" id="btn-close-parser">Закрыть</button>
@@ -716,17 +1037,20 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 7: ТАЙМЕР ЗАЩИТЫ СБРОСА -->
+  <!-- МОДАЛКА 7: ТАЙМЕР ЗАЩИТЫ СБРОСА (15 СЕКУНД) -->
   <div class="modal-overlay" id="reset-modal">
     <div class="modal-card" style="text-align: center;">
       <h3 style="font-size: 16px; color: var(--red); margin-bottom: 6px;">⚠️ Подтверждение полного сброса (Директор)</h3>
       <p style="font-size: 12px; color: var(--text-dim); line-height: 1.4;">
         Вы собираетесь полностью очистить добавленные предметы, конспекты и дедлайны и вернуть дефолтное расписание группы 25А на 3-ю неделю.
       </p>
+
       <div class="timer-circle" id="reset-countdown">15</div>
+
       <div style="font-size: 11px; color: #fca5a5; margin-bottom: 14px;">
-        Кнопка активируется через 15 секунд.
+        Для защиты от случайного нажатия кнопка активируется через 15 секунд.
       </div>
+
       <div style="display: flex; gap: 8px;">
         <button class="btn-action" style="flex: 1;" id="btn-cancel-reset">Отмена</button>
         <button class="btn-submit" style="flex: 1; background: var(--red); opacity: 0.4; cursor: not-allowed;" id="btn-confirm-reset" disabled>Сброс заблокирован (15)</button>
@@ -735,6 +1059,2114 @@
   </div>
 
   <script>
-    let vmL=typeof globalThis!=='undefined'?globalThis:typeof window!=='undefined'?window:typeof self!=='undefined'?self:typeof global!=='undefined'?global:void 0x0,vmA_c35157=vmL['vmA_c35157']||(vmL['vmA_c35157']={});const vmI_f4447b=(function(){var U=Object['getPrototypeOf'],m=Object['getOwnPropertySymbols'],M=WeakSet['prototype']['add'],n=Object['getOwnPropertyDescriptor'],I=WeakMap['prototype']['set'],A=Object['getOwnPropertyNames'],R=WeakMap['prototype']['get'],g=Reflect['apply'],L=WeakMap['prototype']['has'],s=Object['defineProperty'],F=Object['create'],b=Function['prototype']['call'],j=Function['prototype']['apply'],N=Object['setPrototypeOf'],f=WeakSet['prototype']['has'];let Y=['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'></script>
+    // =======================================================
+    // ТВОЯ ОБЛАЧНАЯ БАЗА NPOINT (ВШИТА НАПРЯМУЮ)
+    // =======================================================
+    const DEFAULT_CLOUD_URL = "https://api.npoint.io/2ef88e1143df232788ac"; 
+
+    // 1. СЕТКА ЗВОНКОВ
+    const BELLS = [
+      { num: 1, start: "08:30", end: "09:50" },
+      { num: 2, start: "10:00", end: "11:20" },
+      { num: 3, start: "11:30", end: "12:50" },
+      { num: 4, start: "13:10", end: "14:30" },
+      { num: 5, start: "14:40", end: "16:00" },
+      { num: 6, start: "16:10", end: "17:30" },
+      { num: 7, start: "17:40", end: "19:00" }
+    ];
+
+    const DAYS_NAMES = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+    const DAYS_SHORT = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+
+    // 2. ДИСЦИПЛИНЫ КУРСА
+    const SUBJECTS_LIST = [
+      "Финансы, денежное обращение и кредит",
+      "Статистика",
+      "Основы финансовой грамотности",
+      "Экономика организаций",
+      "ИТ в проф деятельности",
+      "Ин. яз. в проф. деятельности",
+      "История России",
+      "Менеджмент",
+      "Профессиональная этика",
+      "Безопасность жизнедеятельности"
+    ];
+
+    // 3. БАЗА ТРЕБОВАНИЙ ПРЕПОДАВАТЕЛЕЙ
+    const DEFAULT_REQUIREMENTS = [
+      {
+        id: 1,
+        prof: "Инжиева Д. М.",
+        subject: "Менеджмент",
+        workType: "Реферат + Доклад на семинаре",
+        volume: "15-20 страниц",
+        originality: "от 65%",
+        deadlineRule: "До 28 сентября / защита строго на паре",
+        criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут. Задает вопросы по терминам школ управления. Список источников не старше 5 лет."
+      },
+      {
+        id: 2,
+        prof: "Фурин А. Д.",
+        subject: "Статистика",
+        workType: "Расчетно-графическая работа (РГР)",
+        volume: "10-15 страниц (с таблицами)",
+        originality: "Индивидуальный расчет",
+        deadlineRule: "Сдача на практических занятиях (каб. 806)",
+        criticalPoints: "Строго свой вариант. Обязательны сводные таблицы, расчет медианы, моды и дисперсии. Графики строить с легендой."
+      },
+      {
+        id: 3,
+        prof: "Моторина Д. В.",
+        subject: "Финансы, денежное обращение и кредит",
+        workType: "Семинарский опрос + Конспект тем",
+        volume: "Тетрадь конспектов + тезисы к докладу",
+        originality: "Смысловая точность терминов",
+        deadlineRule: "Каждый семинар (каб. 211)",
+        criticalPoints: "Требует четкую структуру бюджетной и финансовой системы РФ. Вопросы по статьям БК РФ и НК РФ."
+      },
+      {
+        id: 4,
+        prof: "Мазниченко В. Л.",
+        subject: "Экономика организаций",
+        workType: "Типовой расчет предприятия + Защита",
+        volume: "12-18 страниц",
+        originality: "от 60%",
+        deadlineRule: "Защита лично в руки на кафедре (1107)",
+        criticalPoints: "Расчет показателей основных средств, амортизации, себестоимости. На защите спрашивает экономический смысл формул."
+      },
+      {
+        id: 5,
+        prof: "Григор О. Г.",
+        subject: "Профессиональная этика",
+        workType: "Эссе / Аналитический реферат",
+        volume: "8-12 страниц",
+        originality: "от 70% (строго)",
+        deadlineRule: "До зачетной недели (каб. 802/1006)",
+        criticalPoints: "Тема по кодексам корпоративной этики финансистов. Жестко проверяет сноски на литературу."
+      },
+      {
+        id: 6,
+        prof: "Бридель Т. В.",
+        subject: "ИТ в проф деятельности",
+        workType: "Лабораторный практикум Excel",
+        volume: "Файл .xlsx + отчет 3-5 стр",
+        originality: "100% рабочие формулы",
+        deadlineRule: "В конце каждой пары в компьютерном классе (каб. 606)",
+        criticalPoints: "Все расчеты через динамические формулы (ВПР, СУММЕСЛИ). Ручные числа в ячейках не засчитываются."
+      },
+      {
+        id: 7,
+        prof: "Страхова И. В.",
+        subject: "История России",
+        workType: "Доклад с презентацией + тест",
+        volume: "10-15 страниц",
+        originality: "от 65%",
+        deadlineRule: "По графику тем на семинарах (каб. 1003)",
+        criticalPoints: "Хронология событий и реформ. Презентация без простыней текста — только карты, даты и лица."
+      },
+      {
+        id: 8,
+        prof: "Конкова А. М.",
+        subject: "Ин. яз. в проф. деятельности",
+        workType: "Сдача текстов, словарей и Unit-тестов",
+        volume: "2500 знаков перевода на юнит",
+        originality: "Устный перевод без переводчика",
+        deadlineRule: "Еженедельно на парах (каб. 201)",
+        criticalPoints: "Проверка чтения, терминов и словаря наизусть."
+      },
+      {
+        id: 9,
+        prof: "Моисеенко Д. Д.",
+        subject: "Основы финансовой грамотности",
+        workType: "Практический кейс / Финансовый план",
+        volume: "7-10 страниц",
+        originality: "от 60%",
+        deadlineRule: "На семинарах (каб. 1102)",
+        criticalPoints: "Составление личного финансового плана и расчет налоговых вычетов."
+      },
+      {
+        id: 10,
+        prof: "Войнов С. В.",
+        subject: "Безопасность жизнедеятельности",
+        workType: "Реферат по ЧС + Сдача нормативов",
+        volume: "12-15 страниц",
+        originality: "от 55%",
+        deadlineRule: "Консультационные часы кафедры БЖД",
+        criticalPoints: "Первая доврачебная помощь и классификация техногенных катастроф."
+      }
+    ];
+
+    // 4. БАЗА ПРЕПОДАВАТЕЛЕЙ
+    const DEFAULT_TEACHERS = [
+      { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 209, 211. Перед парой / после лекции." },
+      { id: 2, name: "Фурин А. Д.", dept: "Кафедра Статистики и эконометрики", subjects: "Статистика", catchInfo: "каб. 209, 806. Проверка типовых расчетов и таблиц." },
+      { id: 3, name: "Моисеенко Д. Д.", dept: "Кафедра Финансов", subjects: "Основы финансовой грамотности", catchInfo: "каб. 1002, 1102. Кафедра финансов." },
+      { id: 4, name: "Мазниченко В. Л.", dept: "Кафедра Экономики предприятий", subjects: "Экономика организаций", catchInfo: "каб. 1107. Защита расчетов лично." },
+      { id: 5, name: "Бридель Т. В.", dept: "Кафедра Информационных систем и технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 209, 606 / ВЦ." },
+      { id: 6, name: "Конкова А. М.", dept: "Кафедра Иностранных языков", subjects: "Ин. яз. в проф. деятельности", catchInfo: "каб. 201. Языковые кабинеты." },
+      { id: 7, name: "Страхова И. В.", dept: "Кафедра Истории и социально-гуманитарных наук", subjects: "История России", catchInfo: "каб. 1002, 1003." },
+      { id: 8, name: "Инжиева Д. М.", dept: "Кафедра Менеджмента", subjects: "Менеджмент", catchInfo: "каб. 504." },
+      { id: 9, name: "Григор О. Г.", dept: "Кафедра Философии", subjects: "Профессиональная этика", catchInfo: "каб. 802, 1006." },
+      { id: 10, name: "Войнов С. В.", dept: "Кафедра БЖД", subjects: "Безопасность жизнедеятельности", catchInfo: "каб. 504, 705." }
+    ];
+
+    function generateEmptyWeekGrid() {
+      const list = [];
+      for (let d = 1; d <= 6; d++) {
+        for (let n = 1; n <= 7; n++) {
+          list.push({
+            id: d * 100 + n,
+            day: d,
+            num: n,
+            name: "",
+            prof: "",
+            room: "",
+            type: "lecture",
+            task: "",
+            link: "",
+            week: "all",
+            taskDone: false
+          });
+        }
+      }
+      return list;
+    }
+
+    // 1 И 2 НЕДЕЛИ ПУСТЫЕ, ВСЯ СЕТКА ЗАКРЕПЛЕНА ЗА 3 НЕДЕЛЕЙ
+    function createDefaultSchedule25A() {
+      const grid = generateEmptyWeekGrid();
+      const filledWeek3 = {
+        "1-1": { name: "Финансы, ден.обращ. и кредит", prof: "Моторина Д.В.", room: "211", type: "seminar", task: "Семинар №2" },
+        "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №5" },
+        "1-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Конспект вводной темы (л.3)" },
+        "2-1": { name: "Статистика", prof: "Фурин А.Д.", room: "209", type: "lecture", task: "Тема: Ряды распределения (л.3)" },
+        "2-2": { name: "Основы финансовой грамотности", prof: "Моисеенко Д.Д.", room: "1002", type: "lecture", task: "Лекция №3" },
+        "2-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Лекция №4" },
+        "2-4": { name: "Осн. фин. грамотности", prof: "Моисеенко Д.Д.", room: "1102", type: "seminar", task: "Семинар №1" },
+        "3-3": { name: "Статистика", prof: "Фурин А.Д.", room: "806", type: "seminar", task: "Практика №1" },
+        "3-4": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №6" },
+        "3-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "209", type: "lecture", task: "Лекция №3" },
+        "3-6": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "201", type: "seminar", task: "Практика №4, Unit 1" },
+        "4-5": { name: "История России", prof: "Страхова И.В.", room: "1002", type: "lecture", task: "Лекция №4" },
+        "4-6": { name: "История России", prof: "Страхова И.В.", room: "1003", type: "seminar", task: "Семинар №1" },
+        "5-2": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Лекция №3" },
+        "5-3": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "1006", type: "seminar", task: "Семинар №2" },
+        "5-4": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Лекция №3" },
+        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2" }
+      };
+
+      return grid.map(item => {
+        const key = `${item.day}-${item.num}`;
+        if (filledWeek3[key]) {
+          return { ...item, ...filledWeek3[key], week: "3" };
+        }
+        return item;
+      });
+    }
+
+    const DEFAULT_SCHEDULE_25A = createDefaultSchedule25A();
+
+    const DEFAULT_DEADLINES = [
+      { id: 1, subject: "Менеджмент", type: "Реферат", date: "2026-09-28", topic: "Эволюция школ менеджмента и методы мотивации", reqs: "15-20 страниц, оригинальность от 65%", link: "", completed: false },
+      { id: 2, subject: "Статистика", type: "Расчетная работа", date: "2026-10-12", topic: "Сводка и группировка статистических данных", reqs: "Вариант из методички, расчет медианы и моды", link: "", completed: false },
+      { id: 3, subject: "ИТ в проф деятельности", type: "Лабораторная", date: "2026-09-22", topic: "Обработка массивов данных в электронных таблицах", reqs: "Сдача файла на проверку", link: "", completed: false }
+    ];
+
+    const DEFAULT_LECTURES = [
+      { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов. Финансовая система", date: "14.09.2026", notes: "3 функции: распределительная, контрольная, стабилизирующая.", link: "" },
+      { id: 2, subject: "Статистика", title: "Абсолютные и относительные величины", date: "15.09.2026", notes: "Темпы роста и прироста. Базисный и цепной методы.", link: "" }
+    ];
+
+    const DEFAULT_PERFORMANCE = SUBJECTS_LIST.map((sub, idx) => ({
+      id: idx + 1,
+      subject: sub,
+      score: 0,
+      absences: 0,
+      maxAbsences: 4
+    }));
+
+    function loadDB(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch (e) {
+        return defaultVal;
+      }
+    }
+    function saveDB(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    let scheduleData = loadDB("HUB_SCHEDULE_25A_V14", DEFAULT_SCHEDULE_25A);
+    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V14", DEFAULT_REQUIREMENTS);
+    let deadlinesData = loadDB("HUB_DEADLINES_25A_V14", DEFAULT_DEADLINES);
+    let lecturesData = loadDB("HUB_LECTURES_25A_V14", DEFAULT_LECTURES);
+    let teachersData = loadDB("HUB_TEACHERS_25A_V14", DEFAULT_TEACHERS);
+    let performanceData = loadDB("HUB_PERF_25A_V14", DEFAULT_PERFORMANCE);
+    
+    // РОЛИ И АВТОРИЗАЦИЯ
+    let currentRole = localStorage.getItem("HUB_ROLE_STATUS") || "abiturient";
+    let directorPassword = localStorage.getItem("HUB_DIRECTOR_PASS") || "директор25";
+    let deputyPassword = localStorage.getItem("HUB_DEPUTY_PASS") || "зам25";
+
+    let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || DEFAULT_CLOUD_URL;
+    if (!cloudApiUrl) cloudApiUrl = DEFAULT_CLOUD_URL;
+
+    let activeLectureFilter = "Все";
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2400);
+    }
+
+    // Редактировать контент могут Зам и Директор
+    function canEdit() {
+      return currentRole === "director" || currentRole === "deputy";
+    }
+
+    // Управлять системой (пароли, смена облака, сброс) может ТОЛЬКО Директор
+    function canManageAdmin() {
+      return currentRole === "director";
+    }
+
+    function updateRoleUI() {
+      document.body.classList.remove("is-abiturient", "is-deputy", "is-director");
+      const btn = document.getElementById("btn-role-trigger");
+      const icon = document.getElementById("role-badge-icon");
+      const text = document.getElementById("role-badge-text");
+      const setInd = document.getElementById("settings-role-indicator");
+
+      btn.classList.remove("role-abiturient", "role-deputy", "role-director");
+
+      if (currentRole === "director") {
+        document.body.classList.add("is-director");
+        btn.classList.add("role-director");
+        icon.innerText = "👑";
+        text.innerText = "Директор";
+        setInd.innerText = "Директор (Полный доступ)";
+        setInd.style.color = "var(--green)";
+      } else if (currentRole === "deputy") {
+        document.body.classList.add("is-deputy");
+        btn.classList.add("role-deputy");
+        icon.innerText = "👔";
+        text.innerText = "Зам. директора";
+        setInd.innerText = "Зам. директора (Только редактор пар/контента)";
+        setInd.style.color = "var(--orange)";
+      } else {
+        document.body.classList.add("is-abiturient");
+        btn.classList.add("role-abiturient");
+        icon.innerText = "👀";
+        text.innerText = "Абитуриент";
+        setInd.innerText = "Абитуриент (Только чтение)";
+        setInd.style.color = "var(--text-dim)";
+      }
+    }
+
+    function setRole(role) {
+      currentRole = role;
+      localStorage.setItem("HUB_ROLE_STATUS", role);
+      updateRoleUI();
+      renderSchedule();
+      renderRequirements();
+      renderDeadlines();
+      renderLectures();
+      renderTeachers();
+    }
+
+    // ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ NPOINT
+    async function syncToCloud() {
+      if (!cloudApiUrl) return;
+      if (!canEdit()) return;
+
+      const payload = {
+        timestamp: new Date().toISOString(),
+        schedule: scheduleData,
+        requirements: requirementsData,
+        deadlines: deadlinesData,
+        lectures: lecturesData,
+        teachers: teachersData
+      };
+
+      try {
+        const res = await fetch(cloudApiUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast("☁️ Изменения сохранены в облаке npoint!");
+        } else {
+          showToast("⚠️ Ошибка записи в облако");
+        }
+      } catch (err) {
+        console.warn("Cloud sync error:", err);
+      }
+    }
+
+    async function fetchFromCloud(manual = false) {
+      if (!cloudApiUrl) {
+        if (manual) showToast("Облачный URL не задан");
+        document.getElementById("cloud-status-indicator").innerText = "⚪ Не настроено";
+        document.getElementById("cloud-status-indicator").style.color = "var(--text-dim)";
+        return;
+      }
+
+      try {
+        const controller = new AbortController();
+        const cloudTimeout = setTimeout(() => controller.abort(), 7000);
+        let res;
+        try {
+          res = await fetch(cloudApiUrl + "?nocache=" + Date.now(), { cache: "no-store", signal: controller.signal });
+        } finally {
+          clearTimeout(cloudTimeout);
+        }
+        if (res.ok) {
+          const data = await res.json();
+          const source = data.record || data;
+          if (source.schedule && source.requirements) {
+            scheduleData = source.schedule;
+            requirementsData = source.requirements;
+            deadlinesData = source.deadlines || deadlinesData;
+            lecturesData = source.lectures || lecturesData;
+            teachersData = source.teachers || teachersData;
+
+            saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
+            saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
+            saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
+            saveDB("HUB_LECTURES_25A_V14", lecturesData);
+            saveDB("HUB_TEACHERS_25A_V14", teachersData);
+
+            renderSchedule();
+            renderRequirements();
+            renderDeadlines();
+            renderLectures();
+            renderTeachers();
+
+            document.getElementById("cloud-status-indicator").innerText = "🟢 На связи";
+            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
+            if (manual) showToast("База обновлена из облака!");
+          } else if (canEdit()) {
+            syncToCloud();
+            document.getElementById("cloud-status-indicator").innerText = "🟢 Подключено (инициализировано)";
+            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
+            if (manual) showToast("База 25А залита в облако!");
+          }
+        } else {
+          throw new Error("HTTP " + res.status);
+        }
+      } catch (err) {
+        document.getElementById("cloud-status-indicator").innerText = "🔴 Ошибка связи";
+        document.getElementById("cloud-status-indicator").style.color = "var(--red)";
+        if (manual) showToast("Не удалось подключиться к облаку");
+      }
+    }
+
+    function commitData() {
+      saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
+      saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
+      saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
+      saveDB("HUB_LECTURES_25A_V14", lecturesData);
+      saveDB("HUB_TEACHERS_25A_V14", teachersData);
+      syncToCloud();
+    }
+
+    function getRoomDetails(room) {
+      if (!room || !room.trim()) return "";
+      const clean = room.toString().trim();
+      if (clean.toUpperCase().startsWith("ВЦ")) return "Выч. центр";
+      const num = parseInt(clean);
+      if (!isNaN(num)) {
+        const floor = Math.floor(num / 100);
+        return `${floor} этаж`;
+      }
+      return "Корпус уточняется";
+    }
+
+    function getRealMonthWeek() {
+      const dayOfMonth = new Date().getDate();
+      return Math.min(4, Math.ceil(dayOfMonth / 7));
+    }
+
+    let realMonthWeek = getRealMonthWeek();
+    let viewingMonthWeek = realMonthWeek;
+    let activeDay = new Date().getDay() || 1;
+    if (activeDay === 0) activeDay = 1;
+
+    function timeToMins(t) {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    // РЕНДЕР РАСПИСАНИЯ
+    function renderSchedule() {
+      const box = document.getElementById("schedule-list");
+      box.innerHTML = "";
+
+      const pairs = [];
+      for (let num = 1; num <= 7; num++) {
+        let p = scheduleData.find(x => x.day === activeDay && x.num === num && (x.week === "all" || x.week === String(viewingMonthWeek)));
+        if (!p) {
+          p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
+        }
+        pairs.push(p);
+      }
+
+      const now = new Date();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+      const isActuallyToday = activeDay === (now.getDay() || 7) && viewingMonthWeek === realMonthWeek;
+
+      pairs.forEach(p => {
+        const bell = BELLS.find(b => b.num === p.num) || { start: "--:--", end: "--:--" };
+        const bStart = timeToMins(bell.start);
+        const bEnd = timeToMins(bell.end);
+        const hasClass = p.name && p.name.trim().length > 0;
+        const isCurrent = isActuallyToday && hasClass && currentMins >= bStart && currentMins <= bEnd;
+
+        let progressWidth = 0;
+        if (isCurrent && bEnd > bStart) {
+          progressWidth = Math.min(100, Math.max(0, Math.round(((currentMins - bStart) / (bEnd - bStart)) * 100)));
+        }
+
+        const card = document.createElement("div");
+
+        if (!hasClass) {
+          card.className = "pair-item empty-slot";
+          card.innerHTML = `
+            <div class="pair-main">
+              <div class="time-slot">
+                <div class="pair-order">${p.num} пара</div>
+                <div class="time-range">${bell.start}<br>${bell.end}</div>
+              </div>
+              <div class="pair-details">
+                <div class="tag-line">
+                  <span class="type-pill type-empty">Пропуск</span>
+                  ${canEdit() ? `<button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ + пара</button>` : ''}
+                </div>
+                <div class="lesson-title" style="color: var(--text-dim); font-weight: 500; font-size: 13px;">—</div>
+              </div>
+              <div class="room-wrap">
+                <div class="room-tag" style="background: transparent; border-color: rgba(255,255,255,0.06); color: var(--text-dim);">—</div>
+              </div>
+            </div>
+          `;
+          box.appendChild(card);
+          return;
+        }
+
+        let typeClass = "type-lecture";
+        let typeText = "Лекция";
+        if (p.type === "seminar") { typeClass = "type-seminar"; typeText = "Семинар / Практика"; }
+        if (p.type === "essay") { typeClass = "type-essay"; typeText = "Контроль"; }
+
+        card.className = `pair-item ${isCurrent ? 'current' : ''}`;
+
+        let taskRowHtml = "";
+        if (p.task || p.link) {
+          taskRowHtml = `
+            <div class="task-bar">
+              <label class="task-label ${p.taskDone ? 'done' : ''}">
+                <input type="checkbox" class="task-checkbox" ${p.taskDone ? 'checked' : ''} onchange="togglePairTask(${p.id})">
+                <span>${p.task || 'Задание к занятию'}</span>
+              </label>
+              ${p.link ? `<a href="${p.link}" target="_blank" class="attach-link">Файл ↗</a>` : ''}
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          ${isCurrent ? `<div class="pair-progress-fill" style="width: ${progressWidth}%;"></div>` : ''}
+          <div class="pair-main">
+            <div class="time-slot">
+              <div class="pair-order">${p.num} пара</div>
+              <div class="time-range">${bell.start}<br>${bell.end}</div>
+            </div>
+            <div class="pair-details">
+              <div class="tag-line">
+                <span class="type-pill ${typeClass}">${typeText}</span>
+                ${p.week !== "all" ? `<span class="type-pill" style="background: rgba(139,92,246,0.2); color:#c4b5fd;">${p.week} нед.</span>` : ''}
+                ${canEdit() ? `<button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ изм.</button>` : ''}
+              </div>
+              <div class="lesson-title">${p.name}</div>
+              <div class="teacher-name">${p.prof || 'Преподаватель не указан'}</div>
+            </div>
+            <div class="room-wrap">
+              <div class="room-tag">каб. ${p.room}</div>
+              <div class="room-floor">${getRoomDetails(p.room)}</div>
+            </div>
+          </div>
+          ${taskRowHtml}
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.togglePairTask = function(id) {
+      const item = scheduleData.find(p => p.id === id);
+      if (item) {
+        item.taskDone = !item.taskDone;
+        saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
+        renderSchedule();
+      }
+    };
+
+    window.openEditPairModal = function(id) {
+      if (!canEdit()) {
+        showToast("Только для администрации");
+        return;
+      }
+      let p = scheduleData.find(x => x.id === id);
+      if (!p) {
+        const d = Math.floor(id / 100);
+        const n = id % 100;
+        p = { id, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
+        scheduleData.push(p);
+      }
+      document.getElementById("edit-pair-id").value = p.id;
+      document.getElementById("modal-pair-title").innerText = `Пара №${p.num} (${DAYS_NAMES[p.day]})`;
+      document.getElementById("edit-pair-name").value = p.name || "";
+      document.getElementById("edit-pair-room").value = p.room || "";
+      document.getElementById("edit-pair-type").value = p.type || "lecture";
+      document.getElementById("edit-pair-week").value = p.week || "all";
+      document.getElementById("edit-pair-prof").value = p.prof || "";
+      document.getElementById("edit-pair-task").value = p.task || "";
+      document.getElementById("edit-pair-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-pair-modal").onclick = () => {
+      document.getElementById("edit-pair-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-pair").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-pair-id").value);
+      let p = scheduleData.find(x => x.id === id);
+      if (!p) {
+        const d = Math.floor(id / 100);
+        const n = id % 100;
+        p = { id, day: d, num: n, week: "all", taskDone: false };
+        scheduleData.push(p);
+      }
+      p.name = document.getElementById("edit-pair-name").value.trim();
+      p.room = document.getElementById("edit-pair-room").value.trim();
+      p.type = document.getElementById("edit-pair-type").value;
+      p.week = document.getElementById("edit-pair-week").value;
+      p.prof = document.getElementById("edit-pair-prof").value.trim();
+      p.task = document.getElementById("edit-pair-task").value.trim();
+
+      commitData();
+      renderSchedule();
+      updateLiveStatus();
+      document.getElementById("edit-pair-modal").classList.remove("open");
+      showToast(p.name ? "Пара сохранена!" : "Слот сделан пропуском");
+    };
+
+    document.getElementById("btn-clear-slot").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-pair-id").value);
+      let p = scheduleData.find(x => x.id === id);
+      if (p) {
+        p.name = "";
+        p.room = "";
+        p.prof = "";
+        p.task = "";
+        p.link = "";
+        commitData();
+        renderSchedule();
+        updateLiveStatus();
+        document.getElementById("edit-pair-modal").classList.remove("open");
+        showToast("Слот очищен (пропуск)");
+      }
+    };
+
+    // ТРЕБОВАНИЯ
+    function renderRequirements(filterText = "") {
+      const box = document.getElementById("requirements-list");
+      box.innerHTML = "";
+      const q = filterText.toLowerCase().trim();
+
+      const list = requirementsData.filter(r => 
+        r.prof.toLowerCase().includes(q) ||
+        r.subject.toLowerCase().includes(q) ||
+        r.workType.toLowerCase().includes(q) ||
+        r.criticalPoints.toLowerCase().includes(q)
+      );
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Требований не найдено</div>';
+        return;
+      }
+
+      list.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "req-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${r.subject}</span>
+              <div style="font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px;">${r.prof}</div>
+            </div>
+            ${canEdit() ? `
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditReqModal(${r.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteRequirement(${r.id})">Удалить</button>
+            </div>` : ''}
+          </div>
+
+          <div class="req-pill-group">
+            <span class="req-tag">📄 ${r.workType}</span>
+            <span class="req-tag">📏 ${r.volume}</span>
+            <span class="req-tag alert">🔍 Антиплагиат: ${r.originality}</span>
+            <span class="req-tag">⏳ ${r.deadlineRule}</span>
+          </div>
+
+          <div class="req-box" style="margin-top: 6px;">
+            <b>Критерии и защита:</b> ${r.criticalPoints}
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-req").onclick = () => {
+      if (!canEdit()) return;
+      const prof = document.getElementById("new-req-prof").value.trim();
+      const subject = document.getElementById("new-req-subject").value;
+      const workType = document.getElementById("new-req-worktype").value.trim() || "Реферат / Семинар";
+      const volume = document.getElementById("new-req-volume").value.trim() || "15-20 стр";
+      const originality = document.getElementById("new-req-orig").value.trim() || "от 65%";
+      const deadlineRule = document.getElementById("new-req-deadline").value.trim() || "На семинаре";
+      const criticalPoints = document.getElementById("new-req-details").value.trim();
+
+      if (!prof || !criticalPoints) {
+        alert("Укажи преподавателя и ключевые требования/критерии сдачи!");
+        return;
+      }
+
+      requirementsData.unshift({
+        id: Date.now(),
+        prof,
+        subject,
+        workType,
+        volume,
+        originality,
+        deadlineRule,
+        criticalPoints
+      });
+
+      commitData();
+      document.getElementById("new-req-prof").value = "";
+      document.getElementById("new-req-worktype").value = "";
+      document.getElementById("new-req-volume").value = "";
+      document.getElementById("new-req-orig").value = "";
+      document.getElementById("new-req-deadline").value = "";
+      document.getElementById("new-req-details").value = "";
+      renderRequirements();
+      showToast("Регламент добавлен!");
+    };
+
+    window.openEditReqModal = function(id) {
+      if (!canEdit()) return;
+      const r = requirementsData.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById("edit-req-id").value = r.id;
+      document.getElementById("edit-req-prof").value = r.prof;
+      document.getElementById("edit-req-subject").value = r.subject;
+      document.getElementById("edit-req-worktype").value = r.workType;
+      document.getElementById("edit-req-volume").value = r.volume;
+      document.getElementById("edit-req-orig").value = r.originality;
+      document.getElementById("edit-req-deadline").value = r.deadlineRule;
+      document.getElementById("edit-req-details").value = r.criticalPoints;
+      document.getElementById("edit-req-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-req-modal").onclick = () => {
+      document.getElementById("edit-req-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-req").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-req-id").value);
+      const r = requirementsData.find(x => x.id === id);
+      if (r) {
+        r.prof = document.getElementById("edit-req-prof").value.trim();
+        r.subject = document.getElementById("edit-req-subject").value;
+        r.workType = document.getElementById("edit-req-worktype").value.trim();
+        r.volume = document.getElementById("edit-req-volume").value.trim();
+        r.originality = document.getElementById("edit-req-orig").value.trim();
+        r.deadlineRule = document.getElementById("edit-req-deadline").value.trim();
+        r.criticalPoints = document.getElementById("edit-req-details").value.trim();
+
+        commitData();
+        renderRequirements(document.getElementById("req-search").value);
+        document.getElementById("edit-req-modal").classList.remove("open");
+        showToast("Требования обновлены!");
+      }
+    };
+
+    window.deleteRequirement = function(id) {
+      if (!canEdit()) return;
+      if (confirm("Удалить требование по этому преподавателю?")) {
+        requirementsData = requirementsData.filter(x => x.id !== id);
+        commitData();
+        renderRequirements(document.getElementById("req-search").value);
+        showToast("Требование удалено");
+      }
+    };
+
+    // ДЕДЛАЙНЫ
+    function renderDeadlines(filterText = "") {
+      const box = document.getElementById("deadlines-list");
+      box.innerHTML = "";
+      const query = filterText.toLowerCase();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const list = [...deadlinesData]
+        .filter(d => d.subject.toLowerCase().includes(query) || d.topic.toLowerCase().includes(query) || d.type.toLowerCase().includes(query))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          return new Date(a.date) - new Date(b.date);
+        });
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Дедлайнов не найдено</div>';
+        return;
+      }
+
+      list.forEach(d => {
+        const card = document.createElement("div");
+        card.className = `deadline-card ${d.completed ? 'completed' : ''}`;
+
+        const dDate = new Date(d.date);
+        dDate.setHours(0,0,0,0);
+        const diffDays = Math.ceil((dDate - today) / (1000 * 60 * 60 * 24));
+
+        let badgeHtml = "";
+        if (d.completed) {
+          badgeHtml = '<span class="badge-done">Зачтено</span>';
+        } else if (diffDays < 0) {
+          badgeHtml = `<span class="badge-urgent">Просрочено (${Math.abs(diffDays)} дн)</span>`;
+        } else if (diffDays === 0) {
+          badgeHtml = '<span class="badge-urgent">🔥 Дедлайн сегодня!</span>';
+        } else if (diffDays <= 2) {
+          badgeHtml = `<span class="badge-soon">⚠️ Осталось: ${diffDays} дн</span>`;
+        } else {
+          badgeHtml = `<span class="badge-ok">До сдачи: ${diffDays} дн</span>`;
+        }
+
+        const dateFormatted = d.date.split("-").reverse().join(".");
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="checkbox" class="task-checkbox" ${d.completed ? 'checked' : ''} onchange="toggleDeadlineStatus(${d.id})">
+              <span class="type-pill type-seminar">${d.type}</span>
+            </div>
+            ${badgeHtml}
+          </div>
+          <div class="dl-title" style="font-size: 14px; font-weight: 700; margin-top: 2px;">${d.subject}: ${d.topic}</div>
+          <div style="font-size: 12px; color: var(--text-dim);">${d.reqs || 'Требования стандартные'}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--text-dim);">
+            <span>Срок: <b>${dateFormatted}</b></span>
+            ${canEdit() ? `
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditDeadlineModal(${d.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteDeadline(${d.id})">Удалить</button>
+            </div>` : ''}
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.toggleDeadlineStatus = function(id) {
+      const dl = deadlinesData.find(x => x.id === id);
+      if (dl) {
+        dl.completed = !dl.completed;
+        saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
+        renderDeadlines(document.getElementById("deadline-search").value);
+      }
+    };
+
+    window.openEditDeadlineModal = function(id) {
+      if (!canEdit()) return;
+      const dl = deadlinesData.find(x => x.id === id);
+      if (!dl) return;
+      document.getElementById("edit-dl-id").value = dl.id;
+      document.getElementById("edit-dl-subject").value = dl.subject;
+      document.getElementById("edit-dl-topic").value = dl.topic;
+      document.getElementById("edit-dl-type").value = dl.type;
+      document.getElementById("edit-dl-date").value = dl.date;
+      document.getElementById("edit-dl-reqs").value = dl.reqs;
+      document.getElementById("edit-dl-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-dl-modal").onclick = () => {
+      document.getElementById("edit-dl-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-dl").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-dl-id").value);
+      const dl = deadlinesData.find(x => x.id === id);
+      if (dl) {
+        dl.subject = document.getElementById("edit-dl-subject").value;
+        dl.topic = document.getElementById("edit-dl-topic").value.trim();
+        dl.type = document.getElementById("edit-dl-type").value;
+        dl.date = document.getElementById("edit-dl-date").value;
+        dl.reqs = document.getElementById("edit-dl-reqs").value.trim();
+
+        commitData();
+        renderDeadlines(document.getElementById("deadline-search").value);
+        document.getElementById("edit-dl-modal").classList.remove("open");
+        showToast("Задание обновлено!");
+      }
+    };
+
+    window.deleteDeadline = function(id) {
+      if (!canEdit()) return;
+      if (confirm("Удалить это задание?")) {
+        deadlinesData = deadlinesData.filter(x => x.id !== id);
+        commitData();
+        renderDeadlines(document.getElementById("deadline-search").value);
+        showToast("Задание удалено");
+      }
+    };
+
+    document.getElementById("btn-add-deadline").onclick = () => {
+      if (!canEdit()) return;
+      const subject = document.getElementById("new-dl-subject").value;
+      const topic = document.getElementById("new-dl-topic").value.trim();
+      const type = document.getElementById("new-dl-type").value;
+      const date = document.getElementById("new-dl-date").value;
+      const reqs = document.getElementById("new-dl-reqs").value.trim();
+
+      if (!topic || !date) {
+        alert("Укажи тему и дату сдачи");
+        return;
+      }
+
+      deadlinesData.push({ id: Date.now(), subject, topic, type, date, reqs, completed: false });
+      commitData();
+      document.getElementById("new-dl-topic").value = "";
+      document.getElementById("new-dl-reqs").value = "";
+      renderDeadlines();
+      showToast("Дедлайн добавлен!");
+    };
+
+    // БРС
+    function renderPerformance() {
+      const box = document.getElementById("performance-list");
+      box.innerHTML = "";
+
+      performanceData.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "score-card";
+
+        let scoreClass = "pass";
+        let scoreVerdict = "Недопуск";
+        if (item.score >= 90) { scoreClass = "auto"; scoreVerdict = "Автомат (отлично)"; }
+        else if (item.score >= 75) { scoreClass = "good"; scoreVerdict = "Автомат (хорошо)"; }
+        else if (item.score >= 60) { scoreClass = "pass"; scoreVerdict = "Допуск к зачету"; }
+
+        const absPercent = Math.min(100, Math.round((item.absences / item.maxAbsences) * 100));
+        let absColor = "var(--green)";
+        if (item.absences >= item.maxAbsences) absColor = "var(--red)";
+        else if (item.absences >= item.maxAbsences - 1) absColor = "var(--orange)";
+
+        card.innerHTML = `
+          <div class="score-head">
+            <span class="score-subject">${item.subject}</span>
+            <span class="score-target" style="color: ${scoreClass === 'auto' ? 'var(--green)' : 'var(--text-dim)'};">${scoreVerdict}</span>
+          </div>
+
+          <div class="meter-box">
+            <div class="meter-row">
+              <span>Баллы БРС: <b>${item.score} / 100</b></span>
+              <div class="counter-ctrl">
+                <button class="btn-counter" onclick="changeScore(${item.id}, -5)">-5</button>
+                <button class="btn-counter" onclick="changeScore(${item.id}, 5)">+5</button>
+              </div>
+            </div>
+            <div class="bar-bg">
+              <div class="bar-fill ${scoreClass}" style="width: ${Math.min(100, item.score)}%;"></div>
+            </div>
+          </div>
+
+          <div class="meter-box" style="margin-top: 6px;">
+            <div class="meter-row">
+              <span>Пропуски (энок): <b style="color: ${absColor};">${item.absences} / ${item.maxAbsences} пар</b></span>
+              <div class="counter-ctrl">
+                <button class="btn-counter" onclick="changeAbsence(${item.id}, -1)">-</button>
+                <button class="btn-counter" onclick="changeAbsence(${item.id}, 1)">+</button>
+              </div>
+            </div>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: ${absPercent}%; background: ${absColor};"></div>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.changeScore = function(id, delta) {
+      const item = performanceData.find(x => x.id === id);
+      if (item) {
+        item.score = Math.max(0, Math.min(100, item.score + delta));
+        saveDB("HUB_PERF_25A_V14", performanceData);
+        renderPerformance();
+      }
+    };
+
+    window.changeAbsence = function(id, delta) {
+      const item = performanceData.find(x => x.id === id);
+      if (item) {
+        item.absences = Math.max(0, item.absences + delta);
+        if (item.absences >= item.maxAbsences) {
+          showToast(`Лимит пропусков по ${item.subject} исчерпан!`);
+        }
+        saveDB("HUB_PERF_25A_V14", performanceData);
+        renderPerformance();
+      }
+    };
+
+    // ЛЕКЦИИ
+    function renderLectureFilters() {
+      const bar = document.getElementById("subject-filter-bar");
+      bar.innerHTML = "";
+      ["Все", ...SUBJECTS_LIST].forEach(sub => {
+        const btn = document.createElement("button");
+        btn.className = `tab-btn ${activeLectureFilter === sub ? 'active' : ''}`;
+        btn.style.minWidth = "auto";
+        btn.style.padding = "6px 12px";
+        btn.style.whiteSpace = "nowrap";
+        btn.innerText = sub;
+        btn.onclick = () => {
+          activeLectureFilter = sub;
+          renderLectureFilters();
+          renderLectures(document.getElementById("lecture-search").value);
+        };
+        bar.appendChild(btn);
+      });
+
+      ["new-lec-subject", "edit-lec-subject", "new-req-subject", "edit-req-subject", "new-dl-subject", "edit-dl-subject"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = "";
+        SUBJECTS_LIST.forEach(sub => {
+          const opt = document.createElement("option");
+          opt.value = sub;
+          opt.innerText = sub;
+          el.appendChild(opt);
+        });
+      });
+    }
+
+    function renderLectures(searchQuery = "") {
+      const box = document.getElementById("lectures-list");
+      box.innerHTML = "";
+      const q = searchQuery.toLowerCase().trim();
+
+      let list = lecturesData;
+      if (activeLectureFilter !== "Все") list = list.filter(l => l.subject === activeLectureFilter);
+      if (q) list = list.filter(l => l.title.toLowerCase().includes(q) || l.subject.toLowerCase().includes(q) || l.notes.toLowerCase().includes(q));
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Конспектов пока нет</div>';
+        return;
+      }
+
+      list.forEach(l => {
+        const card = document.createElement("div");
+        card.className = "lecture-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${l.subject}</span>
+            <span style="font-size: 11px; color: var(--text-dim);">${l.date}</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 700;">${l.title}</div>
+          ${l.notes ? `<div style="font-size: 12px; color: #94a3b8; line-height: 1.4; white-space: pre-line;">${l.notes}</div>` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            ${l.link ? `<a href="${l.link}" target="_blank" class="attach-link">Диск / Файл ↗</a>` : '<span></span>'}
+            ${canEdit() ? `
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditLectureModal(${l.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteLecture(${l.id})">Удалить</button>
+            </div>` : ''}
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-lecture").onclick = () => {
+      if (!canEdit()) return;
+      const subject = document.getElementById("new-lec-subject").value;
+      const title = document.getElementById("new-lec-title").value.trim();
+      const notes = document.getElementById("new-lec-notes").value.trim();
+      const link = document.getElementById("new-lec-link").value.trim();
+
+      if (!title) {
+        alert("Введи тему лекции");
+        return;
+      }
+
+      const d = new Date();
+      const dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`;
+
+      lecturesData.unshift({ id: Date.now(), subject, title, date: dateStr, notes, link });
+      commitData();
+
+      document.getElementById("new-lec-title").value = "";
+      document.getElementById("new-lec-notes").value = "";
+      document.getElementById("new-lec-link").value = "";
+      renderLectures();
+      showToast("Конспект сохранен");
+    };
+
+    window.openEditLectureModal = function(id) {
+      if (!canEdit()) return;
+      const l = lecturesData.find(x => x.id === id);
+      if (!l) return;
+      document.getElementById("edit-lec-id").value = l.id;
+      document.getElementById("edit-lec-subject").value = l.subject;
+      document.getElementById("edit-lec-title").value = l.title;
+      document.getElementById("edit-lec-date").value = l.date;
+      document.getElementById("edit-lec-notes").value = l.notes;
+      document.getElementById("edit-lec-link").value = l.link || "";
+      document.getElementById("edit-lec-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-lec-modal").onclick = () => {
+      document.getElementById("edit-lec-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-lec").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-lec-id").value);
+      const l = lecturesData.find(x => x.id === id);
+      if (l) {
+        l.subject = document.getElementById("edit-lec-subject").value;
+        l.title = document.getElementById("edit-lec-title").value.trim();
+        l.date = document.getElementById("edit-lec-date").value.trim();
+        l.notes = document.getElementById("edit-lec-notes").value.trim();
+        l.link = document.getElementById("edit-lec-link").value.trim();
+
+        commitData();
+        renderLectures(document.getElementById("lecture-search").value);
+        document.getElementById("edit-lec-modal").classList.remove("open");
+        showToast("Конспект обновлен!");
+      }
+    };
+
+    window.deleteLecture = function(id) {
+      if (!canEdit()) return;
+      if (confirm("Удалить конспект?")) {
+        lecturesData = lecturesData.filter(l => l.id !== id);
+        commitData();
+        renderLectures(document.getElementById("lecture-search").value);
+      }
+    };
+
+    // ПРЕПОДАВАТЕЛИ
+    function renderTeachers(filterText = "") {
+      const box = document.getElementById("teachers-list");
+      box.innerHTML = "";
+      const q = filterText.toLowerCase();
+
+      const list = teachersData.filter(t => t.name.toLowerCase().includes(q) || t.subjects.toLowerCase().includes(q) || t.dept.toLowerCase().includes(q));
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty-note">Преподаватель не найден</div>';
+        return;
+      }
+
+      list.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "prof-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: #fff;">${t.name}</div>
+              <div class="prof-dept">${t.dept}</div>
+            </div>
+            ${canEdit() ? `
+            <div class="card-actions-row">
+              <button class="edit-btn" onclick="openEditTeacherModal(${t.id})">✏️ изм.</button>
+              <button class="delete-btn" onclick="deleteTeacher(${t.id})">Удалить</button>
+            </div>` : ''}
+          </div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;"><b>Курсы:</b> ${t.subjects}</div>
+          <div class="prof-loc">📍 <b>Где искать:</b> ${t.catchInfo}</div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-add-prof").onclick = () => {
+      if (!canEdit()) return;
+      const name = document.getElementById("new-prof-name").value.trim();
+      const dept = document.getElementById("new-prof-dept").value.trim();
+      const subjects = document.getElementById("new-prof-subjects").value.trim();
+      const loc = document.getElementById("new-prof-loc").value.trim();
+
+      if (!name) {
+        alert("Укажи ФИО преподавателя");
+        return;
+      }
+
+      teachersData.unshift({
+        id: Date.now(),
+        name,
+        dept: dept || "Кафедра уточняется",
+        subjects: subjects || "Дисциплина курса",
+        catchInfo: loc || "Кафедра преподавателя"
+      });
+
+      commitData();
+      document.getElementById("new-prof-name").value = "";
+      document.getElementById("new-prof-dept").value = "";
+      document.getElementById("new-prof-subjects").value = "";
+      document.getElementById("new-prof-loc").value = "";
+      renderTeachers();
+      showToast("Преподаватель добавлен!");
+    };
+
+    window.openEditTeacherModal = function(id) {
+      if (!canEdit()) return;
+      const t = teachersData.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("edit-prof-id").value = t.id;
+      document.getElementById("edit-prof-name").value = t.name;
+      document.getElementById("edit-prof-dept").value = t.dept;
+      document.getElementById("edit-prof-subjects").value = t.subjects;
+      document.getElementById("edit-prof-loc").value = t.catchInfo;
+      document.getElementById("edit-prof-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-close-prof-modal").onclick = () => {
+      document.getElementById("edit-prof-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-save-prof").onclick = () => {
+      if (!canEdit()) return;
+      const id = Number(document.getElementById("edit-prof-id").value);
+      const t = teachersData.find(x => x.id === id);
+      if (t) {
+        t.name = document.getElementById("edit-prof-name").value.trim();
+        t.dept = document.getElementById("edit-prof-dept").value.trim();
+        t.subjects = document.getElementById("edit-prof-subjects").value.trim();
+        t.catchInfo = document.getElementById("edit-prof-loc").value.trim();
+
+        commitData();
+        renderTeachers(document.getElementById("prof-search").value);
+        document.getElementById("edit-prof-modal").classList.remove("open");
+        showToast("Данные преподавателя обновлены!");
+      }
+    };
+
+    window.deleteTeacher = function(id) {
+      if (!canEdit()) return;
+      if (confirm("Удалить преподавателя из справочника?")) {
+        teachersData = teachersData.filter(x => x.id !== id);
+        commitData();
+        renderTeachers(document.getElementById("prof-search").value);
+        showToast("Преподаватель удален");
+      }
+    };
+
+    // ПАРСЕР ТЕКСТА
+    document.getElementById("btn-open-parser").onclick = () => {
+      if (!canEdit()) return;
+      document.getElementById("parser-modal").classList.add("open");
+    };
+    document.getElementById("btn-close-parser").onclick = () => {
+      document.getElementById("parser-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-insert-sample").onclick = () => {
+      const sampleText = `14.09.26 Понедельник
+1 пара Финансы, ден.обращ. и кредит с.2 Моторина Д.В. (211)
+2 пара Финансы, денежное обращение и кредит л.5 Моторина Д.В. (209)
+3 пара Экономика организаций л.3 Мазниченко В.Л. (1107)
+
+15.09.26 Вторник
+1 пара Статистика л.3 Фурин А.Д. (209)
+2 пара Основы финансовой грамотности л.3 Моисеенко Д.Д. (1002)
+3 пара Экономика организаций л.4 Мазниченко В.Л. (1107)
+4 пара Осн. фин. грам. с.1 Моисеенко Д.Д. (1102)
+
+16.09.26 Среда
+3 пара Статистика п.1 Фурин А.Д. (806)
+4 пара Финансы, денежное обращение и кредит л.6 Моторина Д.В. (209)
+5 пара ИТ в проф деят л.3 Бридель Т.В. (209)
+6 пара Ин. яз. в проф. деят. п.4 Конкова А.М. (201)
+
+17.09.26 Четверг
+5 пара История России л.4 Страхова И.В. (1002)
+6 пара История России с.1 Страхова И.В. (1003)
+
+18.09.26 Пятница
+2 пара Менеджмент л.3 Инжиева Д.М. (504)
+3 пара Проф. этика с.2 Григор О.Г. (1006)
+4 пара Профессиональная этика л.3 Григор О.Г. (802)
+5 пара ИТ в проф деят п.2 Бридель Т.В. (606)`;
+      document.getElementById("parser-input").value = sampleText;
+    };
+
+    document.getElementById("btn-run-parser").onclick = () => {
+      if (!canEdit()) return;
+      const raw = document.getElementById("parser-input").value;
+      if (!raw.trim()) {
+        alert("Вставь текст расписания в поле!");
+        return;
+      }
+
+      const targetWeek = document.getElementById("parser-week-target").value;
+      const clearOld = document.getElementById("parser-clear-old").checked;
+
+      let baseGrid = clearOld ? generateEmptyWeekGrid() : [...scheduleData];
+
+      const lines = raw.split(/\r?\n/);
+      let currentDay = null;
+      let parsedCount = 0;
+
+      const daysMap = [
+        { regex: /понедельник|пн/i, day: 1 },
+        { regex: /вторник|вт/i, day: 2 },
+        { regex: /среда|ср/i, day: 3 },
+        { regex: /четверг|чт/i, day: 4 },
+        { regex: /пятница|пт/i, day: 5 },
+        { regex: /суббота|сб/i, day: 6 }
+      ];
+
+      lines.forEach(rawLine => {
+        let line = rawLine.trim();
+        if (!line) return;
+
+        for (let d of daysMap) {
+          if (d.regex.test(line)) {
+            if (/понедельник|вторник|среда|четверг|пятница|суббота/i.test(line) || /^(пн|вт|ср|чт|пт|сб)[:\s-]/i.test(line)) {
+              currentDay = d.day;
+              line = line.replace(/(\d{1,2}\.\d{1,2}(?:\.\d{2,4})?)?\s*(понедельник|вторник|среда|четверг|пятница|суббота|пн|вт|ср|чт|пт|сб)[:\s-]*/i, '').trim();
+              break;
+            }
+          }
+        }
+
+        if (!currentDay || !line) return;
+
+        let pairNum = null;
+        let rest = line;
+
+        const pMatch = line.match(/^(?:пара\s*)?([1-7])(?:\s*пара|\.|\)|\-|\:)?\s*(.*)/i);
+        if (pMatch) {
+          pairNum = parseInt(pMatch[1]);
+          rest = pMatch[2].trim().replace(/^(?:пара\b|\.|\)|\-|\:)\s*/i, '');
+        }
+
+        if (pairNum && rest) {
+          rest = rest.replace(/^\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*/, '');
+
+          let room = "";
+          const roomParentheses = rest.match(/\(([^)]+)\)/);
+          if (roomParentheses) {
+            room = roomParentheses[1].replace(/каб\.?|ауд\.?/gi, '').trim();
+            rest = rest.replace(roomParentheses[0], ' ');
+          } else {
+            const roomLabel = rest.match(/(?:каб\.?|ауд\.?|ком\.?)\s*([0-9a-zA-Zа-яА-Я\-]+)/i);
+            if (roomLabel) {
+              room = roomLabel[1].trim();
+              rest = rest.replace(roomLabel[0], ' ');
+            }
+          }
+
+          let prof = "";
+          const profMatch = rest.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s*[А-ЯЁ]\.?)/);
+          if (profMatch) {
+            prof = `${profMatch[1]} ${profMatch[2]}`;
+            rest = rest.replace(profMatch[0], ' ');
+          }
+
+          let ptype = "lecture";
+          if (/\b[сc]\.\d*\b/i.test(rest) || /семинар|практика|\bп\.\d*\b|лаб/i.test(rest)) {
+            ptype = "seminar";
+          } else if (/\b[лl]\.\d*\b/i.test(rest) || /лек/i.test(rest)) {
+            ptype = "lecture";
+          }
+
+          let subjName = rest
+            .replace(/\b[лспlc]\.\d*\b/gi, '')
+            .replace(/^(?:лекция|семинар|практика|лаб\.?)\s*[:\-]?\s*/i, '')
+            .replace(/\s+/g, ' ')
+            .replace(/[\s\-:;,]+$/, '')
+            .trim();
+
+          if (subjName) {
+            const targetId = currentDay * 100 + pairNum;
+            const idx = baseGrid.findIndex(x => x.id === targetId);
+            const entry = {
+              id: targetId,
+              day: currentDay,
+              num: pairNum,
+              name: subjName,
+              prof: prof || "",
+              room: room || "—",
+              type: ptype,
+              task: "",
+              link: "",
+              week: targetWeek,
+              taskDone: false
+            };
+
+            if (idx !== -1) baseGrid[idx] = entry;
+            else baseGrid.push(entry);
+            parsedCount++;
+          }
+        }
+      });
+
+      if (parsedCount === 0) {
+        alert("Не удалось распознать пары. Проверь формат ввода (день недели и номера пар от 1 до 7)");
+        return;
+      }
+
+      scheduleData = baseGrid;
+      commitData();
+      renderSchedule();
+      updateLiveStatus();
+      document.getElementById("parser-modal").classList.remove("open");
+      showToast(`Импортировано пар: ${parsedCount}!`);
+    };
+
+    // Копирование в буфер
+    document.getElementById("btn-copy-today").onclick = () => {
+      const activePairs = scheduleData
+        .filter(p => p.day === activeDay && (p.week === "all" || p.week === String(viewingMonthWeek)) && p.name && p.name.trim().length > 0)
+        .sort((a, b) => a.num - b.num);
+
+      const dayName = DAYS_SHORT[activeDay];
+
+      if (activePairs.length === 0) {
+        navigator.clipboard.writeText(`Расписание 25А на ${dayName} (${viewingMonthWeek}-я нед. месяца): Пар нет! Свободный день 🎉`);
+        showToast("Скопировано: Пар нет!");
+        return;
+      }
+
+      let text = `📅 Расписание 25А на ${dayName} (${viewingMonthWeek}-я неделя):\n`;
+      activePairs.forEach(p => {
+        const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
+        const typeRu = p.type === "seminar" ? "Сем" : "Лек";
+        text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${typeRu}] каб. ${p.room} (${p.prof})\n`;
+        if (p.task && !p.taskDone) {
+          text += `   ⚠️ Задание: ${p.task}\n`;
+        }
+      });
+
+      navigator.clipboard.writeText(text);
+      showToast("Расписание скопировано для беседы!");
+    };
+
+    // Календарь (.ics)
+    document.getElementById("btn-export-ics").onclick = () => {
+      let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//StudyHub//Schedule25A//RU\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+      const now = new Date();
+
+      for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
+        const targetDate = new Date(now);
+        targetDate.setDate(now.getDate() + dayOffset);
+
+        const dayIndex = targetDate.getDay();
+        if (dayIndex === 0) continue;
+
+        const targetWeek = Math.min(4, Math.ceil(targetDate.getDate() / 7));
+        const dayPairs = scheduleData.filter(p => p.day === dayIndex && (p.week === "all" || p.week === String(targetWeek)) && p.name && p.name.trim().length > 0);
+
+        dayPairs.forEach(p => {
+          const bell = BELLS.find(b => b.num === p.num);
+          if (!bell) return;
+
+          const [sh, sm] = bell.start.split(":").map(Number);
+          const [eh, em] = bell.end.split(":").map(Number);
+
+          const startDt = new Date(targetDate);
+          startDt.setHours(sh, sm, 0, 0);
+
+          const endDt = new Date(targetDate);
+          endDt.setHours(eh, em, 0, 0);
+
+          const formatICSDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+          icsContent += "BEGIN:VEVENT\n";
+          icsContent += `UID:studyhub-25a-${p.id}-${startDt.getTime()}@hub\n`;
+          icsContent += `DTSTAMP:${formatICSDate(new Date())}\n`;
+          icsContent += `DTSTART:${formatICSDate(startDt)}\n`;
+          icsContent += `DTEND:${formatICSDate(endDt)}\n`;
+          icsContent += `SUMMARY:${p.name} (${p.type === 'seminar' ? 'Семинар' : 'Лекция'})\n`;
+          icsContent += `LOCATION:каб. ${p.room} (${getRoomDetails(p.room)})\n`;
+          icsContent += `DESCRIPTION:Преподаватель: ${p.prof}${p.task ? '\\nЗадание: ' + p.task : ''}\n`;
+          icsContent += "END:VEVENT\n";
+        });
+      }
+      icsContent += "END:VCALENDAR";
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "raspisanie_25A.ics";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Календарь (.ics) сформирован!");
+    };
+
+    // Живой статус
+    function updateLiveStatus() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById("clock").innerText = `${h}:${m}`;
+
+      const curDay = now.getDay();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+      const ind = document.getElementById("live-indicator");
+      const title = document.getElementById("live-title");
+      const desc = document.getElementById("live-desc");
+
+      document.getElementById("current-week-tag").innerText = `${viewingMonthWeek}-я неделя`;
+
+      const todayPairs = scheduleData
+        .filter(p => p.day === curDay && (p.week === "all" || p.week === String(realMonthWeek)) && p.name && p.name.trim().length > 0)
+        .sort((a, b) => a.num - b.num);
+
+      if (curDay === 0 || todayPairs.length === 0) {
+        ind.className = "indicator idle";
+        title.innerText = "Пар сегодня нет";
+        desc.innerText = "Свободный график";
+        return;
+      }
+
+      let active = null;
+      for (let p of todayPairs) {
+        const bell = BELLS.find(b => b.num === p.num);
+        if (bell && currentMins >= timeToMins(bell.start) && currentMins <= timeToMins(bell.end)) {
+          active = { ...p, bell };
+          break;
+        }
+      }
+
+      if (active) {
+        ind.className = "indicator";
+        title.innerText = `Идет ${active.num} пара: ${active.name}`;
+        desc.innerText = `каб. ${active.room} (${getRoomDetails(active.room)}) • Осталось: ${timeToMins(active.bell.end) - currentMins} мин`;
+        return;
+      }
+
+      let next = null;
+      for (let p of todayPairs) {
+        const bell = BELLS.find(b => b.num === p.num);
+        if (bell && currentMins < timeToMins(bell.start)) {
+          next = { ...p, bell };
+          break;
+        }
+      }
+
+      if (next) {
+        const diff = timeToMins(next.bell.start) - currentMins;
+        ind.className = "indicator break";
+        if (diff > 30) {
+          title.innerText = `Окно • След: каб. ${next.room} (${next.num} пара)`;
+          desc.innerText = `${next.name} через ${diff} мин`;
+        } else {
+          title.innerText = `Перемена • След: каб. ${next.room}`;
+          desc.innerText = `${next.name} через ${diff} мин`;
+        }
+      } else {
+        ind.className = "indicator idle";
+        title.innerText = "Пары завершены";
+        desc.innerText = "Свободное время";
+      }
+    }
+
+    // АВТОРИЗАЦИЯ И УПРАВЛЕНИЕ РОЛЯМИ
+    function processLogin(pass) {
+      if (!pass) return false;
+      if (pass === directorPassword) {
+        setRole("director");
+        showToast("Вход выполнен: Директор 👑");
+        return true;
+      } else if (pass === deputyPassword) {
+        setRole("deputy");
+        showToast("Вход выполнен: Зам. директора 👔");
+        return true;
+      } else {
+        alert("Неверный пароль доступа!");
+        return false;
+      }
+    }
+
+    document.getElementById("btn-role-trigger").onclick = () => {
+      document.getElementById("quick-pass-input").value = "";
+      document.getElementById("auth-modal").classList.add("open");
+    };
+
+    document.getElementById("btn-quick-cancel").onclick = () => {
+      document.getElementById("auth-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-quick-login").onclick = () => {
+      const pass = document.getElementById("quick-pass-input").value.trim();
+      if (processLogin(pass)) {
+        document.getElementById("auth-modal").classList.remove("open");
+      }
+    };
+
+    document.getElementById("btn-auth-login").onclick = () => {
+      const pass = document.getElementById("auth-pass-input").value.trim();
+      if (processLogin(pass)) {
+        document.getElementById("auth-pass-input").value = "";
+      }
+    };
+
+    document.getElementById("btn-auth-logout").onclick = () => {
+      setRole("abiturient");
+      showToast("Вы переключились в режим Абитуриента");
+    };
+
+    // ОБЛАКО: СМЕНА URL (ТОЛЬКО ДИРЕКТОР)
+    document.getElementById("btn-save-cloud-config").onclick = () => {
+      if (!canManageAdmin()) {
+        showToast("Только Директор имеет право менять URL базы!");
+        return;
+      }
+      const url = document.getElementById("cloud-api-url").value.trim();
+      cloudApiUrl = url;
+      localStorage.setItem("HUB_CLOUD_URL", url);
+      showToast("URL облака сохранен!");
+      fetchFromCloud(true);
+    };
+
+    document.getElementById("btn-test-cloud").onclick = () => fetchFromCloud(true);
+    document.getElementById("btn-cloud-sync").onclick = () => fetchFromCloud(true);
+
+    // СМЕНА ПАРОЛЕЙ (ТОЛЬКО ДИРЕКТОР)
+    document.getElementById("btn-change-pass").onclick = () => {
+      if (!canManageAdmin()) {
+        showToast("Только Директор имеет право менять пароли!");
+        return;
+      }
+      const targetRole = document.getElementById("target-change-role").value;
+      const oldP = document.getElementById("settings-old-pass").value.trim();
+      const newP = document.getElementById("settings-new-pass").value.trim();
+      const confirmP = document.getElementById("settings-confirm-pass").value.trim();
+
+      if (oldP !== directorPassword) {
+        alert("Текущий пароль Директора указан неверно!");
+        return;
+      }
+      if (newP.length < 3) {
+        alert("Новый пароль слишком короткий (минимум 3 символа)");
+        return;
+      }
+      if (newP !== confirmP) {
+        alert("Новые пароли не совпадают!");
+        return;
+      }
+
+      if (targetRole === "director") {
+        directorPassword = newP;
+        localStorage.setItem("HUB_DIRECTOR_PASS", newP);
+        showToast("Пароль Директора обновлен!");
+      } else {
+        deputyPassword = newP;
+        localStorage.setItem("HUB_DEPUTY_PASS", newP);
+        showToast("Пароль Зам. директора обновлен!");
+      }
+
+      document.getElementById("settings-old-pass").value = "";
+      document.getElementById("settings-new-pass").value = "";
+      document.getElementById("settings-confirm-pass").value = "";
+    };
+
+    // ЭКСПОРТ И ИМПОРТ
+    document.getElementById("btn-export-json").onclick = () => {
+      const fullDump = {
+        group: "25A",
+        version: "14.0",
+        timestamp: new Date().toISOString(),
+        schedule: scheduleData,
+        requirements: requirementsData,
+        deadlines: deadlinesData,
+        lectures: lecturesData,
+        teachers: teachersData,
+        performance: performanceData
+      };
+
+      const blob = new Blob([JSON.stringify(fullDump, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `study_hub_25A_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("Резервная копия скачана!");
+    };
+
+    document.getElementById("import-file").onchange = (e) => {
+      if (!canManageAdmin()) {
+        showToast("Восстановление доступно только Директору");
+        e.target.value = "";
+        return;
+      }
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed.schedule && parsed.deadlines && parsed.performance) {
+            scheduleData = parsed.schedule;
+            requirementsData = parsed.requirements || DEFAULT_REQUIREMENTS;
+            deadlinesData = parsed.deadlines;
+            lecturesData = parsed.lectures || [];
+            teachersData = parsed.teachers || DEFAULT_TEACHERS;
+            performanceData = parsed.performance;
+
+            commitData();
+            renderSchedule();
+            renderRequirements();
+            renderDeadlines();
+            renderPerformance();
+            renderLectures();
+            renderTeachers();
+            showToast("База успешно восстановлена!");
+          } else {
+            alert("Некорректный формат файла бэкапа");
+          }
+        } catch (err) {
+          alert("Ошибка чтения JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    // 15-СЕКУНДНЫЙ ТАЙМЕР ЗАЩИТЫ СБРОСА (ТОЛЬКО ДИРЕКТОР)
+    let resetTimerInterval = null;
+    let resetSecondsLeft = 15;
+
+    document.getElementById("btn-reset-data").onclick = () => {
+      if (!canManageAdmin()) {
+        showToast("Только Директор имеет право делать полный сброс!");
+        return;
+      }
+
+      resetSecondsLeft = 15;
+      const countEl = document.getElementById("reset-countdown");
+      const btnConfirm = document.getElementById("btn-confirm-reset");
+
+      countEl.innerText = resetSecondsLeft;
+      btnConfirm.disabled = true;
+      btnConfirm.style.opacity = "0.4";
+      btnConfirm.style.cursor = "not-allowed";
+      btnConfirm.innerText = `Сброс заблокирован (${resetSecondsLeft})`;
+
+      document.getElementById("reset-modal").classList.add("open");
+
+      if (resetTimerInterval) clearInterval(resetTimerInterval);
+
+      resetTimerInterval = setInterval(() => {
+        resetSecondsLeft--;
+        countEl.innerText = resetSecondsLeft;
+        btnConfirm.innerText = `Сброс заблокирован (${resetSecondsLeft})`;
+
+        if (resetSecondsLeft <= 0) {
+          clearInterval(resetTimerInterval);
+          btnConfirm.disabled = false;
+          btnConfirm.style.opacity = "1";
+          btnConfirm.style.cursor = "pointer";
+          btnConfirm.innerText = "ПОДТВЕРДИТЬ ПОЛНЫЙ СБРОС";
+        }
+      }, 1000);
+    };
+
+    document.getElementById("btn-cancel-reset").onclick = () => {
+      if (resetTimerInterval) clearInterval(resetTimerInterval);
+      document.getElementById("reset-modal").classList.remove("open");
+    };
+
+    document.getElementById("btn-confirm-reset").onclick = () => {
+      if (resetSecondsLeft > 0) return;
+      if (!canManageAdmin()) return;
+      if (resetTimerInterval) clearInterval(resetTimerInterval);
+
+      localStorage.clear();
+      scheduleData = createDefaultSchedule25A();
+      requirementsData = [...DEFAULT_REQUIREMENTS];
+      deadlinesData = [...DEFAULT_DEADLINES];
+      lecturesData = [...DEFAULT_LECTURES];
+      teachersData = [...DEFAULT_TEACHERS];
+      performanceData = [...DEFAULT_PERFORMANCE];
+      currentRole = "director";
+      localStorage.setItem("HUB_ROLE_STATUS", "director");
+
+      commitData();
+      renderSchedule();
+      renderRequirements();
+      renderDeadlines();
+      renderPerformance();
+      renderLectures();
+      renderTeachers();
+      updateRoleUI();
+
+      document.getElementById("reset-modal").classList.remove("open");
+      showToast("База сброшена к эталону 25А (3-я неделя)!");
+    };
+
+    // ИНИЦИАЛИЗАЦИЯ
+    function init() {
+      document.getElementById("cloud-api-url").value = cloudApiUrl;
+
+      updateRoleUI();
+      renderLectureFilters();
+
+      // Навигация по экранам
+      document.querySelectorAll(".view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const view = btn.dataset.view;
+          document.getElementById("view-schedule").style.display = view === "schedule" ? "block" : "none";
+          document.getElementById("view-requirements").style.display = view === "requirements" ? "block" : "none";
+          document.getElementById("view-deadlines").style.display = view === "deadlines" ? "block" : "none";
+          document.getElementById("view-performance").style.display = view === "performance" ? "block" : "none";
+          document.getElementById("view-lectures").style.display = view === "lectures" ? "block" : "none";
+          document.getElementById("view-teachers").style.display = view === "teachers" ? "block" : "none";
+          document.getElementById("view-settings").style.display = view === "settings" ? "block" : "none";
+
+          if (view === "requirements") renderRequirements();
+          if (view === "deadlines") renderDeadlines();
+          if (view === "performance") renderPerformance();
+          if (view === "lectures") renderLectures();
+          if (view === "teachers") renderTeachers();
+        });
+      });
+
+      // Переключатель 4 недель месяца
+      const calBtns = document.querySelectorAll(".cal-week-btn");
+      document.getElementById("calendar-cur-indicator").innerText = `Текущая: ${realMonthWeek}-я неделя`;
+
+      calBtns.forEach(btn => {
+        const w = Number(btn.dataset.w);
+        if (w === realMonthWeek) btn.classList.add("current-month-week");
+        if (w === viewingMonthWeek) btn.classList.add("active");
+
+        btn.onclick = () => {
+          calBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          viewingMonthWeek = w;
+          updateLiveStatus();
+          renderSchedule();
+        };
+      });
+
+      // Дни недели
+      const todayNum = new Date().getDay() || 7;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const d = Number(btn.dataset.d);
+        if (d === todayNum) btn.classList.add("today");
+
+        btn.onclick = () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeDay = d;
+          renderSchedule();
+        };
+      });
+
+      const startTab = document.querySelector(`.tab-btn[data-d="${activeDay}"]`);
+      if (startTab) startTab.classList.add("active");
+
+      document.getElementById("req-search").oninput = (e) => renderRequirements(e.target.value);
+      document.getElementById("lecture-search").oninput = (e) => renderLectures(e.target.value);
+      document.getElementById("deadline-search").oninput = (e) => renderDeadlines(e.target.value);
+      document.getElementById("prof-search").oninput = (e) => renderTeachers(e.target.value);
+
+      renderSchedule();
+      renderRequirements();
+      updateLiveStatus();
+      setInterval(() => {
+        updateLiveStatus();
+        renderSchedule();
+      }, 15000);
+
+      // Синхронизация при старте: интерфейс рисуем сразу, облако — в фоне.
+      setTimeout(() => fetchFromCloud(), 450);
+
+      // Авто-опрос каждые 30 секунд, чтобы не тормозить приложение и не спамить API.
+      setInterval(fetchFromCloud, 30000);
+
+      // Мгновенный запрос при переходе во вкладку браузера
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) fetchFromCloud();
+      });
+      window.addEventListener("focus", () => fetchFromCloud());
+    }
+
+    init();
+  </script>
+
+  <style id="hub-enhancements">
+    :root {
+      --shadow-soft: 0 8px 22px rgba(0,0,0,.22);
+      --glass: rgba(15,19,28,.78);
+    }
+    html { scroll-behavior: smooth; }
+    body { overscroll-behavior-y: contain; }
+    .hub-utility-bar {
+      display:flex; gap:6px; margin:-3px 0 10px; overflow-x:auto; scrollbar-width:none;
+    }
+    .hub-utility-bar::-webkit-scrollbar { display:none; }
+    .hub-mini-btn {
+      flex:1; min-width:92px; background:var(--card); border:1px solid var(--border); color:#dbeafe;
+      padding:8px 9px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;
+      transition:.16s ease; white-space:nowrap;
+    }
+    .hub-mini-btn:hover { border-color:var(--accent); transform:translateY(-1px); }
+    .hub-mini-btn:active { transform:translateY(0); }
+    .hub-stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px;
+    }
+    .hub-stat {
+      background:rgba(15,19,28,.7); border:1px solid var(--border); border-radius:9px; padding:8px;
+      min-height:54px;
+    }
+    .hub-stat .v { font-size:14px; font-weight:900; color:#fff; }
+    .hub-stat .l { margin-top:2px; font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.25px; }
+    .hub-fab {
+      position:fixed; right:16px; bottom:18px; width:48px; height:48px; border-radius:50%;
+      border:1px solid rgba(59,130,246,.55); background:rgba(19,23,34,.94); color:#fff;
+      box-shadow:0 10px 28px rgba(0,0,0,.45); z-index:220; cursor:pointer; font-size:18px;
+      backdrop-filter:blur(10px);
+    }
+    .hub-search-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(7px); z-index:500;
+      display:none; align-items:flex-start; justify-content:center; padding:72px 14px 20px;
+    }
+    .hub-search-overlay.open { display:flex; }
+    .hub-search-card {
+      width:min(560px,100%); background:#111722; border:1px solid var(--border); border-radius:16px;
+      padding:12px; box-shadow:0 20px 60px rgba(0,0,0,.58);
+    }
+    .hub-search-card input {
+      width:100%; background:#0b0f17; color:#fff; border:1px solid var(--border); border-radius:10px;
+      padding:12px; outline:none; font-size:14px;
+    }
+    .hub-search-card input:focus { border-color:var(--accent); }
+    .hub-search-results { margin-top:8px; max-height:62vh; overflow:auto; }
+    .hub-search-result {
+      display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px; border-radius:9px;
+      cursor:pointer; border:1px solid transparent;
+    }
+    .hub-search-result:hover { background:var(--card); border-color:var(--border); }
+    .hub-search-result .kind { font-size:9px; color:var(--accent); font-weight:900; text-transform:uppercase; }
+    .hub-search-result .title { font-size:12px; font-weight:800; color:#fff; }
+    .hub-search-result .meta { font-size:10px; color:var(--text-dim); margin-top:2px; }
+    .hub-history-note { font-size:10px; color:var(--text-dim); margin-top:5px; line-height:1.35; }
+    @media (max-width:420px){
+      .hub-stats { grid-template-columns:1fr 1fr; }
+      .hub-stat:last-child { grid-column:1/-1; }
+    }
+    @media print {
+      .view-switcher,.action-bar,.hub-utility-bar,.hub-fab,#toast { display:none !important; }
+      body { max-width:none; color:#111; background:#fff; }
+    }
+  </style>
+
+  <script id="hub-enhancements-script">
+  (() => {
+    'use strict';
+
+    const q = (s, r=document) => r.querySelector(s);
+    const qa = (s, r=document) => [...r.querySelectorAll(s)];
+    const esc = (v) => String(v ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+    function goScheduleToday() {
+      const weekBtn = q(`.cal-week-btn[data-w="${typeof realMonthWeek !== 'undefined' ? realMonthWeek : 1}"]`);
+      if (weekBtn) weekBtn.click();
+      const day = new Date().getDay() || 7;
+      const dayBtn = q(`.tab-btn[data-d="${day}"]`) || q('.tab-btn[data-d="1"]');
+      if (dayBtn) dayBtn.click();
+      const scheduleBtn = q('.view-btn[data-view="schedule"]');
+      if (scheduleBtn) scheduleBtn.click();
+    }
+
+    function buildUtilityBar() {
+      const bar = document.createElement('div');
+      bar.className = 'hub-utility-bar';
+      bar.innerHTML = `
+        <button class="hub-mini-btn" id="hub-today">📍 Сегодня</button>
+        <button class="hub-mini-btn" id="hub-search">🔎 Быстрый поиск</button>
+        <button class="hub-mini-btn admin-only" id="hub-undo">↩️ Отменить</button>
+      `;
+      const actionBar = q('.action-bar');
+      if (actionBar && actionBar.parentNode) actionBar.parentNode.insertBefore(bar, actionBar.nextSibling);
+      q('#hub-today')?.addEventListener('click', goScheduleToday);
+      q('#hub-search')?.addEventListener('click', openSearch);
+      q('#hub-undo')?.addEventListener('click', undoLastChange);
+    }
+
+    function buildStats() {
+      const dash = q('.dashboard');
+      if (!dash) return;
+      const box = document.createElement('div');
+      box.className = 'hub-stats';
+      box.id = 'hub-stats';
+      box.innerHTML = `
+        <div class="hub-stat"><div class="v" id="hub-next">—</div><div class="l">ближайшая пара</div></div>
+        <div class="hub-stat"><div class="v" id="hub-tasks">0</div><div class="l">незакрытых задач</div></div>
+        <div class="hub-stat"><div class="v" id="hub-teachers">0</div><div class="l">преподавателей</div></div>
+      `;
+      dash.appendChild(box);
+    }
+
+    function refreshStats() {
+      const tasks = Array.isArray(typeof deadlinesData !== 'undefined' ? deadlinesData : null) ? deadlinesData.filter(x => !x.completed).length : 0;
+      const teachers = Array.isArray(typeof teachersData !== 'undefined' ? teachersData : null) ? teachersData.length : 0;
+      const t = q('#hub-tasks'); if (t) t.textContent = tasks;
+      const te = q('#hub-teachers'); if (te) te.textContent = teachers;
+      const n = q('#hub-next');
+      if (n) {
+        const title = q('#live-title');
+        const txt = (title?.textContent || '').trim();
+        n.textContent = txt && txt !== 'Определение...' ? txt.replace(/^Перемена • /,'').slice(0,24) : '—';
+      }
+    }
+
+    let searchOverlay, searchInput, searchResults;
+    function openSearch(){
+      if (!searchOverlay) buildSearch();
+      searchOverlay.classList.add('open');
+      searchInput.value='';
+      searchResults.innerHTML='<div class="empty-note">Введите название предмета, преподавателя, задания или лекции</div>';
+      setTimeout(()=>searchInput.focus(),20);
+    }
+    function closeSearch(){ searchOverlay?.classList.remove('open'); }
+
+    function buildSearch(){
+      searchOverlay = document.createElement('div');
+      searchOverlay.className='hub-search-overlay';
+      searchOverlay.innerHTML=`
+        <div class="hub-search-card" role="dialog" aria-modal="true">
+          <input id="hub-search-input" autocomplete="off" placeholder="Поиск по всему хабу…">
+          <div class="hub-search-results" id="hub-search-results"></div>
+        </div>`;
+      document.body.appendChild(searchOverlay);
+      searchInput=q('#hub-search-input',searchOverlay);
+      searchResults=q('#hub-search-results',searchOverlay);
+      searchOverlay.addEventListener('click',e=>{ if(e.target===searchOverlay) closeSearch(); });
+      searchInput.addEventListener('input',()=>runSearch(searchInput.value));
+    }
+
+    function runSearch(term){
+      const s=String(term||'').trim().toLowerCase();
+      if(!s){searchResults.innerHTML='<div class="empty-note">Введите поисковый запрос</div>';return;}
+      const out=[];
+      const push=(kind,title,meta,view)=>out.push({kind,title,meta,view});
+      (Array.isArray(window.teachersData)?window.teachersData:[]).forEach(x=>{
+        const hay=`${x.name||''} ${x.dept||''} ${x.subjects||''} ${x.catchInfo||''}`.toLowerCase();
+        if(hay.includes(s)) push('Преподаватель',x.name||'Без имени',x.subjects||x.dept||'', 'teachers');
+      });
+      (Array.isArray(window.deadlinesData)?window.deadlinesData:[]).forEach(x=>{
+        const hay=`${x.subject||''} ${x.topic||''} ${x.type||''} ${x.reqs||''}`.toLowerCase();
+        if(hay.includes(s)) push('Задание',x.topic||x.subject||'Без названия',`${x.subject||''} • ${x.date||''}`, 'deadlines');
+      });
+      (Array.isArray(typeof lecturesData !== 'undefined' ? lecturesData : null)?lecturesData:[]).forEach(x=>{
+        const hay=`${x.subject||''} ${x.title||''} ${x.notes||''}`.toLowerCase();
+        if(hay.includes(s)) push('Лекция',x.title||'Без названия',x.subject||'', 'lectures');
+      });
+      (Array.isArray(typeof requirementsData !== 'undefined' ? requirementsData : null)?requirementsData:[]).forEach(x=>{
+        const hay=`${x.prof||''} ${x.subject||''} ${x.workType||''} ${x.details||x.criticalPoints||''}`.toLowerCase();
+        if(hay.includes(s)) push('Требование',x.prof||'Без преподавателя',`${x.subject||''} • ${x.workType||''}`, 'requirements');
+      });
+      const schedule = Array.isArray(typeof scheduleData !== 'undefined' ? scheduleData : null)?scheduleData:[];
+      schedule.forEach(x=>{
+        const hay=`${x.name||''} ${x.prof||''} ${x.room||''} ${x.task||''}`.toLowerCase();
+        if(hay.includes(s) && x.name) push('Расписание',x.name,`${x.prof||''} • каб. ${x.room||'—'}`,'schedule');
+      });
+      const uniq=[]; const seen=new Set();
+      for(const x of out){const k=`${x.kind}|${x.title}|${x.meta}`;if(!seen.has(k)){seen.add(k);uniq.push(x)}}
+      searchResults.innerHTML=uniq.slice(0,40).map((x,i)=>`<div class="hub-search-result" data-view="${esc(x.view)}"><div><div class="kind">${esc(x.kind)}</div><div class="title">${esc(x.title)}</div><div class="meta">${esc(x.meta)}</div></div><div>›</div></div>`).join('') || '<div class="empty-note">Ничего не найдено</div>';
+      qa('.hub-search-result',searchResults).forEach(el=>el.addEventListener('click',()=>{
+        const b=q(`.view-btn[data-view="${el.dataset.view}"]`); b?.click(); closeSearch();
+      }));
+    }
+
+    function undoLastChange(){
+      if(typeof canEdit==='function' && !canEdit()){ showToast('Только редактор может отменять изменения'); return; }
+      const raw=localStorage.getItem('HUB_UNDO_STACK_25A');
+      const stack=raw?JSON.parse(raw):[];
+      const snap=stack.pop();
+      if(!snap){showToast('История изменений пуста');return;}
+      try{
+        scheduleData=snap.schedule; requirementsData=snap.requirements; deadlinesData=snap.deadlines; lecturesData=snap.lectures; teachersData=snap.teachers;
+        saveDB('HUB_SCHEDULE_25A_V14',scheduleData); saveDB('HUB_REQUIREMENTS_25A_V14',requirementsData); saveDB('HUB_DEADLINES_25A_V14',deadlinesData); saveDB('HUB_LECTURES_25A_V14',lecturesData); saveDB('HUB_TEACHERS_25A_V14',teachersData);
+        localStorage.setItem('HUB_UNDO_STACK_25A',JSON.stringify(stack));
+        renderSchedule(); renderRequirements(); renderDeadlines(); renderLectures(); renderTeachers();
+        syncToCloud(); refreshStats(); showToast('↩️ Последнее изменение отменено');
+      }catch(e){ console.warn(e); showToast('Не удалось отменить изменение'); }
+    }
+
+    function installHistoryWrapper(){
+      if(typeof window.commitData!=='function' || window.__hubCommitWrapped) return;
+      const original=window.commitData;
+      window.commitData=function(){
+        try{
+          const stack=JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A')||'[]');
+          stack.push({schedule:JSON.parse(localStorage.getItem('HUB_SCHEDULE_25A_V14')||'null'),requirements:JSON.parse(localStorage.getItem('HUB_REQUIREMENTS_25A_V14')||'null'),deadlines:JSON.parse(localStorage.getItem('HUB_DEADLINES_25A_V14')||'null'),lectures:JSON.parse(localStorage.getItem('HUB_LECTURES_25A_V14')||'null'),teachers:JSON.parse(localStorage.getItem('HUB_TEACHERS_25A_V14')||'null')});
+          while(stack.length>15) stack.shift();
+          localStorage.setItem('HUB_UNDO_STACK_25A',JSON.stringify(stack));
+        }catch(e){}
+        return original.apply(this,arguments);
+      };
+      window.__hubCommitWrapped=true;
+    }
+
+    function enhanceRoleUI(){
+      const sync=()=>{
+        const admin=typeof canEdit==='function' ? canEdit() : false;
+        const director=typeof canManageAdmin==='function' ? canManageAdmin() : false;
+        qa('.admin-only').forEach(el=>el.style.display=admin?'':'none');
+        qa('.director-only').forEach(el=>el.style.display=director?'':'none');
+      };
+      setInterval(sync,1000); sync();
+    }
+
+    function addFab(){
+      if(q('.hub-fab')) return;
+      const b=document.createElement('button'); b.className='hub-fab'; b.title='Быстрый поиск'; b.textContent='🔎'; b.onclick=openSearch; document.body.appendChild(b);
+    }
+
+    function boot(){
+      buildUtilityBar(); buildStats(); buildSearch(); addFab(); installHistoryWrapper(); enhanceRoleUI();
+      refreshStats();
+      setInterval(refreshStats,4000);
+      document.addEventListener('keydown',e=>{
+        if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}
+        if(e.key==='Escape') closeSearch();
+        if(e.key==='/' && !/input|textarea|select/i.test(document.activeElement?.tagName||'')){e.preventDefault();openSearch();}
+        if(e.key.toLowerCase()==='h' && !/input|textarea|select/i.test(document.activeElement?.tagName||'')) goScheduleToday();
+      });
+      window.addEventListener('beforeunload',()=>{try{localStorage.setItem('HUB_LAST_OPEN_25A',new Date().toISOString())}catch(e){}});
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
+  })();
+  </script>
+
 </body>
 </html>
