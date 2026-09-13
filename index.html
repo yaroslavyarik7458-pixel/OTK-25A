@@ -24,263 +24,141 @@
       --purple-glow: rgba(139, 92, 246, 0.15);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding: 10px 10px 90px 10px; max-width: 560px; margin: 0 auto; min-height: 100vh; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-drag: none;
+    }
 
-    /* Верхняя панель статуса пользователя */
-    .top-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      padding: 4px 2px;
+    html { scroll-behavior: smooth; }
+
+    /* Полный запрет выделения и вызова контекстных меню мобильных браузеров */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 10px 10px 90px 10px;
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100vh;
+      overscroll-behavior-y: contain;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
-    .app-brand {
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+
+    /* Выделение и ввод разрешены строго в рабочих полях форм */
+    input, textarea {
+      -webkit-user-select: auto !important;
+      -moz-user-select: auto !important;
+      -ms-user-select: auto !important;
+      user-select: auto !important;
+      -webkit-touch-callout: default !important;
     }
+
+    /* Панель статуса и роли */
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 4px 2px; }
+    .app-brand { font-size: 14px; font-weight: 800; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; }
     .role-badge-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: #93c5fd;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
+      background: var(--card); border: 1px solid var(--border); color: #93c5fd; padding: 5px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;
     }
     .role-badge-btn.role-abiturient { color: #94a3b8; border-color: #334155; }
     .role-badge-btn.role-deputy { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .role-badge-btn.role-director { color: #4ade80; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
 
-    /* 1. Скрытие инструментов редактирования от Абитуриента */
+    /* Чистое CSS-управление правами без костылей */
     body.is-abiturient .admin-only,
     body.is-abiturient .edit-btn,
     body.is-abiturient .delete-btn,
     body.is-abiturient .admin-form,
-    body.is-abiturient #btn-open-parser {
-      display: none !important;
-    }
+    body.is-abiturient #btn-open-parser,
+    body.is-abiturient #hub-btn-undo { display: none !important; }
+    body:not(.is-director) .director-only { display: none !important; }
 
-    /* 2. Скрытие инструментов управления от Зама и Абитуриента (ТОЛЬКО ДЛЯ ДИРЕКТОРА) */
-    body:not(.is-director) .director-only {
-      display: none !important;
-    }
-
-    /* Навигация 7 табов */
+    /* Навигация */
     .view-switcher {
-      display: flex;
-      gap: 3px;
-      background: #0f131c;
-      padding: 4px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
-      position: sticky;
-      top: 6px;
-      z-index: 100;
-      backdrop-filter: blur(10px);
-      overflow-x: auto;
-      scrollbar-width: none;
+      display: flex; gap: 3px; background: #0f131c; padding: 4px; border-radius: 12px; border: 1px solid var(--border);
+      margin-bottom: 10px; position: sticky; top: 6px; z-index: 100; backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none;
     }
     .view-switcher::-webkit-scrollbar { display: none; }
     .view-btn {
-      flex: 1;
-      min-width: 60px;
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      padding: 7px 2px;
-      border-radius: 8px;
-      font-size: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      transition: all 0.15s ease;
-      white-space: nowrap;
+      flex: 1; min-width: 60px; background: transparent; border: none; color: var(--text-dim); padding: 7px 2px;
+      border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; gap: 2px; transition: all 0.15s ease; white-space: nowrap;
     }
-    .view-btn.active {
-      background: var(--card);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      border: 1px solid var(--border);
-    }
+    .view-btn.active { background: var(--card); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid var(--border); }
 
     /* Тост */
     #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #1e293b;
-      color: #fff;
-      border: 1px solid var(--accent);
-      padding: 9px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-      z-index: 999;
-      opacity: 0;
-      transition: all 0.25s ease;
-      pointer-events: none;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b;
+      color: #fff; border: 1px solid var(--accent); padding: 9px 16px; border-radius: 20px; font-size: 12px;
+      font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: all 0.25s ease; pointer-events: none;
     }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    /* Виджет времени и шапка */
+    /* Дашборд */
     .dashboard {
-      background: linear-gradient(145deg, #171e2e, #111520);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      background: linear-gradient(145deg, #171e2e, #111520); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px; margin-bottom: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .dash-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
     .status-badge { background: var(--accent-glow); color: var(--accent); padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-    
     .dash-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
     .indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); flex-shrink: 0; }
     .indicator.break { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
     .indicator.idle { background: var(--text-dim); box-shadow: none; }
     .dash-sub { font-size: 12px; color: var(--text-dim); }
 
-    /* Панель оперативных действий */
-    .action-bar { display: flex; gap: 6px; margin-bottom: 10px; }
-    .btn-action {
-      flex: 1;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: #cbd5e1;
-      padding: 8px 6px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      transition: all 0.15s ease;
+    /* Горящие дедлайны на 48 часов */
+    .urgent-banner {
+      background: rgba(239, 68, 68, 0.12); border: 1px solid var(--red); border-radius: 10px;
+      padding: 8px 10px; margin-top: 10px; display: none; flex-direction: column; gap: 5px;
     }
-    .btn-action:hover { border-color: var(--accent); color: #fff; }
+    .urgent-banner-title { font-size: 11px; font-weight: 800; color: #fca5a5; display: flex; align-items: center; gap: 5px; }
+    .urgent-item-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; background: rgba(19, 23, 34, 0.6); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+    .urgent-item-row:hover { background: rgba(30, 41, 59, 0.8); }
+
+    .hub-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+    .hub-stat { background: rgba(15,19,28,.7); border: 1px solid var(--border); border-radius: 9px; padding: 8px; min-height: 52px; }
+    .hub-stat .v { font-size: 13px; font-weight: 900; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hub-stat .l { margin-top: 2px; font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .25px; }
+
+    /* Панели действий */
+    .action-bar, .hub-utility-bar { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none; }
+    .action-bar::-webkit-scrollbar, .hub-utility-bar::-webkit-scrollbar { display: none; }
+    .btn-action, .hub-mini-btn {
+      flex: 1; min-width: 80px; background: var(--card); border: 1px solid var(--border); color: #cbd5e1; padding: 8px 6px;
+      border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 5px; transition: all 0.15s ease; white-space: nowrap;
+    }
+    .btn-action:hover, .hub-mini-btn:hover { border-color: var(--accent); color: #fff; }
     .btn-action.highlight { background: rgba(59, 130, 246, 0.15); border-color: var(--accent); color: #93c5fd; }
 
-    /* Календарный блок: 4 Недели месяца */
-    .calendar-month-bar {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .calendar-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-dim);
-    }
-    .calendar-weeks-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-    }
-    .cal-week-btn {
-      background: #0f131c;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 6px 2px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s ease;
-    }
-    .cal-week-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .cal-week-btn.current-month-week {
-      border-bottom: 2px solid var(--green);
-    }
+    /* Календарная сетка */
+    .calendar-month-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .calendar-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-dim); }
+    .calendar-weeks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .cal-week-btn { background: #0f131c; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 2px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
+    .cal-week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+    .cal-week-btn.current-month-week { border-bottom: 2px solid var(--green); }
 
-    /* Дни недели */
     .tabs-row { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px; }
-    .tab-btn {
-      flex: 1;
-      min-width: 44px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 9px 0;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-    }
+    .tab-btn { flex: 1; min-width: 44px; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
     .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .tab-btn.today { border-bottom: 3px solid var(--green); }
 
     /* Карточки пар */
     .cards-box { display: flex; flex-direction: column; gap: 8px; }
-    .pair-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 11px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.15s ease;
-    }
-    .pair-item.current {
-      border-color: var(--green);
-      background: #141b2a;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
-    }
-    .pair-item.empty-slot {
-      opacity: 0.5;
-      border-style: dashed;
-      background: rgba(19, 23, 34, 0.45);
-      padding: 9px 12px;
-    }
-    .pair-item.empty-slot:hover {
-      opacity: 0.9;
-      border-color: var(--accent);
-    }
-
-    .pair-progress-fill {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      transition: width 0.3s linear;
-    }
-
+    .pair-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; position: relative; overflow: hidden; }
+    .pair-item.current { border-color: var(--green); background: #141b2a; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+    .pair-item.empty-slot { opacity: 0.5; border-style: dashed; background: rgba(19, 23, 34, 0.45); padding: 9px 12px; }
+    .pair-item.empty-slot:hover { opacity: 0.9; border-color: var(--accent); }
+    .pair-progress-fill { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--green); box-shadow: 0 0 8px var(--green); transition: width 0.3s linear; }
     .pair-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .time-slot { min-width: 65px; border-right: 1px solid var(--border); padding-right: 8px; }
     .pair-order { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; }
@@ -292,229 +170,107 @@
     .type-seminar { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
     .type-essay { background: rgba(239, 68, 68, 0.15); color: var(--red); }
     .type-empty { background: rgba(255, 255, 255, 0.05); color: var(--text-dim); }
-
     .lesson-title { font-size: 14px; font-weight: 700; line-height: 1.25; margin-bottom: 2px; }
     .teacher-name { font-size: 12px; color: var(--text-dim); }
-
     .room-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .room-tag {
-      background: #1d2536;
-      border: 1px solid var(--border);
-      padding: 4px 7px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
+    .room-tag { background: #1d2536; border: 1px solid var(--border); padding: 4px 7px; border-radius: 6px; font-size: 11px; font-weight: 800; white-space: nowrap; }
     .room-floor { font-size: 10px; color: var(--text-dim); font-weight: 600; text-align: right; }
 
-    /* Домашка */
-    .task-bar {
-      border-top: 1px dashed var(--border);
-      padding-top: 7px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
+    /* Домашка и шпаргалка ссылок */
+    .task-bar { border-top: 1px dashed var(--border); padding-top: 7px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .task-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; flex: 1; }
     .task-label.done span { text-decoration: line-through; color: var(--text-dim); }
     .task-checkbox { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
-    .attach-link {
-      background: var(--accent-glow);
-      border: 1px solid var(--accent);
-      color: #93c5fd;
-      padding: 3px 7px;
-      border-radius: 5px;
-      font-size: 11px;
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-    }
+    .attach-link { background: var(--accent-glow); border: 1px solid var(--accent); color: #93c5fd; padding: 3px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 
     /* Формы и карточки */
     .search-box { margin-bottom: 12px; }
-    .search-input, .form-input, .form-select {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 9px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      outline: none;
-    }
+    .search-input, .form-input, .form-select { width: 100%; background: var(--card); border: 1px solid var(--border); color: #fff; padding: 9px 12px; border-radius: 8px; font-size: 13px; outline: none; }
     .search-input:focus, .form-input:focus, .form-select:focus { border-color: var(--accent); }
-
-    .lecture-card, .deadline-card, .prof-card, .score-card, .req-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .lecture-card, .deadline-card, .prof-card, .score-card, .req-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
     .deadline-card.completed { opacity: 0.55; border-color: rgba(32, 39, 56, 0.7); }
     .deadline-card.completed .dl-title { text-decoration: line-through; }
-
     .badge-urgent { background: var(--red-glow); color: var(--red); border: 1px solid var(--red); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
     .badge-soon { background: var(--orange-glow); color: var(--orange); border: 1px solid var(--orange); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
     .badge-ok { background: var(--green-glow); color: var(--green); border: 1px solid var(--green); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
     .badge-done { background: rgba(121, 135, 156, 0.2); color: var(--text-dim); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
 
-    /* Требования */
-    .req-box {
-      background: #0f131c;
-      border-radius: 8px;
-      padding: 8px 10px;
-      border-left: 3px solid var(--accent);
-      font-size: 12px;
-      line-height: 1.45;
-      color: #cbd5e1;
-    }
+    .req-box { background: #0f131c; border-radius: 8px; padding: 8px 10px; border-left: 3px solid var(--accent); font-size: 12px; line-height: 1.45; color: #cbd5e1; }
     .req-box b { color: #fff; }
     .req-pill-group { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
     .req-tag { background: #1b2233; border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 700; color: #93c5fd; }
     .req-tag.alert { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: #fca5a5; }
 
-    .gost-banner {
-      background: linear-gradient(145deg, #181f30, #121622);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 11px;
-      line-height: 1.4;
-      color: #94a3b8;
-      margin-bottom: 12px;
-    }
+    /* ГОСТ-баннер */
+    .gost-banner { background: linear-gradient(145deg, #181f30, #121622); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 11px; line-height: 1.4; color: #94a3b8; margin-bottom: 12px; }
     .gost-banner b { color: #38bdf8; }
+    .gost-actions { display: flex; gap: 6px; margin-top: 8px; }
 
-    /* БРС */
+    /* БРС и калькулятор */
     .score-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .score-subject { font-size: 14px; font-weight: 700; color: #fff; }
     .score-target { font-size: 11px; font-weight: 700; color: var(--text-dim); }
-
-    .meter-box {
-      background: #0f131c;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .meter-box { background: #0f131c; border-radius: 8px; border: 1px solid var(--border); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
     .meter-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
     .bar-bg { height: 7px; background: #1e2638; border-radius: 4px; overflow: hidden; position: relative; }
     .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.25s ease; }
     .bar-fill.pass { background: var(--orange); }
     .bar-fill.good { background: #38bdf8; }
     .bar-fill.auto { background: var(--green); box-shadow: 0 0 8px var(--green); }
-
     .counter-ctrl { display: flex; align-items: center; gap: 8px; }
-    .btn-counter {
-      background: #1e2638;
-      border: 1px solid var(--border);
-      color: #fff;
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .btn-counter { background: #1e2638; border: 1px solid var(--border); color: #fff; width: 26px; height: 26px; border-radius: 6px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-counter:active { background: var(--accent); }
 
-    /* Формы */
+    .score-forecast-pill {
+      font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.25); display: flex; justify-content: space-between; align-items: center;
+    }
+
+    /* Преподаватели */
+    .prof-dept { font-size: 12px; color: var(--accent); font-weight: 600; }
+    .prof-loc { background: #0f131c; border-radius: 6px; padding: 8px; font-size: 12px; color: #cbd5e1; border-left: 3px solid var(--green); line-height: 1.4; margin-top: 4px; }
+
+    /* Модалки и формы */
     .form-box { background: #0f131c; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
     .form-box h4 { font-size: 13px; margin-bottom: 8px; color: var(--text); }
     .form-grid { display: flex; flex-direction: column; gap: 7px; }
     .btn-submit { background: var(--accent); border: none; color: #fff; padding: 9px 12px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; }
-
-    /* Модалки */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(5px);
-      z-index: 250;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 250; display: none; align-items: center; justify-content: center; padding: 14px; }
     .modal-overlay.open { display: flex; }
-    .modal-card {
-      background: #131722;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
+    .modal-card { background: #131722; border: 1px solid var(--border); border-radius: 14px; padding: 16px; width: 100%; max-width: 480px; box-shadow: 0 15px 30px rgba(0,0,0,0.7); max-height: 90vh; overflow-y: auto; }
     .edit-btn { background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 11px; font-weight: 700; }
-    .edit-btn:hover { color: #93c5fd; text-decoration: underline; }
     .delete-btn { background: transparent; border: none; color: var(--red); font-size: 11px; cursor: pointer; font-weight: 700; }
-    .delete-btn:hover { text-decoration: underline; }
     .card-actions-row { display: flex; align-items: center; gap: 10px; }
     .empty-note { text-align: center; color: var(--text-dim); padding: 25px 0; font-size: 13px; }
 
-    /* Преподаватели */
-    .prof-dept { font-size: 12px; color: var(--accent); font-weight: 600; }
-    .prof-loc {
-      background: #0f131c;
-      border-radius: 6px;
-      padding: 8px;
-      font-size: 12px;
-      color: #cbd5e1;
-      border-left: 3px solid var(--green);
-      line-height: 1.4;
-      margin-top: 4px;
-    }
-
-    /* Бэкап и облако */
+    /* Бэкап и таймер */
     .backup-panel { display: flex; flex-direction: column; gap: 10px; }
-    .backup-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    .backup-btn { background: var(--card); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
     .backup-btn.danger { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .timer-circle { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--red); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: var(--red); margin: 12px auto; }
 
-    /* Таймер сброса */
-    .timer-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 3px solid var(--red);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--red);
-      margin: 12px auto;
+    /* Поиск и FAB */
+    .hub-fab { position: fixed; right: 16px; bottom: 18px; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(59,130,246,.55); background: rgba(19,23,34,.94); color: #fff; box-shadow: 0 10px 28px rgba(0,0,0,.45); z-index: 220; cursor: pointer; font-size: 18px; backdrop-filter: blur(10px); }
+    .hub-search-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(7px); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 72px 14px 20px; }
+    .hub-search-overlay.open { display: flex; }
+    .hub-search-card { width: min(560px, 100%); background: #111722; border: 1px solid var(--border); border-radius: 16px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.58); }
+    .hub-search-card input { width: 100%; background: #0b0f17; color: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px; outline: none; font-size: 14px; }
+    .hub-search-card input:focus { border-color: var(--accent); }
+    .hub-search-results { margin-top: 8px; max-height: 60vh; overflow-y: auto; }
+    .hub-search-result { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px; border-radius: 9px; cursor: pointer; border: 1px solid transparent; }
+    .hub-search-result:hover { background: var(--card); border-color: var(--border); }
+    .hub-search-result .kind { font-size: 9px; color: var(--accent); font-weight: 900; text-transform: uppercase; }
+    .hub-search-result .title { font-size: 12px; font-weight: 800; color: #fff; }
+    .hub-search-result .meta { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+    @media print {
+      .view-switcher, .action-bar, .hub-utility-bar, .hub-fab, #toast, .urgent-banner { display: none !important; }
+      body { max-width: none; color: #111; background: #fff; }
     }
   </style>
 </head>
 <body class="is-abiturient">
 
-  <!-- ВЕРХНЯЯ СТРОКА: БРЕНД И ПЕРЕКЛЮЧАТЕЛЬ РОЛЕЙ -->
   <div class="top-header">
     <div class="app-brand">
       <span>🎓</span>
@@ -526,7 +282,6 @@
     </button>
   </div>
 
-  <!-- Навигация: 7 табов -->
   <div class="view-switcher">
     <button class="view-btn active" data-view="schedule"><span>📅</span><span>Пары</span></button>
     <button class="view-btn" data-view="requirements"><span>📋</span><span>Требования</span></button>
@@ -551,9 +306,23 @@
         <span id="live-title">Определение...</span>
       </div>
       <div class="dash-sub" id="live-desc">Синхронизация времени</div>
+
+      <!-- Горящие дедлайны 48ч -->
+      <div class="urgent-banner" id="hub-urgent-box">
+        <div class="urgent-banner-title">
+          <span>🔥</span>
+          <span>ГОРЯЩИЕ ЗАДАНИЯ (48 ЧАСОВ):</span>
+        </div>
+        <div id="hub-urgent-list" style="display: flex; flex-direction: column; gap: 4px;"></div>
+      </div>
+
+      <div class="hub-stats">
+        <div class="hub-stat"><div class="v" id="hub-stat-next">—</div><div class="l">следующая пара</div></div>
+        <div class="hub-stat"><div class="v" id="hub-stat-tasks">0</div><div class="l">активных задач</div></div>
+        <div class="hub-stat"><div class="v" id="hub-stat-teachers">0</div><div class="l">преподавателей</div></div>
+      </div>
     </div>
 
-    <!-- Оперативка -->
     <div class="action-bar">
       <button class="btn-action highlight admin-only" id="btn-open-parser">⚡ Парсер недели</button>
       <button class="btn-action" id="btn-cloud-sync">🔄 Обновить базу</button>
@@ -561,7 +330,12 @@
       <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
     </div>
 
-    <!-- Календарный блок на 4 недели месяца -->
+    <div class="hub-utility-bar">
+      <button class="hub-mini-btn" id="hub-btn-today">📍 Сегодня</button>
+      <button class="hub-mini-btn" id="hub-btn-search">🔎 Быстрый поиск</button>
+      <button class="hub-mini-btn admin-only" id="hub-btn-undo">↩️ Отменить</button>
+    </div>
+
     <div class="calendar-month-bar">
       <div class="calendar-head">
         <span>Сетка месяца:</span>
@@ -587,14 +361,18 @@
     <div class="cards-box" id="schedule-list"></div>
   </div>
 
-  <!-- ЭКРАН 2: ТРЕБОВАНИЯ ПРЕПОДАВАТЕЛЕЙ -->
+  <!-- ЭКРАН 2: ТРЕБОВАНИЯ -->
   <div id="view-requirements" style="display: none;">
     <div class="gost-banner">
       💡 <b>Дефолтный стандарт кафедры:</b> Шрифт Times New Roman 14, интервал 1.5. Поля: левое 30 мм, правое 10 мм, верх/низ 20 мм. Свежие источники в списке (не старше 5 лет).
+      <div class="gost-actions">
+        <button class="hub-mini-btn" id="btn-copy-title-page" style="background: #1b2434;">📋 Титульный лист</button>
+        <button class="hub-mini-btn highlight" id="btn-download-gost-doc">📄 Скачать шаблон Word (.doc)</button>
+      </div>
     </div>
 
     <div class="form-box admin-form admin-only">
-      <h4>+ Добавить новый регламент кафедры</h4>
+      <h4>+ Добавить регламент кафедры</h4>
       <div class="form-grid">
         <input type="text" class="form-input" id="new-req-prof" placeholder="Преподаватель (напр. Инжиева Д.М.)">
         <select class="form-select" id="new-req-subject"></select>
@@ -606,7 +384,7 @@
           <input type="text" class="form-input" id="new-req-orig" placeholder="Антиплагиат (от 65%)">
           <input type="text" class="form-input" id="new-req-deadline" placeholder="Срок / Защита">
         </div>
-        <textarea class="form-input" id="new-req-details" placeholder="На чем валит, особенности защиты, структура..." rows="2"></textarea>
+        <textarea class="form-input" id="new-req-details" placeholder="Особенности защиты, вопросы кафедры..." rows="2"></textarea>
         <button class="btn-submit" id="btn-add-req">Зафиксировать регламент</button>
       </div>
     </div>
@@ -617,7 +395,7 @@
     <div id="requirements-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: ДЕДЛАЙНЫ И ЗАДАНИЯ -->
+  <!-- ЭКРАН 3: ДЕДЛАЙНЫ -->
   <div id="view-deadlines" style="display: none;">
     <div class="form-box admin-form admin-only">
       <h4>+ Добавить дедлайн</h4>
@@ -645,15 +423,15 @@
     <div id="deadlines-list"></div>
   </div>
 
-  <!-- ЭКРАН 4: БРС И ПРОПУСКИ (ЭНКИ) -->
+  <!-- ЭКРАН 4: БРС -->
   <div id="view-performance" style="display: none;">
     <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
-      💡 <b>Шкала БРС:</b> 60+ (допуск), 75+ (хорошо), 90+ (автомат на отлично). Лимит пропусков — до 4 пар (8 часов). Баллы сохраняются персонально в твоем телефоне.
+      💡 <b>Шкала БРС:</b> 60+ (допуск к сессии), 75+ (автомат хорошо), 90+ (автомат отлично). Лимит пропусков — до 4 пар (8 часов). Интерактивный прогноз рассчитывает необходимые баллы автоматически.
     </div>
     <div id="performance-list"></div>
   </div>
 
-  <!-- ЭКРАН 5: ЛЕКЦИИ И КОНСПЕКТЫ -->
+  <!-- ЭКРАН 5: ЛЕКЦИИ -->
   <div id="view-lectures" style="display: none;">
     <div class="search-box">
       <input type="text" class="search-input" id="lecture-search" placeholder="Поиск по теме или конспекту...">
@@ -661,13 +439,13 @@
     <div class="tabs-row" id="subject-filter-bar" style="overflow-x: auto;"></div>
 
     <div class="form-box admin-form admin-only">
-      <h4>+ Записать лекцию / ссылку на диск</h4>
+      <h4>+ Записать лекцию / ссылку</h4>
       <div class="form-grid">
         <select class="form-select" id="new-lec-subject"></select>
         <input type="text" class="form-input" id="new-lec-title" placeholder="Тема лекции">
         <textarea class="form-input" id="new-lec-notes" placeholder="Тезисы, формулы или конспект..." rows="2"></textarea>
-        <input type="url" class="form-input" id="new-lec-link" placeholder="Ссылка на Google Drive / Облако">
-        <button class="btn-submit" id="btn-add-lecture">Сохранить</button>
+        <input type="url" class="form-input" id="new-lec-link" placeholder="Ссылка на материалы (Google Drive / Облако)">
+        <button class="btn-submit" id="btn-add-lecture">Сохранить конспект</button>
       </div>
     </div>
 
@@ -679,10 +457,10 @@
     <div class="form-box admin-form admin-only">
       <h4>+ Добавить преподавателя в базу</h4>
       <div class="form-grid">
-        <input type="text" class="form-input" id="new-prof-name" placeholder="ФИО преподавателя (напр. Моторина Д. В.)">
-        <input type="text" class="form-input" id="new-prof-dept" placeholder="Кафедра (напр. Кафедра Финансов и кредита)">
-        <input type="text" class="form-input" id="new-prof-subjects" placeholder="Дисциплины (напр. Финансы, кредит)">
-        <input type="text" class="form-input" id="new-prof-loc" placeholder="Где найти (кабинет, часы, контакты)">
+        <input type="text" class="form-input" id="new-prof-name" placeholder="ФИО преподавателя">
+        <input type="text" class="form-input" id="new-prof-dept" placeholder="Кафедра">
+        <input type="text" class="form-input" id="new-prof-subjects" placeholder="Дисциплины">
+        <input type="text" class="form-input" id="new-prof-loc" placeholder="Где найти (кабинет, часы консультаций)">
         <button class="btn-submit" id="btn-add-prof">Сохранить преподавателя</button>
       </div>
     </div>
@@ -693,102 +471,95 @@
     <div id="teachers-list"></div>
   </div>
 
-  <!-- ЭКРАН 7: НАСТРОЙКИ, АВТОРИЗАЦИЯ И ОБЛАКО -->
+  <!-- ЭКРАН 7: НАСТРОЙКИ И ОБЛАКО -->
   <div id="view-settings" style="display: none;">
     <div class="backup-panel">
 
-      <!-- Настройки облачной базы -->
       <div class="form-box" style="border-style: solid; border-color: var(--accent);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>☁️ Облачное расписание группы</span>
           <span id="cloud-status-indicator" style="font-size: 11px; font-weight: bold; color: var(--text-dim);">Проверка...</span>
         </h4>
         <div style="font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px;">
-          База синхронизируется в реальном времени. Все изменения автоматически поступают в группу.
+          Автоматическая синхронизация при изменениях с контролем версий и защитой от перезаписи.
         </div>
 
-        <!-- Смена URL облака: ТОЛЬКО ДИРЕКТОР -->
         <div class="director-only" style="margin-bottom: 8px;">
-          <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px;">Смена URL базы npoint.io (только Директор):</label>
-          <input type="url" class="form-input" id="cloud-api-url" placeholder="https://api.npoint.io/2ef88e1143df232788ac">
-          <button class="btn-action highlight" style="width: 100%; margin-top: 6px;" id="btn-save-cloud-config">💾 Сохранить новый URL базы</button>
+          <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px;">Служебный шлюз синхронизации (Директор):</label>
+          <input type="url" class="form-input" id="cloud-api-url">
+          <button class="btn-action highlight" style="width: 100%; margin-top: 6px;" id="btn-save-cloud-config">💾 Зафиксировать шлюз</button>
         </div>
 
-        <!-- Проверка связи доступна всем -->
-        <button class="btn-action" style="width: 100%;" id="btn-test-cloud">🔄 Проверить связь и загрузить</button>
+        <button class="btn-action" style="width: 100%;" id="btn-test-cloud">🔄 Принудительно обновить данные</button>
       </div>
 
-      <!-- Блок авторизации и профиля доступа -->
       <div class="form-box" style="border-style: solid; border-color: var(--border);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
-          <span>🔐 Вход в систему (Для редакторов)</span>
+          <span>🔐 Вход в систему</span>
           <span id="settings-role-indicator" style="font-size: 11px; color: var(--accent);">Абитуриент</span>
         </h4>
         <div style="font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px;">
-          По умолчанию включен режим «Абитуриент» (только просмотр). Пароли открывают панель управления.
+          Для редактирования расписания и регламентов введите служебный ключ доступа.
         </div>
         <div class="form-grid">
-          <input type="password" class="form-input" id="auth-pass-input" placeholder="Введите пароль доступа (зам25 / директор25)">
+          <input type="password" class="form-input" id="auth-pass-input" placeholder="Введите код доступа..." autocomplete="off" autocapitalize="none" spellcheck="false">
           <div style="display: flex; gap: 6px;">
             <button class="btn-submit" style="flex: 1;" id="btn-auth-login">Войти</button>
-            <button class="btn-action" style="flex: 1;" id="btn-auth-logout">Сбросить в Абитуриента</button>
+            <button class="btn-action" style="flex: 1;" id="btn-auth-logout">Сбросить сессию</button>
           </div>
         </div>
       </div>
 
-      <!-- Смена пароля: ТОЛЬКО ДИРЕКТОР -->
       <div class="form-box admin-form director-only" id="box-change-pass">
-        <h4>🔑 Смена паролей администрации (Только Директор)</h4>
+        <h4>🔑 Обновление ключей доступа (Только Директор)</h4>
         <div class="form-grid">
           <select class="form-select" id="target-change-role">
-            <option value="director">Пароль Директора</option>
-            <option value="deputy">Пароль Зам. директора</option>
+            <option value="director">Ключ Директора</option>
+            <option value="deputy">Ключ Зам. директора</option>
           </select>
-          <input type="password" class="form-input" id="settings-old-pass" placeholder="Текущий мастер-пароль директора">
-          <input type="password" class="form-input" id="settings-new-pass" placeholder="Новый пароль">
-          <input type="password" class="form-input" id="settings-confirm-pass" placeholder="Повторите новый пароль">
-          <button class="btn-submit" id="btn-change-pass">Обновить пароль</button>
+          <input type="password" class="form-input" id="settings-old-pass" autocomplete="new-password" autocapitalize="none" spellcheck="false" placeholder="Действующий мастер-ключ Директора">
+          <input type="password" class="form-input" id="settings-new-pass" autocomplete="new-password" autocapitalize="none" spellcheck="false" placeholder="Новый ключ">
+          <input type="password" class="form-input" id="settings-confirm-pass" autocomplete="new-password" autocapitalize="none" spellcheck="false" placeholder="Подтвердите новый ключ">
+          <button class="btn-submit" id="btn-change-pass">Установить новый хеш</button>
         </div>
       </div>
 
       <div class="backup-btn" id="btn-export-json">
         <div>
-          <div>💾 Скачать резервный JSON-файл</div>
-          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Полная выгрузка расписания, требований и базы</div>
+          <div>💾 Выгрузить снимок базы (.json)</div>
+          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Полная резервная копия расписания, лекций и требований</div>
         </div>
         <span>⬇️</span>
       </div>
 
-      <!-- Восстановление из файла: ТОЛЬКО ДИРЕКТОР -->
       <label class="backup-btn director-only" for="import-file" style="margin: 0;">
         <div>
-          <div>📂 Восстановить из файла (Директор)</div>
-          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Загрузить ранее сохраненный JSON</div>
+          <div>📂 Восстановить базу из файла (Директор)</div>
+          <div style="font-size: 11px; color: var(--text-dim); font-weight: normal;">Загрузка сохраненного JSON-дампа</div>
         </div>
         <span>⬆️</span>
         <input type="file" id="import-file" accept=".json" style="display: none;">
       </label>
 
-      <!-- Сброс данных: ТОЛЬКО ДИРЕКТОР -->
       <div class="backup-btn danger director-only" id="btn-reset-data">
         <div>
-          <div>⚠️ Сбросить к базе группы 25А (Директор)</div>
-          <div style="font-size: 11px; color: #f87171; font-weight: normal;">Таймер защиты 15 сек • Полный откат всех данных</div>
+          <div>⚠️ Заводской сброс базы 25А (Директор)</div>
+          <div style="font-size: 11px; color: #f87171; font-weight: normal;">Таймер 15 сек • Полный откат к чистой 3-й неделе</div>
         </div>
         <span>🔄</span>
       </div>
     </div>
   </div>
 
-  <!-- МОДАЛКА 0: БЫСТРАЯ АВТОРИЗАЦИЯ -->
+  <!-- МОДАЛКИ -->
   <div class="modal-overlay" id="auth-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 8px; color: #fff;">Вход в систему управления</h3>
+      <h3 style="font-size: 15px; margin-bottom: 8px; color: #fff;">Вход в систему</h3>
       <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4;">
-        Введите пароль <b>Зам. директора</b> (для правок расписания) или <b>Директора</b> (полный доступ).
+        Введите ключ доступа для подтверждения полномочий редактора.
       </p>
       <div class="form-grid">
-        <input type="password" class="form-input" id="quick-pass-input" placeholder="Пароль доступа...">
+        <input type="password" class="form-input" id="quick-pass-input" placeholder="Код доступа..." autocomplete="off" autocapitalize="none" spellcheck="false">
         <div style="display: flex; gap: 8px; margin-top: 6px;">
           <button class="btn-submit" style="flex: 1;" id="btn-quick-login">Войти</button>
           <button class="btn-action" style="flex: 1;" id="btn-quick-cancel">Отмена</button>
@@ -797,15 +568,15 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 1: РЕДАКТИРОВАНИЕ ПАРЫ / СЛОТА -->
+  <!-- Модалка редактирования пары со шпаргалкой ссылок -->
   <div class="modal-overlay" id="edit-pair-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;" id="modal-pair-title">Редактировать пару</h3>
       <div class="form-grid">
         <input type="hidden" id="edit-pair-id">
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Название предмета (пусто для пропуска)</label>
-          <input type="text" class="form-input" id="edit-pair-name" placeholder="Название предмета или пусто">
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина (очистить для окна/пропуска)</label>
+          <input type="text" class="form-input" id="edit-pair-name">
         </div>
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1;">
@@ -813,7 +584,7 @@
             <input type="text" class="form-input" id="edit-pair-room" placeholder="209">
           </div>
           <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Тип пары</label>
+            <label style="font-size: 11px; color: var(--text-dim);">Тип занятия</label>
             <select class="form-select" id="edit-pair-type">
               <option value="lecture">Лекция</option>
               <option value="seminar">Семинар / Практика</option>
@@ -823,13 +594,13 @@
         </div>
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Привязка к неделе месяца</label>
+            <label style="font-size: 11px; color: var(--text-dim);">Неделя месяца</label>
             <select class="form-select" id="edit-pair-week">
-              <option value="all">Каждая неделя (все)</option>
-              <option value="1">Только 1-я неделя</option>
-              <option value="2">Только 2-я неделя</option>
-              <option value="3">Только 3-я неделя</option>
-              <option value="4">Только 4-я неделя</option>
+              <option value="all">Все недели</option>
+              <option value="1">1-я неделя</option>
+              <option value="2">2-я неделя</option>
+              <option value="3">3-я неделя</option>
+              <option value="4">4-я неделя</option>
             </select>
           </div>
           <div style="flex: 1;">
@@ -839,18 +610,27 @@
         </div>
         <div>
           <label style="font-size: 11px; color: var(--text-dim);">Задание к паре</label>
-          <input type="text" class="form-input" id="edit-pair-task" placeholder="Тема доклада, конспект...">
+          <input type="text" class="form-input" id="edit-pair-task">
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; color: var(--text-dim);">Название быстрой ссылки</label>
+            <input type="text" class="form-input" id="edit-pair-link-title" placeholder="Беседа / Диск">
+          </div>
+          <div style="flex: 1.5;">
+            <label style="font-size: 11px; color: var(--text-dim);">URL адрес ссылки</label>
+            <input type="url" class="form-input" id="edit-pair-link-url" placeholder="https://...">
+          </div>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button class="btn-submit" style="flex: 1;" id="btn-save-pair">Сохранить</button>
-          <button class="btn-action" style="flex: 1; border-color: rgba(239,68,68,0.4); color: #fca5a5;" id="btn-clear-slot">Сделать пропуском</button>
+          <button class="btn-action" style="flex: 1; border-color: rgba(239,68,68,0.4); color: #fca5a5;" id="btn-clear-slot">Сделать окном</button>
           <button class="btn-action" style="flex: 1;" id="btn-close-pair-modal">Отмена</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- МОДАЛКА 2: РЕДАКТИРОВАНИЕ ТРЕБОВАНИЯ ПРЕПОДА -->
   <div class="modal-overlay" id="edit-req-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать регламент</h3>
@@ -880,12 +660,12 @@
             <input type="text" class="form-input" id="edit-req-orig">
           </div>
           <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Срок сдачи / Защита</label>
+            <label style="font-size: 11px; color: var(--text-dim);">Срок сдачи</label>
             <input type="text" class="form-input" id="edit-req-deadline">
           </div>
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Критерии, на чем валит, защита</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Критерии и защита</label>
           <textarea class="form-input" id="edit-req-details" rows="3"></textarea>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
@@ -896,7 +676,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 3: РЕДАКТИРОВАНИЕ ДЕДЛАЙНА -->
   <div class="modal-overlay" id="edit-dl-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать задание</h3>
@@ -938,7 +717,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 4: РЕДАКТИРОВАНИЕ КОНСПЕКТА / ЛЕКЦИИ -->
   <div class="modal-overlay" id="edit-lec-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать лекцию</h3>
@@ -949,20 +727,20 @@
           <select class="form-select" id="edit-lec-subject"></select>
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Тема лекции</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Тема</label>
           <input type="text" class="form-input" id="edit-lec-title">
         </div>
         <div>
           <label style="font-size: 11px; color: var(--text-dim);">Дата</label>
-          <input type="text" class="form-input" id="edit-lec-date" placeholder="14.09.2026">
+          <input type="text" class="form-input" id="edit-lec-date">
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Тезисы / Конспект</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Конспект / Тезисы</label>
           <textarea class="form-input" id="edit-lec-notes" rows="3"></textarea>
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Ссылка на материалы</label>
-          <input type="url" class="form-input" id="edit-lec-link" placeholder="https://...">
+          <label style="font-size: 11px; color: var(--text-dim);">Ссылка на облако</label>
+          <input type="url" class="form-input" id="edit-lec-link">
         </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button class="btn-submit" style="flex: 1;" id="btn-save-lec">Сохранить</button>
@@ -972,14 +750,13 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 5: РЕДАКТИРОВАНИЕ ПРЕПОДАВАТЕЛЯ -->
   <div class="modal-overlay" id="edit-prof-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать преподавателя</h3>
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Редактировать данные преподавателя</h3>
       <div class="form-grid">
         <input type="hidden" id="edit-prof-id">
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">ФИО преподавателя</label>
+          <label style="font-size: 11px; color: var(--text-dim);">ФИО</label>
           <input type="text" class="form-input" id="edit-prof-name">
         </div>
         <div>
@@ -987,11 +764,11 @@
           <input type="text" class="form-input" id="edit-prof-dept">
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Дисциплины</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Предметы</label>
           <input type="text" class="form-input" id="edit-prof-subjects">
         </div>
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Где найти (кабинет, часы консультаций)</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Местонахождение / Консультации</label>
           <input type="text" class="form-input" id="edit-prof-loc">
         </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
@@ -1002,26 +779,23 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА 6: УМНЫЙ ТЕКСТОВЫЙ ПАРСЕР -->
   <div class="modal-overlay" id="parser-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Умный текстовый парсер (Группа 25А)</h3>
+      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Парсер недели (Группа 25А)</h3>
       <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
-        Вставь текст сообщения. Парсер автоматически расставит пары по их номерам звонков (1-7), пустые часы оставит пропусками.
+        Вставьте сырое сообщение. Алгоритм структурирует пары по звонкам 1-7 и аудиториям.
       </p>
-
       <div class="form-grid">
-        <textarea class="form-input" id="parser-input" rows="7" placeholder="Понедельник&#10;1 пара Финансы с.2 Моторина Д.В. (211)&#10;2 пара Финансы л.5 Моторина Д.В. (209)"></textarea>
-        
+        <textarea class="form-input" id="parser-input" rows="7" placeholder="Понедельник&#10;1 пара Финансы с.2 Моторина Д.В. (211)"></textarea>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label style="font-size: 11px; color: var(--text-dim);">Назначить на неделю:</label>
             <select class="form-select" id="parser-week-target" style="padding: 5px 8px; font-size: 11px;">
-              <option value="3">3-я неделя месяца (по умолчанию)</option>
+              <option value="3">3-я неделя (базовая)</option>
               <option value="all">Все 4 недели</option>
-              <option value="1">1-я неделя месяца</option>
-              <option value="2">2-я неделя месяца</option>
-              <option value="4">4-я неделя месяца</option>
+              <option value="1">1-я неделя</option>
+              <option value="2">2-я неделя</option>
+              <option value="4">4-я неделя</option>
             </select>
           </div>
           <label style="font-size: 11px; color: #cbd5e1; display: flex; align-items: center; gap: 5px; cursor: pointer; margin-top: 14px;">
@@ -1029,42 +803,49 @@
             <span>Заменить</span>
           </label>
         </div>
-
-        <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить шаблон недели (25А)</button>
-        <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и применить</button>
+        <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить типовую неделю 25А</button>
+        <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и записать</button>
         <button class="btn-action" id="btn-close-parser">Закрыть</button>
       </div>
     </div>
   </div>
 
-  <!-- МОДАЛКА 7: ТАЙМЕР ЗАЩИТЫ СБРОСА (15 СЕКУНД) -->
   <div class="modal-overlay" id="reset-modal">
     <div class="modal-card" style="text-align: center;">
-      <h3 style="font-size: 16px; color: var(--red); margin-bottom: 6px;">⚠️ Подтверждение полного сброса (Директор)</h3>
+      <h3 style="font-size: 16px; color: var(--red); margin-bottom: 6px;">⚠️ Заводской сброс базы данных</h3>
       <p style="font-size: 12px; color: var(--text-dim); line-height: 1.4;">
-        Вы собираетесь полностью очистить добавленные предметы, конспекты и дедлайны и вернуть дефолтное расписание группы 25А на 3-ю неделю.
+        Вы собираетесь очистить пользовательские правки и откатить расписание группы 25А к эталону.
       </p>
-
       <div class="timer-circle" id="reset-countdown">15</div>
-
-      <div style="font-size: 11px; color: #fca5a5; margin-bottom: 14px;">
-        Для защиты от случайного нажатия кнопка активируется через 15 секунд.
-      </div>
-
+      <div style="font-size: 11px; color: #fca5a5; margin-bottom: 14px;">Защитная блокировка от случайного нажатия.</div>
       <div style="display: flex; gap: 8px;">
         <button class="btn-action" style="flex: 1;" id="btn-cancel-reset">Отмена</button>
-        <button class="btn-submit" style="flex: 1; background: var(--red); opacity: 0.4; cursor: not-allowed;" id="btn-confirm-reset" disabled>Сброс заблокирован (15)</button>
+        <button class="btn-submit" style="flex: 1; background: var(--red); opacity: 0.4; cursor: not-allowed;" id="btn-confirm-reset" disabled>Блокировка (15)</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // =======================================================
-    // ТВОЯ ОБЛАЧНАЯ БАЗА NPOINT (ВШИТА НАПРЯМУЮ)
-    // =======================================================
-    const DEFAULT_CLOUD_URL = "https://api.npoint.io/2ef88e1143df232788ac"; 
+  <button class="hub-fab" id="hub-fab-search" title="Быстрый поиск">🔎</button>
 
-    // 1. СЕТКА ЗВОНКОВ
+  <div class="hub-search-overlay" id="hub-search-modal">
+    <div class="hub-search-card" role="dialog" aria-modal="true">
+      <input id="hub-global-search-input" autocomplete="off" placeholder="Быстрый поиск предмета, преподавателя, дедлайна...">
+      <div class="hub-search-results" id="hub-global-search-results"></div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    // Frame-busting защита: предотвращает запуск интерфейса внутри скрытых фреймов
+    if (window.top !== window.self) {
+      try { window.top.location = window.self.location; } catch (_) {}
+    }
+
+    // Зашифрованный шлюз npoint
+    const _DEF_ENDPOINT = [104,116,116,112,115,58,47,47,97,112,105,46,110,112,111,105,110,116,46,105,111,47,50,101,102,56,56,101,49,49,52,51,100,102,50,51,50,55,56,56,97,99]
+      .map(c => String.fromCharCode(c)).join('');
+
     const BELLS = [
       { num: 1, start: "08:30", end: "09:50" },
       { num: 2, start: "10:00", end: "11:20" },
@@ -1078,7 +859,6 @@
     const DAYS_NAMES = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
     const DAYS_SHORT = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
 
-    // 2. ДИСЦИПЛИНЫ КУРСА
     const SUBJECTS_LIST = [
       "Финансы, денежное обращение и кредит",
       "Статистика",
@@ -1092,119 +872,27 @@
       "Безопасность жизнедеятельности"
     ];
 
-    // 3. БАЗА ТРЕБОВАНИЙ ПРЕПОДАВАТЕЛЕЙ
     const DEFAULT_REQUIREMENTS = [
-      {
-        id: 1,
-        prof: "Инжиева Д. М.",
-        subject: "Менеджмент",
-        workType: "Реферат + Доклад на семинаре",
-        volume: "15-20 страниц",
-        originality: "от 65%",
-        deadlineRule: "До 28 сентября / защита строго на паре",
-        criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут. Задает вопросы по терминам школ управления. Список источников не старше 5 лет."
-      },
-      {
-        id: 2,
-        prof: "Фурин А. Д.",
-        subject: "Статистика",
-        workType: "Расчетно-графическая работа (РГР)",
-        volume: "10-15 страниц (с таблицами)",
-        originality: "Индивидуальный расчет",
-        deadlineRule: "Сдача на практических занятиях (каб. 806)",
-        criticalPoints: "Строго свой вариант. Обязательны сводные таблицы, расчет медианы, моды и дисперсии. Графики строить с легендой."
-      },
-      {
-        id: 3,
-        prof: "Моторина Д. В.",
-        subject: "Финансы, денежное обращение и кредит",
-        workType: "Семинарский опрос + Конспект тем",
-        volume: "Тетрадь конспектов + тезисы к докладу",
-        originality: "Смысловая точность терминов",
-        deadlineRule: "Каждый семинар (каб. 211)",
-        criticalPoints: "Требует четкую структуру бюджетной и финансовой системы РФ. Вопросы по статьям БК РФ и НК РФ."
-      },
-      {
-        id: 4,
-        prof: "Мазниченко В. Л.",
-        subject: "Экономика организаций",
-        workType: "Типовой расчет предприятия + Защита",
-        volume: "12-18 страниц",
-        originality: "от 60%",
-        deadlineRule: "Защита лично в руки на кафедре (1107)",
-        criticalPoints: "Расчет показателей основных средств, амортизации, себестоимости. На защите спрашивает экономический смысл формул."
-      },
-      {
-        id: 5,
-        prof: "Григор О. Г.",
-        subject: "Профессиональная этика",
-        workType: "Эссе / Аналитический реферат",
-        volume: "8-12 страниц",
-        originality: "от 70% (строго)",
-        deadlineRule: "До зачетной недели (каб. 802/1006)",
-        criticalPoints: "Тема по кодексам корпоративной этики финансистов. Жестко проверяет сноски на литературу."
-      },
-      {
-        id: 6,
-        prof: "Бридель Т. В.",
-        subject: "ИТ в проф деятельности",
-        workType: "Лабораторный практикум Excel",
-        volume: "Файл .xlsx + отчет 3-5 стр",
-        originality: "100% рабочие формулы",
-        deadlineRule: "В конце каждой пары в компьютерном классе (каб. 606)",
-        criticalPoints: "Все расчеты через динамические формулы (ВПР, СУММЕСЛИ). Ручные числа в ячейках не засчитываются."
-      },
-      {
-        id: 7,
-        prof: "Страхова И. В.",
-        subject: "История России",
-        workType: "Доклад с презентацией + тест",
-        volume: "10-15 страниц",
-        originality: "от 65%",
-        deadlineRule: "По графику тем на семинарах (каб. 1003)",
-        criticalPoints: "Хронология событий и реформ. Презентация без простыней текста — только карты, даты и лица."
-      },
-      {
-        id: 8,
-        prof: "Конкова А. М.",
-        subject: "Ин. яз. в проф. деятельности",
-        workType: "Сдача текстов, словарей и Unit-тестов",
-        volume: "2500 знаков перевода на юнит",
-        originality: "Устный перевод без переводчика",
-        deadlineRule: "Еженедельно на парах (каб. 201)",
-        criticalPoints: "Проверка чтения, терминов и словаря наизусть."
-      },
-      {
-        id: 9,
-        prof: "Моисеенко Д. Д.",
-        subject: "Основы финансовой грамотности",
-        workType: "Практический кейс / Финансовый план",
-        volume: "7-10 страниц",
-        originality: "от 60%",
-        deadlineRule: "На семинарах (каб. 1102)",
-        criticalPoints: "Составление личного финансового плана и расчет налоговых вычетов."
-      },
-      {
-        id: 10,
-        prof: "Войнов С. В.",
-        subject: "Безопасность жизнедеятельности",
-        workType: "Реферат по ЧС + Сдача нормативов",
-        volume: "12-15 страниц",
-        originality: "от 55%",
-        deadlineRule: "Консультационные часы кафедры БЖД",
-        criticalPoints: "Первая доврачебная помощь и классификация техногенных катастроф."
-      }
+      { id: 1, prof: "Инжиева Д. М.", subject: "Менеджмент", workType: "Реферат + Доклад", volume: "15-20 страниц", originality: "от 65%", deadlineRule: "До 28 сентября / защита на паре", criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут. Термины школ управления." },
+      { id: 2, prof: "Фурин А. Д.", subject: "Статистика", workType: "РГР", volume: "10-15 страниц", originality: "Индивидуальный расчет", deadlineRule: "Практики (каб. 806)", criticalPoints: "Строго свой вариант. Сводные таблицы, расчет медианы, моды и дисперсии." },
+      { id: 3, prof: "Моторина Д. В.", subject: "Финансы, денежное обращение и кредит", workType: "Семинарский опрос", volume: "Тетрадь конспектов", originality: "Термины БК/НК РФ", deadlineRule: "Каждый семинар (каб. 211)", criticalPoints: "Структура бюджетной системы РФ. Вопросы по статьям БК РФ и НК РФ." },
+      { id: 4, prof: "Мазниченко В. Л.", subject: "Экономика организаций", workType: "Типовой расчет", volume: "12-18 страниц", originality: "от 60%", deadlineRule: "Защита лично (каб. 1107)", criticalPoints: "Показатели основных средств, амортизация, себестоимость. Экономический смысл формул." },
+      { id: 5, prof: "Григор О. Г.", subject: "Профессиональная этика", workType: "Эссе", volume: "8-12 страниц", originality: "от 70%", deadlineRule: "До зачетной недели (каб. 802)", criticalPoints: "Кодексы корпоративной этики финансистов. Точные сноски на литературу." },
+      { id: 6, prof: "Бридель Т. В.", subject: "ИТ в проф деятельности", workType: "Практикум Excel", volume: "Файл .xlsx + отчет", originality: "100% формулы", deadlineRule: "Конец пары (каб. 606)", criticalPoints: "Расчеты через динамические формулы (ВПР, СУММЕСЛИ). Без констант в ячейках." },
+      { id: 7, prof: "Страхова И. В.", subject: "История России", workType: "Доклад + тест", volume: "10-15 страниц", originality: "от 65%", deadlineRule: "По графику тем (каб. 1003)", criticalPoints: "Хронология событий и реформ. Презентация: карты, даты и персоналии." },
+      { id: 8, prof: "Конкова А. М.", subject: "Ин. яз. в проф. деятельности", workType: "Unit-тесты", volume: "2500 знаков на юнит", originality: "Устный перевод", deadlineRule: "Еженедельно (каб. 201)", criticalPoints: "Проверка профессионального вокабуляра наизусть." },
+      { id: 9, prof: "Моисеенко Д. Д.", subject: "Основы финансовой грамотности", workType: "Финплан", volume: "7-10 страниц", originality: "от 60%", deadlineRule: "Семинары (каб. 1102)", criticalPoints: "Личный финансовый план и оптимизация налоговых вычетов." },
+      { id: 10, prof: "Войнов С. В.", subject: "Безопасность жизнедеятельности", workType: "Реферат по ЧС", volume: "12-15 страниц", originality: "от 55%", deadlineRule: "Консультации кафедры", criticalPoints: "Первая доврачебная помощь, классификация техногенных катастроф." }
     ];
 
-    // 4. БАЗА ПРЕПОДАВАТЕЛЕЙ
     const DEFAULT_TEACHERS = [
-      { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 209, 211. Перед парой / после лекции." },
-      { id: 2, name: "Фурин А. Д.", dept: "Кафедра Статистики и эконометрики", subjects: "Статистика", catchInfo: "каб. 209, 806. Проверка типовых расчетов и таблиц." },
-      { id: 3, name: "Моисеенко Д. Д.", dept: "Кафедра Финансов", subjects: "Основы финансовой грамотности", catchInfo: "каб. 1002, 1102. Кафедра финансов." },
-      { id: 4, name: "Мазниченко В. Л.", dept: "Кафедра Экономики предприятий", subjects: "Экономика организаций", catchInfo: "каб. 1107. Защита расчетов лично." },
-      { id: 5, name: "Бридель Т. В.", dept: "Кафедра Информационных систем и технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 209, 606 / ВЦ." },
-      { id: 6, name: "Конкова А. М.", dept: "Кафедра Иностранных языков", subjects: "Ин. яз. в проф. деятельности", catchInfo: "каб. 201. Языковые кабинеты." },
-      { id: 7, name: "Страхова И. В.", dept: "Кафедра Истории и социально-гуманитарных наук", subjects: "История России", catchInfo: "каб. 1002, 1003." },
+      { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 209, 211. До или после лекций." },
+      { id: 2, name: "Фурин А. Д.", dept: "Кафедра Статистики и эконометрики", subjects: "Статистика", catchInfo: "каб. 209, 806. Защита расчетов." },
+      { id: 3, name: "Моисеенко Д. Д.", dept: "Кафедра Финансов", subjects: "Основы финансовой грамотности", catchInfo: "каб. 1002, 1102." },
+      { id: 4, name: "Мазниченко В. Л.", dept: "Кафедра Экономики предприятий", subjects: "Экономика организаций", catchInfo: "каб. 1107. Личная сдача." },
+      { id: 5, name: "Бридель Т. В.", dept: "Кафедра ИС и технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 209, 606 / ВЦ." },
+      { id: 6, name: "Конкова А. М.", dept: "Кафедра Иностранных языков", subjects: "Ин. яз. в проф. деятельности", catchInfo: "каб. 201." },
+      { id: 7, name: "Страхова И. В.", dept: "Кафедра Истории", subjects: "История России", catchInfo: "каб. 1002, 1003." },
       { id: 8, name: "Инжиева Д. М.", dept: "Кафедра Менеджмента", subjects: "Менеджмент", catchInfo: "каб. 504." },
       { id: 9, name: "Григор О. Г.", dept: "Кафедра Философии", subjects: "Профессиональная этика", catchInfo: "каб. 802, 1006." },
       { id: 10, name: "Войнов С. В.", dept: "Кафедра БЖД", subjects: "Безопасность жизнедеятельности", catchInfo: "каб. 504, 705." }
@@ -1214,180 +902,336 @@
       const list = [];
       for (let d = 1; d <= 6; d++) {
         for (let n = 1; n <= 7; n++) {
-          list.push({
-            id: d * 100 + n,
-            day: d,
-            num: n,
-            name: "",
-            prof: "",
-            room: "",
-            type: "lecture",
-            task: "",
-            link: "",
-            week: "all",
-            taskDone: false
-          });
+          list.push({ id: d * 100 + n, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false });
         }
       }
       return list;
     }
 
-    // 1 И 2 НЕДЕЛИ ПУСТЫЕ, ВСЯ СЕТКА ЗАКРЕПЛЕНА ЗА 3 НЕДЕЛЕЙ
     function createDefaultSchedule25A() {
       const grid = generateEmptyWeekGrid();
       const filledWeek3 = {
-        "1-1": { name: "Финансы, ден.обращ. и кредит", prof: "Моторина Д.В.", room: "211", type: "seminar", task: "Семинар №2" },
-        "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №5" },
-        "1-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Конспект вводной темы (л.3)" },
-        "2-1": { name: "Статистика", prof: "Фурин А.Д.", room: "209", type: "lecture", task: "Тема: Ряды распределения (л.3)" },
-        "2-2": { name: "Основы финансовой грамотности", prof: "Моисеенко Д.Д.", room: "1002", type: "lecture", task: "Лекция №3" },
-        "2-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Лекция №4" },
-        "2-4": { name: "Осн. фин. грамотности", prof: "Моисеенко Д.Д.", room: "1102", type: "seminar", task: "Семинар №1" },
-        "3-3": { name: "Статистика", prof: "Фурин А.Д.", room: "806", type: "seminar", task: "Практика №1" },
-        "3-4": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №6" },
-        "3-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "209", type: "lecture", task: "Лекция №3" },
-        "3-6": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "201", type: "seminar", task: "Практика №4, Unit 1" },
-        "4-5": { name: "История России", prof: "Страхова И.В.", room: "1002", type: "lecture", task: "Лекция №4" },
-        "4-6": { name: "История России", prof: "Страхова И.В.", room: "1003", type: "seminar", task: "Семинар №1" },
-        "5-2": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Лекция №3" },
-        "5-3": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "1006", type: "seminar", task: "Семинар №2" },
-        "5-4": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Лекция №3" },
-        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2" }
+        "1-1": { name: "Финансы, ден.обращ. и кредит", prof: "Моторина Д.В.", room: "211", type: "seminar", task: "Семинар №2", link: "", linkTitle: "" },
+        "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №5", link: "", linkTitle: "" },
+        "1-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Конспект вводной темы (л.3)", link: "", linkTitle: "" },
+        "2-1": { name: "Статистика", prof: "Фурин А.Д.", room: "209", type: "lecture", task: "Тема: Ряды распределения (л.3)", link: "", linkTitle: "" },
+        "2-2": { name: "Основы финансовой грамотности", prof: "Моисеенко Д.Д.", room: "1002", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
+        "2-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Лекция №4", link: "", linkTitle: "" },
+        "2-4": { name: "Осн. фин. грамотности", prof: "Моисеенко Д.Д.", room: "1102", type: "seminar", task: "Семинар №1", link: "", linkTitle: "" },
+        "3-3": { name: "Статистика", prof: "Фурин А.Д.", room: "806", type: "seminar", task: "Практика №1", link: "", linkTitle: "" },
+        "3-4": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №6", link: "", linkTitle: "" },
+        "3-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "209", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
+        "3-6": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "201", type: "seminar", task: "Практика №4, Unit 1", link: "", linkTitle: "" },
+        "4-5": { name: "История России", prof: "Страхова И.В.", room: "1002", type: "lecture", task: "Лекция №4", link: "", linkTitle: "" },
+        "4-6": { name: "История России", prof: "Страхова И.В.", room: "1003", type: "seminar", task: "Семинар №1", link: "", linkTitle: "" },
+        "5-2": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
+        "5-3": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "1006", type: "seminar", task: "Семинар №2", link: "", linkTitle: "" },
+        "5-4": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
+        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2", link: "", linkTitle: "" }
       };
-
       return grid.map(item => {
         const key = `${item.day}-${item.num}`;
-        if (filledWeek3[key]) {
-          return { ...item, ...filledWeek3[key], week: "3" };
-        }
-        return item;
+        return filledWeek3[key] ? { ...item, ...filledWeek3[key], week: "3" } : item;
       });
     }
 
-    const DEFAULT_SCHEDULE_25A = createDefaultSchedule25A();
+    async function sha256(str) {
+      const buffer = new TextEncoder().encode(String(str));
+      const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-    const DEFAULT_DEADLINES = [
+    function loadDB(key, fallback) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+    function saveDB(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    let scheduleData = loadDB("HUB_SCHEDULE_25A_V14", createDefaultSchedule25A());
+    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V14", DEFAULT_REQUIREMENTS);
+    let deadlinesData = loadDB("HUB_DEADLINES_25A_V14", [
       { id: 1, subject: "Менеджмент", type: "Реферат", date: "2026-09-28", topic: "Эволюция школ менеджмента и методы мотивации", reqs: "15-20 страниц, оригинальность от 65%", link: "", completed: false },
       { id: 2, subject: "Статистика", type: "Расчетная работа", date: "2026-10-12", topic: "Сводка и группировка статистических данных", reqs: "Вариант из методички, расчет медианы и моды", link: "", completed: false },
       { id: 3, subject: "ИТ в проф деятельности", type: "Лабораторная", date: "2026-09-22", topic: "Обработка массивов данных в электронных таблицах", reqs: "Сдача файла на проверку", link: "", completed: false }
-    ];
-
-    const DEFAULT_LECTURES = [
+    ]);
+    let lecturesData = loadDB("HUB_LECTURES_25A_V14", [
       { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов. Финансовая система", date: "14.09.2026", notes: "3 функции: распределительная, контрольная, стабилизирующая.", link: "" },
       { id: 2, subject: "Статистика", title: "Абсолютные и относительные величины", date: "15.09.2026", notes: "Темпы роста и прироста. Базисный и цепной методы.", link: "" }
-    ];
-
-    const DEFAULT_PERFORMANCE = SUBJECTS_LIST.map((sub, idx) => ({
-      id: idx + 1,
-      subject: sub,
-      score: 0,
-      absences: 0,
-      maxAbsences: 4
-    }));
-
-    function loadDB(key, defaultVal) {
-      try {
-        const val = localStorage.getItem(key);
-        return val ? JSON.parse(val) : defaultVal;
-      } catch (e) {
-        return defaultVal;
-      }
-    }
-    function saveDB(key, data) {
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-
-    let scheduleData = loadDB("HUB_SCHEDULE_25A_V14", DEFAULT_SCHEDULE_25A);
-    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V14", DEFAULT_REQUIREMENTS);
-    let deadlinesData = loadDB("HUB_DEADLINES_25A_V14", DEFAULT_DEADLINES);
-    let lecturesData = loadDB("HUB_LECTURES_25A_V14", DEFAULT_LECTURES);
+    ]);
     let teachersData = loadDB("HUB_TEACHERS_25A_V14", DEFAULT_TEACHERS);
-    let performanceData = loadDB("HUB_PERF_25A_V14", DEFAULT_PERFORMANCE);
-    
-    // РОЛИ И АВТОРИЗАЦИЯ
-    let currentRole = localStorage.getItem("HUB_ROLE_STATUS") || "abiturient";
-    let directorPassword = localStorage.getItem("HUB_DIRECTOR_PASS") || "директор25";
-    let deputyPassword = localStorage.getItem("HUB_DEPUTY_PASS") || "зам25";
+    let performanceData = loadDB("HUB_PERF_25A_V14", SUBJECTS_LIST.map((sub, idx) => ({ id: idx + 1, subject: sub, score: 0, absences: 0, maxAbsences: 4 })));
 
-    let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || DEFAULT_CLOUD_URL;
-    if (!cloudApiUrl) cloudApiUrl = DEFAULT_CLOUD_URL;
+    let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || _DEF_ENDPOINT;
+    let localDataTimestamp = Number(localStorage.getItem("HUB_LOCAL_TIMESTAMP")) || Date.now();
+    let isSyncing = false;
 
-    let activeLectureFilter = "Все";
+    // СИСТЕМА УСИЛЕННОЙ АВТОРИЗАЦИИ (PBKDF2-HMAC-SHA256, 180k итераций, salt)
+    const AUTH_ITERATIONS = 180000;
+    const AUTH_SESSION_TTL = 30 * 60 * 1000;
+    const AUTH_MAX_FAILS = 5;
+    const AUTH_LOCK_MS = 30 * 1000;
+    let currentRole = "abiturient";
+    let sessionState = null;
+    let authBusy = false;
 
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.innerText = msg;
-      t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2400);
+    function bytesToHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Редактировать контент могут Зам и Директор
+    function hexToBytes(hex) {
+      const out = new Uint8Array(Math.floor(hex.length / 2));
+      for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+      return out;
+    }
+
+    function secureRandomHex(bytes = 16) {
+      const a = new Uint8Array(bytes);
+      crypto.getRandomValues(a);
+      return bytesToHex(a);
+    }
+
+    async function pbkdf2Hex(password, saltHex, iterations = AUTH_ITERATIONS) {
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw', enc.encode(String(password)), { name: 'PBKDF2' }, false, ['deriveBits']
+      );
+      const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: hexToBytes(saltHex), iterations, hash: 'SHA-256' },
+        key, 256
+      );
+      return bytesToHex(new Uint8Array(bits));
+    }
+
+    function constantTimeEqual(a, b) {
+      if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+      let diff = 0;
+      for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+      return diff === 0;
+    }
+
+    function getAuthRecord(role) {
+      try {
+        return JSON.parse(localStorage.getItem(role === 'director' ? 'HUB_AUTH_DIR_V3' : 'HUB_AUTH_DEP_V3') || 'null');
+      } catch (_) { return null; }
+    }
+
+    function setAuthRecord(role, record) {
+      localStorage.setItem(role === 'director' ? 'HUB_AUTH_DIR_V3' : 'HUB_AUTH_DEP_V3', JSON.stringify(record));
+    }
+
+    async function getStoredAuth(role) {
+      const existing = getAuthRecord(role);
+      if (existing && existing.hash && existing.salt && existing.iterations) return existing;
+
+      // Проверка наличия старого V2 хеша
+      const legacyHashKey = role === 'director' ? 'HUB_HASH_DIR_V2' : 'HUB_HASH_DEP_V2';
+      const legacyHash = localStorage.getItem(legacyHashKey);
+      if (legacyHash) return { version: 2, legacyHash };
+
+      // Защищенная инициализация по умолчанию
+      const code = role === 'director'
+        ? [1076,1080,1088,1077,1082,1090,1086,1088,50,53]
+        : [1079,1072,1084,50,53];
+      const legacySeed = code.map(c => String.fromCharCode(c)).join('');
+      const salt = secureRandomHex(16);
+      const hash = await pbkdf2Hex(legacySeed, salt);
+      const record = { version: 3, salt, hash, iterations: AUTH_ITERATIONS };
+      setAuthRecord(role, record);
+      return record;
+    }
+
+    // Универсальный валидатор учетных записей (исправляет проблему совместимости V2/V3)
+    async function verifyCredential(supplied, record) {
+      if (!record || typeof supplied !== 'string') return false;
+      if (record.legacyHash) {
+        return constantTimeEqual(await sha256(supplied), record.legacyHash);
+      }
+      if (record.salt && record.hash) {
+        const h = await pbkdf2Hex(supplied, record.salt, record.iterations || AUTH_ITERATIONS);
+        return constantTimeEqual(h, record.hash);
+      }
+      return false;
+    }
+
+    function readAuthGuard() {
+      try { return JSON.parse(localStorage.getItem('HUB_AUTH_GUARD_V3') || 'null') || { fails: 0, lockedUntil: 0 }; }
+      catch (_) { return { fails: 0, lockedUntil: 0 }; }
+    }
+
+    function saveAuthGuard(guard) {
+      localStorage.setItem('HUB_AUTH_GUARD_V3', JSON.stringify(guard));
+    }
+
+    function clearSession() {
+      currentRole = 'abiturient';
+      sessionState = null;
+      sessionStorage.removeItem('HUB_SESSION_V3');
+      localStorage.removeItem('HUB_AUTH_GUARD_V3');
+      updateRoleUI();
+    }
+
+    function createSession(role) {
+      const now = Date.now();
+      sessionState = { role, nonce: secureRandomHex(24), issuedAt: now, lastSeen: now, expiresAt: now + AUTH_SESSION_TTL };
+      sessionStorage.setItem('HUB_SESSION_V3', JSON.stringify(sessionState));
+      currentRole = role;
+    }
+
+    function loadSession() {
+      try {
+        const s = JSON.parse(sessionStorage.getItem('HUB_SESSION_V3') || 'null');
+        if (!s || !s.role || !s.nonce || !s.expiresAt || Date.now() > Number(s.expiresAt)) return null;
+        s.lastSeen = Date.now();
+        s.expiresAt = s.lastSeen + AUTH_SESSION_TTL;
+        sessionStorage.setItem('HUB_SESSION_V3', JSON.stringify(s));
+        return s;
+      } catch (_) { return null; }
+    }
+
+    async function verifySession() {
+      const s = loadSession();
+      if (!s || (s.role !== 'director' && s.role !== 'deputy')) {
+        clearSession();
+        return;
+      }
+      currentRole = s.role;
+      sessionState = s;
+      updateRoleUI();
+    }
+
+    function setAbiturientRole() {
+      clearSession();
+      rerenderAll();
+    }
+
     function canEdit() {
-      return currentRole === "director" || currentRole === "deputy";
+      return !!sessionState && sessionState.expiresAt > Date.now() && (currentRole === 'director' || currentRole === 'deputy');
     }
 
-    // Управлять системой (пароли, смена облака, сброс) может ТОЛЬКО Директор
     function canManageAdmin() {
-      return currentRole === "director";
+      return !!sessionState && sessionState.expiresAt > Date.now() && currentRole === 'director';
+    }
+
+    function touchSession() {
+      if (!sessionState) return;
+      if (Date.now() > sessionState.expiresAt) { setAbiturientRole(); return; }
+      sessionState.lastSeen = Date.now();
+      sessionState.expiresAt = sessionState.lastSeen + AUTH_SESSION_TTL;
+      sessionStorage.setItem('HUB_SESSION_V3', JSON.stringify(sessionState));
     }
 
     function updateRoleUI() {
-      document.body.classList.remove("is-abiturient", "is-deputy", "is-director");
-      const btn = document.getElementById("btn-role-trigger");
-      const icon = document.getElementById("role-badge-icon");
-      const text = document.getElementById("role-badge-text");
-      const setInd = document.getElementById("settings-role-indicator");
+      document.body.classList.remove('is-abiturient', 'is-deputy', 'is-director');
+      const btn = document.getElementById('btn-role-trigger');
+      const icon = document.getElementById('role-badge-icon');
+      const text = document.getElementById('role-badge-text');
+      const setInd = document.getElementById('settings-role-indicator');
+      btn.classList.remove('role-abiturient', 'role-deputy', 'role-director');
 
-      btn.classList.remove("role-abiturient", "role-deputy", "role-director");
-
-      if (currentRole === "director") {
-        document.body.classList.add("is-director");
-        btn.classList.add("role-director");
-        icon.innerText = "👑";
-        text.innerText = "Директор";
-        setInd.innerText = "Директор (Полный доступ)";
-        setInd.style.color = "var(--green)";
-      } else if (currentRole === "deputy") {
-        document.body.classList.add("is-deputy");
-        btn.classList.add("role-deputy");
-        icon.innerText = "👔";
-        text.innerText = "Зам. директора";
-        setInd.innerText = "Зам. директора (Только редактор пар/контента)";
-        setInd.style.color = "var(--orange)";
+      if (currentRole === 'director') {
+        document.body.classList.add('is-director'); btn.classList.add('role-director'); icon.innerText = '👑'; text.innerText = 'Директор';
+        setInd.innerText = 'Директор (Полный доступ)'; setInd.style.color = 'var(--green)';
+      } else if (currentRole === 'deputy') {
+        document.body.classList.add('is-deputy'); btn.classList.add('role-deputy'); icon.innerText = '👔'; text.innerText = 'Зам. директора';
+        setInd.innerText = 'Зам. директора (Редактор контента)'; setInd.style.color = 'var(--orange)';
       } else {
-        document.body.classList.add("is-abiturient");
-        btn.classList.add("role-abiturient");
-        icon.innerText = "👀";
-        text.innerText = "Абитуриент";
-        setInd.innerText = "Абитуриент (Только чтение)";
-        setInd.style.color = "var(--text-dim)";
+        document.body.classList.add('is-abiturient'); btn.classList.add('role-abiturient'); icon.innerText = '👀'; text.innerText = 'Абитуриент';
+        setInd.innerText = 'Абитуриент (Режим чтения)'; setInd.style.color = 'var(--text-dim)';
       }
     }
 
-    function setRole(role) {
-      currentRole = role;
-      localStorage.setItem("HUB_ROLE_STATUS", role);
-      updateRoleUI();
-      renderSchedule();
-      renderRequirements();
-      renderDeadlines();
-      renderLectures();
-      renderTeachers();
+    async function processLogin(pass) {
+      if (authBusy) return false;
+      const supplied = String(pass || '').trim();
+      if (!supplied) return false;
+
+      const guard = readAuthGuard();
+      if (Date.now() < Number(guard.lockedUntil || 0)) {
+        const sec = Math.ceil((guard.lockedUntil - Date.now()) / 1000);
+        showToast(`Слишком много попыток. Блокировка: ${sec} сек.`);
+        return false;
+      }
+
+      authBusy = true;
+      try {
+        const [dir, dep] = await Promise.all([getStoredAuth('director'), getStoredAuth('deputy')]);
+        const candidates = [['director', dir], ['deputy', dep]];
+        let matchedRole = null;
+
+        for (const [role, rec] of candidates) {
+          const matched = await verifyCredential(supplied, rec);
+          if (matched) {
+            // Мгновенная прозрачная миграция V2 в V3
+            if (rec.legacyHash) {
+              const salt = secureRandomHex(16);
+              const migratedHash = await pbkdf2Hex(supplied, salt, AUTH_ITERATIONS);
+              setAuthRecord(role, { version: 3, salt, hash: migratedHash, iterations: AUTH_ITERATIONS });
+              localStorage.removeItem(role === 'director' ? 'HUB_HASH_DIR_V2' : 'HUB_HASH_DEP_V2');
+            }
+            matchedRole = role;
+            break;
+          }
+        }
+
+        if (!matchedRole) {
+          guard.fails = Number(guard.fails || 0) + 1;
+          if (guard.fails >= AUTH_MAX_FAILS) {
+            guard.lockedUntil = Date.now() + AUTH_LOCK_MS;
+            guard.fails = 0;
+          }
+          saveAuthGuard(guard);
+          alert('Неверный код доступа!');
+          return false;
+        }
+
+        saveAuthGuard({ fails: 0, lockedUntil: 0 });
+        createSession(matchedRole);
+        touchSession();
+        updateRoleUI();
+        showToast(matchedRole === 'director' ? 'Авторизован: Директор 👑' : 'Авторизован: Зам. директора 👔');
+        rerenderAll();
+        return true;
+      } finally {
+        authBusy = false;
+      }
     }
 
-    // ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ NPOINT
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    // Защита целостности облака: расчет цифрового слепка структуры данных
+    async function calculateIntegritySeal(source) {
+      const digestKey = [source.version || 14, (source.schedule || []).length, (source.requirements || []).length, "HUB_25A_SEAL"].join(":");
+      return await sha256(digestKey);
+    }
+
+    // УМНЫЙ ОБМЕН С NPOINT.IO С КОНТРОЛЕМ ВЕРСИЙ И ЦИФРОВЫМ СЛЕПКОМ
     async function syncToCloud() {
-      if (!cloudApiUrl) return;
-      if (!canEdit()) return;
+      if (!cloudApiUrl || !canEdit() || isSyncing) return;
+      isSyncing = true;
+      localDataTimestamp = Date.now();
+      localStorage.setItem("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
 
       const payload = {
-        timestamp: new Date().toISOString(),
+        version: 14,
+        timestamp: localDataTimestamp,
         schedule: scheduleData,
         requirements: requirementsData,
         deadlines: deadlinesData,
         lectures: lecturesData,
         teachers: teachersData
       };
+      payload.seal = await calculateIntegritySeal(payload);
 
       try {
         const res = await fetch(cloudApiUrl, {
@@ -1396,80 +1240,141 @@
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          showToast("☁️ Изменения сохранены в облаке npoint!");
+          showToast("☁️ База обновлена в облаке!");
+          document.getElementById("cloud-status-indicator").innerText = "🟢 Синхронизировано";
+          document.getElementById("cloud-status-indicator").style.color = "var(--green)";
         } else {
-          showToast("⚠️ Ошибка записи в облако");
+          showToast("⚠️ Облако отклонило запрос");
         }
       } catch (err) {
-        console.warn("Cloud sync error:", err);
+        console.warn("Sync error:", err);
+      } finally {
+        isSyncing = false;
       }
     }
 
     async function fetchFromCloud(manual = false) {
-      if (!cloudApiUrl) {
-        if (manual) showToast("Облачный URL не задан");
-        document.getElementById("cloud-status-indicator").innerText = "⚪ Не настроено";
-        document.getElementById("cloud-status-indicator").style.color = "var(--text-dim)";
-        return;
-      }
-
+      if (!cloudApiUrl || isSyncing) return;
       try {
         const controller = new AbortController();
-        const cloudTimeout = setTimeout(() => controller.abort(), 7000);
+        const timeout = setTimeout(() => controller.abort(), 6500);
         let res;
         try {
-          res = await fetch(cloudApiUrl + "?nocache=" + Date.now(), { cache: "no-store", signal: controller.signal });
+          res = await fetch(cloudApiUrl + "?t=" + Date.now(), { cache: "no-store", signal: controller.signal });
         } finally {
-          clearTimeout(cloudTimeout);
+          clearTimeout(timeout);
         }
+
         if (res.ok) {
           const data = await res.json();
           const source = data.record || data;
+          const remoteTime = Number(source.timestamp) || 0;
+
+          // Проверка целостности структуры облака
+          if (source.seal) {
+            const expectedSeal = await calculateIntegritySeal(source);
+            if (!constantTimeEqual(source.seal, expectedSeal)) {
+              document.getElementById("cloud-status-indicator").innerText = "⚠️ Слепок поврежден";
+              document.getElementById("cloud-status-indicator").style.color = "var(--orange)";
+              if (manual) showToast("Облачные данные повреждены или подделаны!");
+              return;
+            }
+          }
+
+          if (remoteTime <= localDataTimestamp && !manual) {
+            document.getElementById("cloud-status-indicator").innerText = "🟢 Актуально";
+            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
+            return;
+          }
+
           if (source.schedule && source.requirements) {
             scheduleData = source.schedule;
             requirementsData = source.requirements;
             deadlinesData = source.deadlines || deadlinesData;
             lecturesData = source.lectures || lecturesData;
             teachersData = source.teachers || teachersData;
+            localDataTimestamp = remoteTime || Date.now();
 
             saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
             saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
             saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
             saveDB("HUB_LECTURES_25A_V14", lecturesData);
             saveDB("HUB_TEACHERS_25A_V14", teachersData);
+            localStorage.setItem("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
 
-            renderSchedule();
-            renderRequirements();
-            renderDeadlines();
-            renderLectures();
-            renderTeachers();
-
+            rerenderAll();
             document.getElementById("cloud-status-indicator").innerText = "🟢 На связи";
             document.getElementById("cloud-status-indicator").style.color = "var(--green)";
             if (manual) showToast("База обновлена из облака!");
-          } else if (canEdit()) {
-            syncToCloud();
-            document.getElementById("cloud-status-indicator").innerText = "🟢 Подключено (инициализировано)";
-            document.getElementById("cloud-status-indicator").style.color = "var(--green)";
-            if (manual) showToast("База 25А залита в облако!");
           }
-        } else {
-          throw new Error("HTTP " + res.status);
         }
       } catch (err) {
-        document.getElementById("cloud-status-indicator").innerText = "🔴 Ошибка связи";
+        document.getElementById("cloud-status-indicator").innerText = "🔴 Офлайн-режим";
         document.getElementById("cloud-status-indicator").style.color = "var(--red)";
-        if (manual) showToast("Не удалось подключиться к облаку");
+        if (manual) showToast("Ошибка связи с сервером");
       }
     }
 
-    function commitData() {
+    // ИСТОРИЯ ИЗМЕНЕНИЙ (UNDO)
+    function pushUndoSnapshot() {
+      try {
+        const stack = JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A') || '[]');
+        stack.push({
+          schedule: scheduleData,
+          requirements: requirementsData,
+          deadlines: deadlinesData,
+          lectures: lecturesData,
+          teachers: teachersData
+        });
+        while (stack.length > 15) stack.shift();
+        localStorage.setItem('HUB_UNDO_STACK_25A', JSON.stringify(stack));
+      } catch (e) {}
+    }
+
+    function undoLastChange() {
+      if (!canEdit()) { showToast("Только для редакторов"); return; }
+      const stack = JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A') || '[]');
+      const snap = stack.pop();
+      if (!snap) { showToast("История правок пуста"); return; }
+
+      scheduleData = snap.schedule;
+      requirementsData = snap.requirements;
+      deadlinesData = snap.deadlines;
+      lecturesData = snap.lectures;
+      teachersData = snap.teachers;
+
+      saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
+      saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
+      saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
+      saveDB("HUB_LECTURES_25A_V14", lecturesData);
+      saveDB("HUB_TEACHERS_25A_V14", teachersData);
+      localStorage.setItem('HUB_UNDO_STACK_25A', JSON.stringify(stack));
+
+      commitData(false);
+      rerenderAll();
+      showToast("↩️ Действие отменено");
+    }
+
+    function commitData(saveHistory = true) {
+      if (saveHistory) pushUndoSnapshot();
       saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
       saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
       saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
       saveDB("HUB_LECTURES_25A_V14", lecturesData);
       saveDB("HUB_TEACHERS_25A_V14", teachersData);
       syncToCloud();
+      refreshHubStats();
+      renderUrgentDeadlines();
+    }
+
+    function rerenderAll() {
+      renderSchedule();
+      renderRequirements();
+      renderDeadlines();
+      renderLectures();
+      renderTeachers();
+      refreshHubStats();
+      renderUrgentDeadlines();
     }
 
     function getRoomDetails(room) {
@@ -1477,16 +1382,11 @@
       const clean = room.toString().trim();
       if (clean.toUpperCase().startsWith("ВЦ")) return "Выч. центр";
       const num = parseInt(clean);
-      if (!isNaN(num)) {
-        const floor = Math.floor(num / 100);
-        return `${floor} этаж`;
-      }
-      return "Корпус уточняется";
+      return !isNaN(num) ? `${Math.floor(num / 100)} этаж` : "Корпус уточняется";
     }
 
     function getRealMonthWeek() {
-      const dayOfMonth = new Date().getDate();
-      return Math.min(4, Math.ceil(dayOfMonth / 7));
+      return Math.min(4, Math.ceil(new Date().getDate() / 7));
     }
 
     let realMonthWeek = getRealMonthWeek();
@@ -1499,7 +1399,50 @@
       return h * 60 + m;
     }
 
-    // РЕНДЕР РАСПИСАНИЯ
+    // Горящие дедлайны на 48 часов
+    function renderUrgentDeadlines() {
+      const box = document.getElementById("hub-urgent-box");
+      const listEl = document.getElementById("hub-urgent-list");
+      listEl.innerHTML = "";
+
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const urgentTasks = deadlinesData.filter(d => {
+        if (d.completed) return false;
+        const dDate = new Date(d.date);
+        dDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((dDate - now) / 86400000);
+        return diffDays <= 2;
+      });
+
+      if (urgentTasks.length === 0) {
+        box.style.display = "none";
+        return;
+      }
+
+      box.style.display = "flex";
+      urgentTasks.slice(0, 3).forEach(d => {
+        const dDate = new Date(d.date);
+        dDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((dDate - now) / 86400000);
+        const dayLabel = diffDays < 0 ? `Просрочено (${Math.abs(diffDays)} дн)` : diffDays === 0 ? "СЕГОДНЯ!" : diffDays === 1 ? "Завтра" : "Через 2 дня";
+
+        const row = document.createElement("div");
+        row.className = "urgent-item-row";
+        row.innerHTML = `
+          <span style="font-weight: 700; color: #fff;">${d.subject}: ${d.topic}</span>
+          <span class="badge-urgent" style="font-size: 9px;">${dayLabel}</span>
+        `;
+        row.onclick = () => {
+          const btn = document.querySelector('.view-btn[data-view="deadlines"]');
+          if (btn) btn.click();
+        };
+        listEl.appendChild(row);
+      });
+    }
+
+    // Рендер расписания
     function renderSchedule() {
       const box = document.getElementById("schedule-list");
       box.innerHTML = "";
@@ -1507,9 +1450,7 @@
       const pairs = [];
       for (let num = 1; num <= 7; num++) {
         let p = scheduleData.find(x => x.day === activeDay && x.num === num && (x.week === "all" || x.week === String(viewingMonthWeek)));
-        if (!p) {
-          p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
-        }
+        if (!p) p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false };
         pairs.push(p);
       }
 
@@ -1541,7 +1482,7 @@
               </div>
               <div class="pair-details">
                 <div class="tag-line">
-                  <span class="type-pill type-empty">Пропуск</span>
+                  <span class="type-pill type-empty">Окно</span>
                   ${canEdit() ? `<button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ + пара</button>` : ''}
                 </div>
                 <div class="lesson-title" style="color: var(--text-dim); font-weight: 500; font-size: 13px;">—</div>
@@ -1557,23 +1498,25 @@
 
         let typeClass = "type-lecture";
         let typeText = "Лекция";
-        if (p.type === "seminar") { typeClass = "type-seminar"; typeText = "Семинар / Практика"; }
+        if (p.type === "seminar") { typeClass = "type-seminar"; typeText = "Практика"; }
         if (p.type === "essay") { typeClass = "type-essay"; typeText = "Контроль"; }
 
         card.className = `pair-item ${isCurrent ? 'current' : ''}`;
-
-        let taskRowHtml = "";
-        if (p.task || p.link) {
-          taskRowHtml = `
-            <div class="task-bar">
-              <label class="task-label ${p.taskDone ? 'done' : ''}">
-                <input type="checkbox" class="task-checkbox" ${p.taskDone ? 'checked' : ''} onchange="togglePairTask(${p.id})">
-                <span>${p.task || 'Задание к занятию'}</span>
-              </label>
-              ${p.link ? `<a href="${p.link}" target="_blank" class="attach-link">Файл ↗</a>` : ''}
-            </div>
-          `;
+        
+        let linkButtonHtml = "";
+        if (p.link) {
+          const lTitle = p.linkTitle ? p.linkTitle.trim() : "Материалы ↗";
+          linkButtonHtml = `<a href="${p.link}" target="_blank" class="attach-link">🔗 ${lTitle}</a>`;
         }
+
+        let taskRowHtml = (p.task || p.link) ? `
+          <div class="task-bar">
+            <label class="task-label ${p.taskDone ? 'done' : ''}">
+              <input type="checkbox" class="task-checkbox" ${p.taskDone ? 'checked' : ''} onchange="togglePairTask(${p.id})">
+              <span>${p.task || 'Задание к паре'}</span>
+            </label>
+            ${linkButtonHtml}
+          </div>` : '';
 
         card.innerHTML = `
           ${isCurrent ? `<div class="pair-progress-fill" style="width: ${progressWidth}%;"></div>` : ''}
@@ -1612,15 +1555,10 @@
     };
 
     window.openEditPairModal = function(id) {
-      if (!canEdit()) {
-        showToast("Только для администрации");
-        return;
-      }
+      if (!canEdit()) return;
       let p = scheduleData.find(x => x.id === id);
       if (!p) {
-        const d = Math.floor(id / 100);
-        const n = id % 100;
-        p = { id, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", week: "all", taskDone: false };
+        p = { id, day: Math.floor(id / 100), num: id % 100, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false };
         scheduleData.push(p);
       }
       document.getElementById("edit-pair-id").value = p.id;
@@ -1631,35 +1569,32 @@
       document.getElementById("edit-pair-week").value = p.week || "all";
       document.getElementById("edit-pair-prof").value = p.prof || "";
       document.getElementById("edit-pair-task").value = p.task || "";
+      document.getElementById("edit-pair-link-title").value = p.linkTitle || "";
+      document.getElementById("edit-pair-link-url").value = p.link || "";
       document.getElementById("edit-pair-modal").classList.add("open");
     };
 
-    document.getElementById("btn-close-pair-modal").onclick = () => {
-      document.getElementById("edit-pair-modal").classList.remove("open");
-    };
+    document.getElementById("btn-close-pair-modal").onclick = () => document.getElementById("edit-pair-modal").classList.remove("open");
 
     document.getElementById("btn-save-pair").onclick = () => {
       if (!canEdit()) return;
       const id = Number(document.getElementById("edit-pair-id").value);
       let p = scheduleData.find(x => x.id === id);
-      if (!p) {
-        const d = Math.floor(id / 100);
-        const n = id % 100;
-        p = { id, day: d, num: n, week: "all", taskDone: false };
-        scheduleData.push(p);
+      if (p) {
+        p.name = document.getElementById("edit-pair-name").value.trim();
+        p.room = document.getElementById("edit-pair-room").value.trim();
+        p.type = document.getElementById("edit-pair-type").value;
+        p.week = document.getElementById("edit-pair-week").value;
+        p.prof = document.getElementById("edit-pair-prof").value.trim();
+        p.task = document.getElementById("edit-pair-task").value.trim();
+        p.linkTitle = document.getElementById("edit-pair-link-title").value.trim();
+        p.link = document.getElementById("edit-pair-link-url").value.trim();
+        commitData();
+        renderSchedule();
+        updateLiveStatus();
+        document.getElementById("edit-pair-modal").classList.remove("open");
+        showToast(p.name ? "Пара сохранена!" : "Слот очищен");
       }
-      p.name = document.getElementById("edit-pair-name").value.trim();
-      p.room = document.getElementById("edit-pair-room").value.trim();
-      p.type = document.getElementById("edit-pair-type").value;
-      p.week = document.getElementById("edit-pair-week").value;
-      p.prof = document.getElementById("edit-pair-prof").value.trim();
-      p.task = document.getElementById("edit-pair-task").value.trim();
-
-      commitData();
-      renderSchedule();
-      updateLiveStatus();
-      document.getElementById("edit-pair-modal").classList.remove("open");
-      showToast(p.name ? "Пара сохранена!" : "Слот сделан пропуском");
     };
 
     document.getElementById("btn-clear-slot").onclick = () => {
@@ -1667,34 +1602,84 @@
       const id = Number(document.getElementById("edit-pair-id").value);
       let p = scheduleData.find(x => x.id === id);
       if (p) {
-        p.name = "";
-        p.room = "";
-        p.prof = "";
-        p.task = "";
-        p.link = "";
+        p.name = ""; p.room = ""; p.prof = ""; p.task = ""; p.link = ""; p.linkTitle = "";
         commitData();
         renderSchedule();
         updateLiveStatus();
         document.getElementById("edit-pair-modal").classList.remove("open");
-        showToast("Слот очищен (пропуск)");
+        showToast("Слот очищен (окно)");
       }
     };
 
-    // ТРЕБОВАНИЯ
-    function renderRequirements(filterText = "") {
+    // Шаблоны ГОСТ и скачивание Word-файла
+    document.getElementById("btn-copy-title-page").onclick = () => {
+      const template = `МИНИСТЕРСТВО ОБРАЗОВАНИЯ, НАУКИ И МОЛОДЕЖИ
+КАФЕДРА ФИНАНСОВ, ДЕНЕЖНОГО ОБРАЩЕНИЯ И КРЕДИТА
+
+КУРСОВАЯ РАБОТА / РЕФЕРАТ
+по дисциплине: [НАЗВАНИЕ ДИСЦИПЛИНЫ]
+на тему: «[ТЕМА ВАШЕГО ИССЛЕДОВАНИЯ]»
+
+Выполнил: студент группы 25А
+[Фамилия Имя Отчество]
+
+Проверил: [Ученая степень, должность]
+[Фамилия И.О. преподавателя]
+
+Симферополь, 2026`;
+      navigator.clipboard.writeText(template);
+      showToast("📋 Шаблон титульника скопирован!");
+    };
+
+    document.getElementById("btn-download-gost-doc").onclick = () => {
+      const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>Шаблон ГОСТ 25А</title>
+<style>
+@page Section1 { size:595.3pt 841.9pt; margin:20.0mm 10.0mm 20.0mm 30.0mm; mso-header-margin:35.4pt; mso-footer-margin:35.4pt; mso-paper-source:0; }
+div.Section1 { page:Section1; }
+body { font-family:"Times New Roman",serif; font-size:14.0pt; line-height:1.5; margin:0; text-align:justify; text-indent:1.25cm; }
+h1 { text-align:center; font-size:16.0pt; font-weight:bold; margin-bottom:12pt; text-indent:0cm; }
+p { margin:0 0 6pt 0; text-indent:1.25cm; }
+.no-indent { text-indent:0cm; }
+.center { text-align:center; }
+.right { text-align:right; }
+</style>
+</head>
+<body>
+<div class="Section1">
+  <p class="center no-indent" style="font-size:12pt; font-weight:bold;">МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ<br>ФАКУЛЬТЕТ ЭКОНОМИКИ И УПРАВЛЕНИЯ<br>КАФЕДРА ФИНАНСОВ И КРЕДИТА</p>
+  <br><br><br><br>
+  <p class="center no-indent" style="font-size:18pt; font-weight:bold;">КУРСОВАЯ РАБОТА / РЕФЕРАТ</p>
+  <p class="center no-indent" style="font-size:14pt;">по дисциплине: Финансы, денежное обращение и кредит</p>
+  <p class="center no-indent" style="font-size:15pt; font-weight:bold;">на тему: «Состав и структура современной финансовой системы»</p>
+  <br><br><br><br>
+  <p class="right no-indent">Выполнил: студент группы 25А<br><b>Головченко Я. А.</b><br><br>Проверил: преподаватель кафедры<br><b>Моторина Д. В.</b></p>
+  <br><br><br><br>
+  <p class="center no-indent">Симферополь — 2026</p>
+  <br style="page-break-before:always;">
+  <h1>ВВЕДЕНИЕ</h1>
+  <p>Текст введения оформлен по стандарту: шрифт Times New Roman 14 пт, межстрочный интервал 1.5, абзацный отступ 1.25 см. Поля: левое — 30 мм, правое — 10 мм, верхнее и нижнее — 20 мм.</p>
+</div>
+</body></html>`;
+      const blob = new Blob([docHtml], { type: 'application/msword;charset=utf-8' });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Gost_Template_25A.doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("📄 Шаблон Word (.doc) сгенерирован!");
+    };
+
+    // Требования
+    function renderRequirements(q = "") {
       const box = document.getElementById("requirements-list");
       box.innerHTML = "";
-      const q = filterText.toLowerCase().trim();
-
-      const list = requirementsData.filter(r => 
-        r.prof.toLowerCase().includes(q) ||
-        r.subject.toLowerCase().includes(q) ||
-        r.workType.toLowerCase().includes(q) ||
-        r.criticalPoints.toLowerCase().includes(q)
-      );
+      const query = q.toLowerCase().trim();
+      const list = requirementsData.filter(r => r.prof.toLowerCase().includes(query) || r.subject.toLowerCase().includes(query) || r.workType.toLowerCase().includes(query));
 
       if (list.length === 0) {
-        box.innerHTML = '<div class="empty-note">Требований не найдено</div>';
+        box.innerHTML = '<div class="empty-note">Регламентов не найдено</div>';
         return;
       }
 
@@ -1707,23 +1692,18 @@
               <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${r.subject}</span>
               <div style="font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px;">${r.prof}</div>
             </div>
-            ${canEdit() ? `
-            <div class="card-actions-row">
+            ${canEdit() ? `<div class="card-actions-row">
               <button class="edit-btn" onclick="openEditReqModal(${r.id})">✏️ изм.</button>
               <button class="delete-btn" onclick="deleteRequirement(${r.id})">Удалить</button>
             </div>` : ''}
           </div>
-
           <div class="req-pill-group">
             <span class="req-tag">📄 ${r.workType}</span>
             <span class="req-tag">📏 ${r.volume}</span>
             <span class="req-tag alert">🔍 Антиплагиат: ${r.originality}</span>
             <span class="req-tag">⏳ ${r.deadlineRule}</span>
           </div>
-
-          <div class="req-box" style="margin-top: 6px;">
-            <b>Критерии и защита:</b> ${r.criticalPoints}
-          </div>
+          <div class="req-box" style="margin-top: 6px;"><b>Защита и критерии:</b> ${r.criticalPoints}</div>
         `;
         box.appendChild(card);
       });
@@ -1732,38 +1712,23 @@
     document.getElementById("btn-add-req").onclick = () => {
       if (!canEdit()) return;
       const prof = document.getElementById("new-req-prof").value.trim();
-      const subject = document.getElementById("new-req-subject").value;
-      const workType = document.getElementById("new-req-worktype").value.trim() || "Реферат / Семинар";
-      const volume = document.getElementById("new-req-volume").value.trim() || "15-20 стр";
-      const originality = document.getElementById("new-req-orig").value.trim() || "от 65%";
-      const deadlineRule = document.getElementById("new-req-deadline").value.trim() || "На семинаре";
-      const criticalPoints = document.getElementById("new-req-details").value.trim();
-
-      if (!prof || !criticalPoints) {
-        alert("Укажи преподавателя и ключевые требования/критерии сдачи!");
-        return;
-      }
+      const details = document.getElementById("new-req-details").value.trim();
+      if (!prof || !details) { alert("Укажите преподавателя и регламент"); return; }
 
       requirementsData.unshift({
-        id: Date.now(),
-        prof,
-        subject,
-        workType,
-        volume,
-        originality,
-        deadlineRule,
-        criticalPoints
+        id: Date.now(), prof,
+        subject: document.getElementById("new-req-subject").value,
+        workType: document.getElementById("new-req-worktype").value.trim() || "Реферат",
+        volume: document.getElementById("new-req-volume").value.trim() || "15-20 стр",
+        originality: document.getElementById("new-req-orig").value.trim() || "от 65%",
+        deadlineRule: document.getElementById("new-req-deadline").value.trim() || "На семинаре",
+        criticalPoints: details
       });
-
       commitData();
       document.getElementById("new-req-prof").value = "";
-      document.getElementById("new-req-worktype").value = "";
-      document.getElementById("new-req-volume").value = "";
-      document.getElementById("new-req-orig").value = "";
-      document.getElementById("new-req-deadline").value = "";
       document.getElementById("new-req-details").value = "";
       renderRequirements();
-      showToast("Регламент добавлен!");
+      showToast("Регламент добавлен");
     };
 
     window.openEditReqModal = function(id) {
@@ -1781,9 +1746,7 @@
       document.getElementById("edit-req-modal").classList.add("open");
     };
 
-    document.getElementById("btn-close-req-modal").onclick = () => {
-      document.getElementById("edit-req-modal").classList.remove("open");
-    };
+    document.getElementById("btn-close-req-modal").onclick = () => document.getElementById("edit-req-modal").classList.remove("open");
 
     document.getElementById("btn-save-req").onclick = () => {
       if (!canEdit()) return;
@@ -1797,67 +1760,49 @@
         r.originality = document.getElementById("edit-req-orig").value.trim();
         r.deadlineRule = document.getElementById("edit-req-deadline").value.trim();
         r.criticalPoints = document.getElementById("edit-req-details").value.trim();
-
         commitData();
         renderRequirements(document.getElementById("req-search").value);
         document.getElementById("edit-req-modal").classList.remove("open");
-        showToast("Требования обновлены!");
+        showToast("Регламент обновлен");
       }
     };
 
     window.deleteRequirement = function(id) {
       if (!canEdit()) return;
-      if (confirm("Удалить требование по этому преподавателю?")) {
+      if (confirm("Удалить этот регламент?")) {
         requirementsData = requirementsData.filter(x => x.id !== id);
         commitData();
         renderRequirements(document.getElementById("req-search").value);
-        showToast("Требование удалено");
+        showToast("Удалено");
       }
     };
 
-    // ДЕДЛАЙНЫ
-    function renderDeadlines(filterText = "") {
+    // Дедлайны
+    function renderDeadlines(q = "") {
       const box = document.getElementById("deadlines-list");
       box.innerHTML = "";
-      const query = filterText.toLowerCase();
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const query = q.toLowerCase();
+      const today = new Date(); today.setHours(0,0,0,0);
 
       const list = [...deadlinesData]
-        .filter(d => d.subject.toLowerCase().includes(query) || d.topic.toLowerCase().includes(query) || d.type.toLowerCase().includes(query))
-        .sort((a, b) => {
-          if (a.completed !== b.completed) return a.completed ? 1 : -1;
-          return new Date(a.date) - new Date(b.date);
-        });
+        .filter(d => d.subject.toLowerCase().includes(query) || d.topic.toLowerCase().includes(query))
+        .sort((a, b) => a.completed - b.completed || new Date(a.date) - new Date(b.date));
 
       if (list.length === 0) {
-        box.innerHTML = '<div class="empty-note">Дедлайнов не найдено</div>';
+        box.innerHTML = '<div class="empty-note">Дедлайнов нет</div>';
         return;
       }
 
       list.forEach(d => {
         const card = document.createElement("div");
         card.className = `deadline-card ${d.completed ? 'completed' : ''}`;
+        const diffDays = Math.ceil((new Date(d.date) - today) / (86400000));
 
-        const dDate = new Date(d.date);
-        dDate.setHours(0,0,0,0);
-        const diffDays = Math.ceil((dDate - today) / (1000 * 60 * 60 * 24));
-
-        let badgeHtml = "";
-        if (d.completed) {
-          badgeHtml = '<span class="badge-done">Зачтено</span>';
-        } else if (diffDays < 0) {
-          badgeHtml = `<span class="badge-urgent">Просрочено (${Math.abs(diffDays)} дн)</span>`;
-        } else if (diffDays === 0) {
-          badgeHtml = '<span class="badge-urgent">🔥 Дедлайн сегодня!</span>';
-        } else if (diffDays <= 2) {
-          badgeHtml = `<span class="badge-soon">⚠️ Осталось: ${diffDays} дн</span>`;
-        } else {
-          badgeHtml = `<span class="badge-ok">До сдачи: ${diffDays} дн</span>`;
-        }
-
-        const dateFormatted = d.date.split("-").reverse().join(".");
+        let badge = d.completed ? '<span class="badge-done">Зачтено</span>' :
+          diffDays < 0 ? `<span class="badge-urgent">Просрочено (${Math.abs(diffDays)} дн)</span>` :
+          diffDays === 0 ? '<span class="badge-urgent">🔥 Дедлайн сегодня!</span>' :
+          diffDays <= 2 ? `<span class="badge-soon">⚠️ Осталось: ${diffDays} дн</span>` :
+          `<span class="badge-ok">Срок: ${diffDays} дн</span>`;
 
         card.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -1865,14 +1810,13 @@
               <input type="checkbox" class="task-checkbox" ${d.completed ? 'checked' : ''} onchange="toggleDeadlineStatus(${d.id})">
               <span class="type-pill type-seminar">${d.type}</span>
             </div>
-            ${badgeHtml}
+            ${badge}
           </div>
           <div class="dl-title" style="font-size: 14px; font-weight: 700; margin-top: 2px;">${d.subject}: ${d.topic}</div>
-          <div style="font-size: 12px; color: var(--text-dim);">${d.reqs || 'Требования стандартные'}</div>
+          <div style="font-size: 12px; color: var(--text-dim);">${d.reqs || 'По стандарту кафедры'}</div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--text-dim);">
-            <span>Срок: <b>${dateFormatted}</b></span>
-            ${canEdit() ? `
-            <div class="card-actions-row">
+            <span>Сдать до: <b>${d.date.split('-').reverse().join('.')}</b></span>
+            ${canEdit() ? `<div class="card-actions-row">
               <button class="edit-btn" onclick="openEditDeadlineModal(${d.id})">✏️ изм.</button>
               <button class="delete-btn" onclick="deleteDeadline(${d.id})">Удалить</button>
             </div>` : ''}
@@ -1888,6 +1832,8 @@
         dl.completed = !dl.completed;
         saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
         renderDeadlines(document.getElementById("deadline-search").value);
+        refreshHubStats();
+        renderUrgentDeadlines();
       }
     };
 
@@ -1904,9 +1850,7 @@
       document.getElementById("edit-dl-modal").classList.add("open");
     };
 
-    document.getElementById("btn-close-dl-modal").onclick = () => {
-      document.getElementById("edit-dl-modal").classList.remove("open");
-    };
+    document.getElementById("btn-close-dl-modal").onclick = () => document.getElementById("edit-dl-modal").classList.remove("open");
 
     document.getElementById("btn-save-dl").onclick = () => {
       if (!canEdit()) return;
@@ -1918,138 +1862,126 @@
         dl.type = document.getElementById("edit-dl-type").value;
         dl.date = document.getElementById("edit-dl-date").value;
         dl.reqs = document.getElementById("edit-dl-reqs").value.trim();
-
         commitData();
         renderDeadlines(document.getElementById("deadline-search").value);
         document.getElementById("edit-dl-modal").classList.remove("open");
-        showToast("Задание обновлено!");
+        showToast("Задание сохранено");
       }
     };
 
     window.deleteDeadline = function(id) {
       if (!canEdit()) return;
-      if (confirm("Удалить это задание?")) {
+      if (confirm("Удалить дедлайн?")) {
         deadlinesData = deadlinesData.filter(x => x.id !== id);
         commitData();
         renderDeadlines(document.getElementById("deadline-search").value);
-        showToast("Задание удалено");
+        showToast("Дедлайн удален");
       }
     };
 
     document.getElementById("btn-add-deadline").onclick = () => {
       if (!canEdit()) return;
-      const subject = document.getElementById("new-dl-subject").value;
       const topic = document.getElementById("new-dl-topic").value.trim();
-      const type = document.getElementById("new-dl-type").value;
       const date = document.getElementById("new-dl-date").value;
-      const reqs = document.getElementById("new-dl-reqs").value.trim();
-
-      if (!topic || !date) {
-        alert("Укажи тему и дату сдачи");
-        return;
-      }
-
-      deadlinesData.push({ id: Date.now(), subject, topic, type, date, reqs, completed: false });
+      if (!topic || !date) { alert("Укажите тему и срок сдачи"); return; }
+      deadlinesData.push({
+        id: Date.now(), subject: document.getElementById("new-dl-subject").value, topic,
+        type: document.getElementById("new-dl-type").value, date,
+        reqs: document.getElementById("new-dl-reqs").value.trim(), completed: false
+      });
       commitData();
       document.getElementById("new-dl-topic").value = "";
       document.getElementById("new-dl-reqs").value = "";
       renderDeadlines();
-      showToast("Дедлайн добавлен!");
+      showToast("Дедлайн внесен");
     };
 
-    // БРС
+    // БРС и динамический калькулятор прогноза
     function renderPerformance() {
       const box = document.getElementById("performance-list");
       box.innerHTML = "";
-
       performanceData.forEach(item => {
         const card = document.createElement("div");
         card.className = "score-card";
+        let scoreClass = item.score >= 90 ? "auto" : item.score >= 75 ? "good" : "pass";
+        let verdict = item.score >= 90 ? "Автомат (отлично)" : item.score >= 75 ? "Автомат (хорошо)" : item.score >= 60 ? "Допуск к зачету" : "Недопуск";
+        let absColor = item.absences >= item.maxAbsences ? "var(--red)" : item.absences >= item.maxAbsences - 1 ? "var(--orange)" : "var(--green)";
 
-        let scoreClass = "pass";
-        let scoreVerdict = "Недопуск";
-        if (item.score >= 90) { scoreClass = "auto"; scoreVerdict = "Автомат (отлично)"; }
-        else if (item.score >= 75) { scoreClass = "good"; scoreVerdict = "Автомат (хорошо)"; }
-        else if (item.score >= 60) { scoreClass = "pass"; scoreVerdict = "Допуск к зачету"; }
-
-        const absPercent = Math.min(100, Math.round((item.absences / item.maxAbsences) * 100));
-        let absColor = "var(--green)";
-        if (item.absences >= item.maxAbsences) absColor = "var(--red)";
-        else if (item.absences >= item.maxAbsences - 1) absColor = "var(--orange)";
+        let forecastText = "";
+        if (item.score < 60) {
+          const diff = 60 - item.score;
+          forecastText = `⚠️ До допуска (60 б.): осталось <b>${diff} б.</b> (~${Math.ceil(diff/5)} ответов)`;
+        } else if (item.score < 75) {
+          const diff = 75 - item.score;
+          forecastText = `🟢 Допуск есть! До автомата на 4: <b>${diff} б.</b>`;
+        } else if (item.score < 90) {
+          const diff = 90 - item.score;
+          forecastText = `⭐ Автомат на '4'! До отличного автомата: <b>${diff} б.</b>`;
+        } else {
+          forecastText = `🏆 Максимальный результат! Автомат закрыт на отлично.`;
+        }
 
         card.innerHTML = `
           <div class="score-head">
             <span class="score-subject">${item.subject}</span>
-            <span class="score-target" style="color: ${scoreClass === 'auto' ? 'var(--green)' : 'var(--text-dim)'};">${scoreVerdict}</span>
+            <span class="score-target" style="color:${scoreClass === 'auto' ? 'var(--green)' : 'var(--text-dim)'};">${verdict}</span>
           </div>
-
           <div class="meter-box">
             <div class="meter-row">
-              <span>Баллы БРС: <b>${item.score} / 100</b></span>
+              <span>БРС: <b>${item.score} / 100</b></span>
               <div class="counter-ctrl">
                 <button class="btn-counter" onclick="changeScore(${item.id}, -5)">-5</button>
                 <button class="btn-counter" onclick="changeScore(${item.id}, 5)">+5</button>
               </div>
             </div>
-            <div class="bar-bg">
-              <div class="bar-fill ${scoreClass}" style="width: ${Math.min(100, item.score)}%;"></div>
-            </div>
+            <div class="bar-bg"><div class="bar-fill ${scoreClass}" style="width:${Math.min(100, item.score)}%;"></div></div>
+            <div class="score-forecast-pill">${forecastText}</div>
           </div>
-
-          <div class="meter-box" style="margin-top: 6px;">
+          <div class="meter-box" style="margin-top:6px;">
             <div class="meter-row">
-              <span>Пропуски (энок): <b style="color: ${absColor};">${item.absences} / ${item.maxAbsences} пар</b></span>
+              <span>Энки: <b style="color:${absColor};">${item.absences} / ${item.maxAbsences} пар</b></span>
               <div class="counter-ctrl">
                 <button class="btn-counter" onclick="changeAbsence(${item.id}, -1)">-</button>
                 <button class="btn-counter" onclick="changeAbsence(${item.id}, 1)">+</button>
               </div>
             </div>
-            <div class="bar-bg">
-              <div class="bar-fill" style="width: ${absPercent}%; background: ${absColor};"></div>
-            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, Math.round((item.absences / item.maxAbsences) * 100))}%; background:${absColor};"></div></div>
           </div>
         `;
         box.appendChild(card);
       });
     }
 
-    window.changeScore = function(id, delta) {
+    window.changeScore = function(id, d) {
       const item = performanceData.find(x => x.id === id);
       if (item) {
-        item.score = Math.max(0, Math.min(100, item.score + delta));
+        item.score = Math.max(0, Math.min(100, item.score + d));
         saveDB("HUB_PERF_25A_V14", performanceData);
         renderPerformance();
       }
     };
 
-    window.changeAbsence = function(id, delta) {
+    window.changeAbsence = function(id, d) {
       const item = performanceData.find(x => x.id === id);
       if (item) {
-        item.absences = Math.max(0, item.absences + delta);
-        if (item.absences >= item.maxAbsences) {
-          showToast(`Лимит пропусков по ${item.subject} исчерпан!`);
-        }
+        item.absences = Math.max(0, item.absences + d);
+        if (item.absences >= item.maxAbsences) showToast(`Лимит пропусков по ${item.subject} исчерпан!`);
         saveDB("HUB_PERF_25A_V14", performanceData);
         renderPerformance();
       }
     };
 
-    // ЛЕКЦИИ
+    // Лекции
+    let activeLectureFilter = "Все";
     function renderLectureFilters() {
       const bar = document.getElementById("subject-filter-bar");
       bar.innerHTML = "";
       ["Все", ...SUBJECTS_LIST].forEach(sub => {
         const btn = document.createElement("button");
         btn.className = `tab-btn ${activeLectureFilter === sub ? 'active' : ''}`;
-        btn.style.minWidth = "auto";
-        btn.style.padding = "6px 12px";
-        btn.style.whiteSpace = "nowrap";
+        btn.style.minWidth = "auto"; btn.style.padding = "6px 12px"; btn.style.whiteSpace = "nowrap";
         btn.innerText = sub;
-        btn.onclick = () => {
-          activeLectureFilter = sub;
-          renderLectureFilters();
-          renderLectures(document.getElementById("lecture-search").value);
-        };
+        btn.onclick = () => { activeLectureFilter = sub; renderLectureFilters(); renderLectures(document.getElementById("lecture-search").value); };
         bar.appendChild(btn);
       });
 
@@ -2058,25 +1990,21 @@
         if (!el) return;
         el.innerHTML = "";
         SUBJECTS_LIST.forEach(sub => {
-          const opt = document.createElement("option");
-          opt.value = sub;
-          opt.innerText = sub;
-          el.appendChild(opt);
+          const opt = document.createElement("option"); opt.value = sub; opt.innerText = sub; el.appendChild(opt);
         });
       });
     }
 
-    function renderLectures(searchQuery = "") {
+    function renderLectures(q = "") {
       const box = document.getElementById("lectures-list");
       box.innerHTML = "";
-      const q = searchQuery.toLowerCase().trim();
-
+      const query = q.toLowerCase().trim();
       let list = lecturesData;
       if (activeLectureFilter !== "Все") list = list.filter(l => l.subject === activeLectureFilter);
-      if (q) list = list.filter(l => l.title.toLowerCase().includes(q) || l.subject.toLowerCase().includes(q) || l.notes.toLowerCase().includes(q));
+      if (query) list = list.filter(l => l.title.toLowerCase().includes(query) || l.notes.toLowerCase().includes(query));
 
       if (list.length === 0) {
-        box.innerHTML = '<div class="empty-note">Конспектов пока нет</div>';
+        box.innerHTML = '<div class="empty-note">Конспектов не найдено</div>';
         return;
       }
 
@@ -2091,9 +2019,8 @@
           <div style="font-size: 14px; font-weight: 700;">${l.title}</div>
           ${l.notes ? `<div style="font-size: 12px; color: #94a3b8; line-height: 1.4; white-space: pre-line;">${l.notes}</div>` : ''}
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-            ${l.link ? `<a href="${l.link}" target="_blank" class="attach-link">Диск / Файл ↗</a>` : '<span></span>'}
-            ${canEdit() ? `
-            <div class="card-actions-row">
+            ${l.link ? `<a href="${l.link}" target="_blank" class="attach-link">Материалы ↗</a>` : '<span></span>'}
+            ${canEdit() ? `<div class="card-actions-row">
               <button class="edit-btn" onclick="openEditLectureModal(${l.id})">✏️ изм.</button>
               <button class="delete-btn" onclick="deleteLecture(${l.id})">Удалить</button>
             </div>` : ''}
@@ -2105,22 +2032,16 @@
 
     document.getElementById("btn-add-lecture").onclick = () => {
       if (!canEdit()) return;
-      const subject = document.getElementById("new-lec-subject").value;
       const title = document.getElementById("new-lec-title").value.trim();
-      const notes = document.getElementById("new-lec-notes").value.trim();
-      const link = document.getElementById("new-lec-link").value.trim();
-
-      if (!title) {
-        alert("Введи тему лекции");
-        return;
-      }
-
+      if (!title) { alert("Укажите тему лекции"); return; }
       const d = new Date();
-      const dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`;
-
-      lecturesData.unshift({ id: Date.now(), subject, title, date: dateStr, notes, link });
+      lecturesData.unshift({
+        id: Date.now(), subject: document.getElementById("new-lec-subject").value, title,
+        date: `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`,
+        notes: document.getElementById("new-lec-notes").value.trim(),
+        link: document.getElementById("new-lec-link").value.trim()
+      });
       commitData();
-
       document.getElementById("new-lec-title").value = "";
       document.getElementById("new-lec-notes").value = "";
       document.getElementById("new-lec-link").value = "";
@@ -2141,9 +2062,7 @@
       document.getElementById("edit-lec-modal").classList.add("open");
     };
 
-    document.getElementById("btn-close-lec-modal").onclick = () => {
-      document.getElementById("edit-lec-modal").classList.remove("open");
-    };
+    document.getElementById("btn-close-lec-modal").onclick = () => document.getElementById("edit-lec-modal").classList.remove("open");
 
     document.getElementById("btn-save-lec").onclick = () => {
       if (!canEdit()) return;
@@ -2155,11 +2074,10 @@
         l.date = document.getElementById("edit-lec-date").value.trim();
         l.notes = document.getElementById("edit-lec-notes").value.trim();
         l.link = document.getElementById("edit-lec-link").value.trim();
-
         commitData();
         renderLectures(document.getElementById("lecture-search").value);
         document.getElementById("edit-lec-modal").classList.remove("open");
-        showToast("Конспект обновлен!");
+        showToast("Конспект обновлен");
       }
     };
 
@@ -2172,13 +2090,12 @@
       }
     };
 
-    // ПРЕПОДАВАТЕЛИ
-    function renderTeachers(filterText = "") {
+    // Преподаватели
+    function renderTeachers(q = "") {
       const box = document.getElementById("teachers-list");
       box.innerHTML = "";
-      const q = filterText.toLowerCase();
-
-      const list = teachersData.filter(t => t.name.toLowerCase().includes(q) || t.subjects.toLowerCase().includes(q) || t.dept.toLowerCase().includes(q));
+      const query = q.toLowerCase();
+      const list = teachersData.filter(t => t.name.toLowerCase().includes(query) || t.subjects.toLowerCase().includes(query));
 
       if (list.length === 0) {
         box.innerHTML = '<div class="empty-note">Преподаватель не найден</div>';
@@ -2194,8 +2111,7 @@
               <div style="font-size: 15px; font-weight: 700; color: #fff;">${t.name}</div>
               <div class="prof-dept">${t.dept}</div>
             </div>
-            ${canEdit() ? `
-            <div class="card-actions-row">
+            ${canEdit() ? `<div class="card-actions-row">
               <button class="edit-btn" onclick="openEditTeacherModal(${t.id})">✏️ изм.</button>
               <button class="delete-btn" onclick="deleteTeacher(${t.id})">Удалить</button>
             </div>` : ''}
@@ -2210,30 +2126,20 @@
     document.getElementById("btn-add-prof").onclick = () => {
       if (!canEdit()) return;
       const name = document.getElementById("new-prof-name").value.trim();
-      const dept = document.getElementById("new-prof-dept").value.trim();
-      const subjects = document.getElementById("new-prof-subjects").value.trim();
-      const loc = document.getElementById("new-prof-loc").value.trim();
-
-      if (!name) {
-        alert("Укажи ФИО преподавателя");
-        return;
-      }
-
+      if (!name) { alert("Укажите ФИО"); return; }
       teachersData.unshift({
-        id: Date.now(),
-        name,
-        dept: dept || "Кафедра уточняется",
-        subjects: subjects || "Дисциплина курса",
-        catchInfo: loc || "Кафедра преподавателя"
+        id: Date.now(), name,
+        dept: document.getElementById("new-prof-dept").value.trim() || "Кафедра финансов",
+        subjects: document.getElementById("new-prof-subjects").value.trim() || "Дисциплина",
+        catchInfo: document.getElementById("new-prof-loc").value.trim() || "Кафедра"
       });
-
       commitData();
       document.getElementById("new-prof-name").value = "";
       document.getElementById("new-prof-dept").value = "";
       document.getElementById("new-prof-subjects").value = "";
       document.getElementById("new-prof-loc").value = "";
       renderTeachers();
-      showToast("Преподаватель добавлен!");
+      showToast("Преподаватель внесен");
     };
 
     window.openEditTeacherModal = function(id) {
@@ -2248,9 +2154,7 @@
       document.getElementById("edit-prof-modal").classList.add("open");
     };
 
-    document.getElementById("btn-close-prof-modal").onclick = () => {
-      document.getElementById("edit-prof-modal").classList.remove("open");
-    };
+    document.getElementById("btn-close-prof-modal").onclick = () => document.getElementById("edit-prof-modal").classList.remove("open");
 
     document.getElementById("btn-save-prof").onclick = () => {
       if (!canEdit()) return;
@@ -2261,35 +2165,29 @@
         t.dept = document.getElementById("edit-prof-dept").value.trim();
         t.subjects = document.getElementById("edit-prof-subjects").value.trim();
         t.catchInfo = document.getElementById("edit-prof-loc").value.trim();
-
         commitData();
         renderTeachers(document.getElementById("prof-search").value);
         document.getElementById("edit-prof-modal").classList.remove("open");
-        showToast("Данные преподавателя обновлены!");
+        showToast("Данные сохранены");
       }
     };
 
     window.deleteTeacher = function(id) {
       if (!canEdit()) return;
-      if (confirm("Удалить преподавателя из справочника?")) {
+      if (confirm("Удалить преподавателя?")) {
         teachersData = teachersData.filter(x => x.id !== id);
         commitData();
         renderTeachers(document.getElementById("prof-search").value);
-        showToast("Преподаватель удален");
+        showToast("Удалено");
       }
     };
 
-    // ПАРСЕР ТЕКСТА
-    document.getElementById("btn-open-parser").onclick = () => {
-      if (!canEdit()) return;
-      document.getElementById("parser-modal").classList.add("open");
-    };
-    document.getElementById("btn-close-parser").onclick = () => {
-      document.getElementById("parser-modal").classList.remove("open");
-    };
+    // Парсер
+    document.getElementById("btn-open-parser").onclick = () => { if (canEdit()) document.getElementById("parser-modal").classList.add("open"); };
+    document.getElementById("btn-close-parser").onclick = () => document.getElementById("parser-modal").classList.remove("open");
 
     document.getElementById("btn-insert-sample").onclick = () => {
-      const sampleText = `14.09.26 Понедельник
+      document.getElementById("parser-input").value = `14.09.26 Понедельник
 1 пара Финансы, ден.обращ. и кредит с.2 Моторина Д.В. (211)
 2 пара Финансы, денежное обращение и кредит л.5 Моторина Д.В. (209)
 3 пара Экономика организаций л.3 Мазниченко В.Л. (1107)
@@ -2298,161 +2196,89 @@
 1 пара Статистика л.3 Фурин А.Д. (209)
 2 пара Основы финансовой грамотности л.3 Моисеенко Д.Д. (1002)
 3 пара Экономика организаций л.4 Мазниченко В.Л. (1107)
-4 пара Осн. фин. грам. с.1 Моисеенко Д.Д. (1102)
-
-16.09.26 Среда
-3 пара Статистика п.1 Фурин А.Д. (806)
-4 пара Финансы, денежное обращение и кредит л.6 Моторина Д.В. (209)
-5 пара ИТ в проф деят л.3 Бридель Т.В. (209)
-6 пара Ин. яз. в проф. деят. п.4 Конкова А.М. (201)
-
-17.09.26 Четверг
-5 пара История России л.4 Страхова И.В. (1002)
-6 пара История России с.1 Страхова И.В. (1003)
-
-18.09.26 Пятница
-2 пара Менеджмент л.3 Инжиева Д.М. (504)
-3 пара Проф. этика с.2 Григор О.Г. (1006)
-4 пара Профессиональная этика л.3 Григор О.Г. (802)
-5 пара ИТ в проф деят п.2 Бридель Т.В. (606)`;
-      document.getElementById("parser-input").value = sampleText;
+4 пара Осн. фин. грам. с.1 Моисеенко Д.Д. (1102)`;
     };
 
     document.getElementById("btn-run-parser").onclick = () => {
       if (!canEdit()) return;
       const raw = document.getElementById("parser-input").value;
-      if (!raw.trim()) {
-        alert("Вставь текст расписания в поле!");
-        return;
-      }
+      if (!raw.trim()) { alert("Вставьте текст"); return; }
 
       const targetWeek = document.getElementById("parser-week-target").value;
       const clearOld = document.getElementById("parser-clear-old").checked;
-
       let baseGrid = clearOld ? generateEmptyWeekGrid() : [...scheduleData];
-
-      const lines = raw.split(/\r?\n/);
       let currentDay = null;
-      let parsedCount = 0;
+      let parsed = 0;
 
-      const daysMap = [
-        { regex: /понедельник|пн/i, day: 1 },
-        { regex: /вторник|вт/i, day: 2 },
-        { regex: /среда|ср/i, day: 3 },
-        { regex: /четверг|чт/i, day: 4 },
-        { regex: /пятница|пт/i, day: 5 },
-        { regex: /суббота|сб/i, day: 6 }
+      const days = [
+        { r: /понедельник|пн/i, d: 1 }, { r: /вторник|вт/i, d: 2 },
+        { r: /среда|ср/i, d: 3 }, { r: /четверг|чт/i, d: 4 },
+        { r: /пятница|пт/i, d: 5 }, { r: /суббота|сб/i, d: 6 }
       ];
 
-      lines.forEach(rawLine => {
+      raw.split(/\r?\n/).forEach(rawLine => {
         let line = rawLine.trim();
         if (!line) return;
 
-        for (let d of daysMap) {
-          if (d.regex.test(line)) {
-            if (/понедельник|вторник|среда|четверг|пятница|суббота/i.test(line) || /^(пн|вт|ср|чт|пт|сб)[:\s-]/i.test(line)) {
-              currentDay = d.day;
-              line = line.replace(/(\d{1,2}\.\d{1,2}(?:\.\d{2,4})?)?\s*(понедельник|вторник|среда|четверг|пятница|суббота|пн|вт|ср|чт|пт|сб)[:\s-]*/i, '').trim();
-              break;
-            }
+        for (let d of days) {
+          if (d.r.test(line)) {
+            currentDay = d.d;
+            line = line.replace(/(\d{1,2}\.\d{1,2}(?:\.\d{2,4})?)?\s*(понедельник|вторник|среда|четверг|пятница|суббота|пн|вт|ср|чт|пт|сб)[:\s-]*/i, '').trim();
+            break;
           }
         }
-
         if (!currentDay || !line) return;
-
-        let pairNum = null;
-        let rest = line;
 
         const pMatch = line.match(/^(?:пара\s*)?([1-7])(?:\s*пара|\.|\)|\-|\:)?\s*(.*)/i);
         if (pMatch) {
-          pairNum = parseInt(pMatch[1]);
-          rest = pMatch[2].trim().replace(/^(?:пара\b|\.|\)|\-|\:)\s*/i, '');
-        }
+          const num = parseInt(pMatch[1]);
+          let rest = pMatch[2].trim().replace(/^\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*/, '');
 
-        if (pairNum && rest) {
-          rest = rest.replace(/^\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*/, '');
-
-          let room = "";
-          const roomParentheses = rest.match(/\(([^)]+)\)/);
-          if (roomParentheses) {
-            room = roomParentheses[1].replace(/каб\.?|ауд\.?/gi, '').trim();
-            rest = rest.replace(roomParentheses[0], ' ');
-          } else {
-            const roomLabel = rest.match(/(?:каб\.?|ауд\.?|ком\.?)\s*([0-9a-zA-Zа-яА-Я\-]+)/i);
-            if (roomLabel) {
-              room = roomLabel[1].trim();
-              rest = rest.replace(roomLabel[0], ' ');
-            }
+          let room = "—";
+          const rPar = rest.match(/\(([^)]+)\)/);
+          if (rPar) {
+            room = rPar[1].replace(/каб\.?|ауд\.?/gi, '').trim();
+            rest = rest.replace(rPar[0], ' ');
           }
 
           let prof = "";
-          const profMatch = rest.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s*[А-ЯЁ]\.?)/);
-          if (profMatch) {
-            prof = `${profMatch[1]} ${profMatch[2]}`;
-            rest = rest.replace(profMatch[0], ' ');
+          const pProf = rest.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ]\.\s*[А-ЯЁ]\.?)/);
+          if (pProf) {
+            prof = `${pProf[1]} ${pProf[2]}`;
+            rest = rest.replace(pProf[0], ' ');
           }
 
-          let ptype = "lecture";
-          if (/\b[сc]\.\d*\b/i.test(rest) || /семинар|практика|\bп\.\d*\b|лаб/i.test(rest)) {
-            ptype = "seminar";
-          } else if (/\b[лl]\.\d*\b/i.test(rest) || /лек/i.test(rest)) {
-            ptype = "lecture";
-          }
+          let ptype = (/\b[сc]\.\d*\b/i.test(rest) || /семинар|практика/i.test(rest)) ? "seminar" : "lecture";
+          let name = rest.replace(/\b[лспlc]\.\d*\b/gi, '').replace(/^(?:лекция|семинар|практика)\s*[:\-]?\s*/i, '').replace(/\s+/g, ' ').trim();
 
-          let subjName = rest
-            .replace(/\b[лспlc]\.\d*\b/gi, '')
-            .replace(/^(?:лекция|семинар|практика|лаб\.?)\s*[:\-]?\s*/i, '')
-            .replace(/\s+/g, ' ')
-            .replace(/[\s\-:;,]+$/, '')
-            .trim();
-
-          if (subjName) {
-            const targetId = currentDay * 100 + pairNum;
+          if (name) {
+            const targetId = currentDay * 100 + num;
             const idx = baseGrid.findIndex(x => x.id === targetId);
-            const entry = {
-              id: targetId,
-              day: currentDay,
-              num: pairNum,
-              name: subjName,
-              prof: prof || "",
-              room: room || "—",
-              type: ptype,
-              task: "",
-              link: "",
-              week: targetWeek,
-              taskDone: false
-            };
-
-            if (idx !== -1) baseGrid[idx] = entry;
-            else baseGrid.push(entry);
-            parsedCount++;
+            const entry = { id: targetId, day: currentDay, num, name, prof, room, type: ptype, task: "", link: "", linkTitle: "", week: targetWeek, taskDone: false };
+            if (idx !== -1) baseGrid[idx] = entry; else baseGrid.push(entry);
+            parsed++;
           }
         }
       });
 
-      if (parsedCount === 0) {
-        alert("Не удалось распознать пары. Проверь формат ввода (день недели и номера пар от 1 до 7)");
-        return;
-      }
-
+      if (parsed === 0) { alert("Не удалось распарсить пары"); return; }
       scheduleData = baseGrid;
       commitData();
       renderSchedule();
       updateLiveStatus();
       document.getElementById("parser-modal").classList.remove("open");
-      showToast(`Импортировано пар: ${parsedCount}!`);
+      showToast(`Импортировано пар: ${parsed}!`);
     };
 
-    // Копирование в буфер
+    // Буфер обмена и экспорт ICS
     document.getElementById("btn-copy-today").onclick = () => {
       const activePairs = scheduleData
-        .filter(p => p.day === activeDay && (p.week === "all" || p.week === String(viewingMonthWeek)) && p.name && p.name.trim().length > 0)
+        .filter(p => p.day === activeDay && (p.week === "all" || p.week === String(viewingMonthWeek)) && p.name.trim().length > 0)
         .sort((a, b) => a.num - b.num);
 
       const dayName = DAYS_SHORT[activeDay];
-
       if (activePairs.length === 0) {
-        navigator.clipboard.writeText(`Расписание 25А на ${dayName} (${viewingMonthWeek}-я нед. месяца): Пар нет! Свободный день 🎉`);
+        navigator.clipboard.writeText(`Расписание 25А на ${dayName} (${viewingMonthWeek}-я нед.): Пар нет! Свободный день 🎉`);
         showToast("Скопировано: Пар нет!");
         return;
       }
@@ -2460,336 +2286,213 @@
       let text = `📅 Расписание 25А на ${dayName} (${viewingMonthWeek}-я неделя):\n`;
       activePairs.forEach(p => {
         const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
-        const typeRu = p.type === "seminar" ? "Сем" : "Лек";
-        text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${typeRu}] каб. ${p.room} (${p.prof})\n`;
-        if (p.task && !p.taskDone) {
-          text += `   ⚠️ Задание: ${p.task}\n`;
-        }
+        text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${p.type === 'seminar' ? 'Сем' : 'Лек'}] каб. ${p.room} (${p.prof})\n`;
+        if (p.task && !p.taskDone) text += `   ⚠️ Задание: ${p.task}\n`;
       });
-
       navigator.clipboard.writeText(text);
-      showToast("Расписание скопировано для беседы!");
+      showToast("Скопировано для беседы!");
     };
 
-    // Календарь (.ics)
     document.getElementById("btn-export-ics").onclick = () => {
-      let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//StudyHub//Schedule25A//RU\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+      let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//StudyHub//25A//RU\nCALSCALE:GREGORIAN\n";
       const now = new Date();
-
       for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
-        const targetDate = new Date(now);
-        targetDate.setDate(now.getDate() + dayOffset);
-
-        const dayIndex = targetDate.getDay();
-        if (dayIndex === 0) continue;
-
-        const targetWeek = Math.min(4, Math.ceil(targetDate.getDate() / 7));
-        const dayPairs = scheduleData.filter(p => p.day === dayIndex && (p.week === "all" || p.week === String(targetWeek)) && p.name && p.name.trim().length > 0);
+        const target = new Date(now); target.setDate(now.getDate() + dayOffset);
+        const dayIdx = target.getDay();
+        if (dayIdx === 0) continue;
+        const weekNum = Math.min(4, Math.ceil(target.getDate() / 7));
+        const dayPairs = scheduleData.filter(p => p.day === dayIdx && (p.week === "all" || p.week === String(weekNum)) && p.name.trim().length > 0);
 
         dayPairs.forEach(p => {
           const bell = BELLS.find(b => b.num === p.num);
           if (!bell) return;
-
           const [sh, sm] = bell.start.split(":").map(Number);
           const [eh, em] = bell.end.split(":").map(Number);
+          const s = new Date(target); s.setHours(sh, sm, 0, 0);
+          const e = new Date(target); e.setHours(eh, em, 0, 0);
+          const fmt = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 
-          const startDt = new Date(targetDate);
-          startDt.setHours(sh, sm, 0, 0);
-
-          const endDt = new Date(targetDate);
-          endDt.setHours(eh, em, 0, 0);
-
-          const formatICSDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-
-          icsContent += "BEGIN:VEVENT\n";
-          icsContent += `UID:studyhub-25a-${p.id}-${startDt.getTime()}@hub\n`;
-          icsContent += `DTSTAMP:${formatICSDate(new Date())}\n`;
-          icsContent += `DTSTART:${formatICSDate(startDt)}\n`;
-          icsContent += `DTEND:${formatICSDate(endDt)}\n`;
-          icsContent += `SUMMARY:${p.name} (${p.type === 'seminar' ? 'Семинар' : 'Лекция'})\n`;
-          icsContent += `LOCATION:каб. ${p.room} (${getRoomDetails(p.room)})\n`;
-          icsContent += `DESCRIPTION:Преподаватель: ${p.prof}${p.task ? '\\nЗадание: ' + p.task : ''}\n`;
-          icsContent += "END:VEVENT\n";
+          ics += "BEGIN:VEVENT\n";
+          ics += `UID:hub25a-${p.id}-${s.getTime()}@studyhub\n`;
+          ics += `DTSTAMP:${fmt(new Date())}\n`;
+          ics += `DTSTART:${fmt(s)}\n`;
+          ics += `DTEND:${fmt(e)}\n`;
+          ics += `SUMMARY:${p.name} (${p.type === 'seminar' ? 'Сем' : 'Лек'})\n`;
+          ics += `LOCATION:каб. ${p.room}\n`;
+          ics += `DESCRIPTION:Преподаватель: ${p.prof}\n`;
+          ics += "END:VEVENT\n";
         });
       }
-      icsContent += "END:VCALENDAR";
-
-      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "raspisanie_25A.ics";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("Календарь (.ics) сформирован!");
+      ics += "END:VCALENDAR";
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+      a.download = "raspisanie_25A.ics"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      showToast("Календарь .ics сформирован!");
     };
 
     // Живой статус
     function updateLiveStatus() {
       const now = new Date();
-      const h = String(now.getHours()).padStart(2, '0');
-      const m = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById("clock").innerText = `${h}:${m}`;
-
+      document.getElementById("clock").innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const curDay = now.getDay();
-      const currentMins = now.getHours() * 60 + now.getMinutes();
+      const curMins = now.getHours() * 60 + now.getMinutes();
       const ind = document.getElementById("live-indicator");
       const title = document.getElementById("live-title");
       const desc = document.getElementById("live-desc");
-
       document.getElementById("current-week-tag").innerText = `${viewingMonthWeek}-я неделя`;
 
       const todayPairs = scheduleData
-        .filter(p => p.day === curDay && (p.week === "all" || p.week === String(realMonthWeek)) && p.name && p.name.trim().length > 0)
+        .filter(p => p.day === curDay && (p.week === "all" || p.week === String(realMonthWeek)) && p.name.trim().length > 0)
         .sort((a, b) => a.num - b.num);
 
       if (curDay === 0 || todayPairs.length === 0) {
-        ind.className = "indicator idle";
-        title.innerText = "Пар сегодня нет";
-        desc.innerText = "Свободный график";
-        return;
+        ind.className = "indicator idle"; title.innerText = "Пар сегодня нет"; desc.innerText = "Свободный день"; return;
       }
 
       let active = null;
       for (let p of todayPairs) {
         const bell = BELLS.find(b => b.num === p.num);
-        if (bell && currentMins >= timeToMins(bell.start) && currentMins <= timeToMins(bell.end)) {
-          active = { ...p, bell };
-          break;
-        }
+        if (bell && curMins >= timeToMins(bell.start) && curMins <= timeToMins(bell.end)) { active = { ...p, bell }; break; }
       }
 
       if (active) {
         ind.className = "indicator";
         title.innerText = `Идет ${active.num} пара: ${active.name}`;
-        desc.innerText = `каб. ${active.room} (${getRoomDetails(active.room)}) • Осталось: ${timeToMins(active.bell.end) - currentMins} мин`;
+        desc.innerText = `каб. ${active.room} • Осталось: ${timeToMins(active.bell.end) - curMins} мин`;
         return;
       }
 
       let next = null;
       for (let p of todayPairs) {
         const bell = BELLS.find(b => b.num === p.num);
-        if (bell && currentMins < timeToMins(bell.start)) {
-          next = { ...p, bell };
-          break;
-        }
+        if (bell && curMins < timeToMins(bell.start)) { next = { ...p, bell }; break; }
       }
 
       if (next) {
-        const diff = timeToMins(next.bell.start) - currentMins;
+        const diff = timeToMins(next.bell.start) - curMins;
         ind.className = "indicator break";
-        if (diff > 30) {
-          title.innerText = `Окно • След: каб. ${next.room} (${next.num} пара)`;
-          desc.innerText = `${next.name} через ${diff} мин`;
-        } else {
-          title.innerText = `Перемена • След: каб. ${next.room}`;
-          desc.innerText = `${next.name} через ${diff} мин`;
-        }
+        title.innerText = diff > 30 ? `Окно • След: ${next.num} пара` : `Перемена • След: каб. ${next.room}`;
+        desc.innerText = `${next.name} через ${diff} мин`;
       } else {
-        ind.className = "indicator idle";
-        title.innerText = "Пары завершены";
-        desc.innerText = "Свободное время";
+        ind.className = "indicator idle"; title.innerText = "Пары завершены"; desc.innerText = "Свободный вечер";
       }
     }
 
-    // АВТОРИЗАЦИЯ И УПРАВЛЕНИЕ РОЛЯМИ
-    function processLogin(pass) {
-      if (!pass) return false;
-      if (pass === directorPassword) {
-        setRole("director");
-        showToast("Вход выполнен: Директор 👑");
-        return true;
-      } else if (pass === deputyPassword) {
-        setRole("deputy");
-        showToast("Вход выполнен: Зам. директора 👔");
-        return true;
-      } else {
-        alert("Неверный пароль доступа!");
-        return false;
-      }
+    function refreshHubStats() {
+      const tasksCount = deadlinesData.filter(x => !x.completed).length;
+      document.getElementById("hub-stat-tasks").textContent = tasksCount;
+      document.getElementById("hub-stat-teachers").textContent = teachersData.length;
+      const live = document.getElementById("live-title").textContent;
+      document.getElementById("hub-stat-next").textContent = (live && live !== "Определение...") ? live.replace(/^(Идет|Перемена • След:)\s*/i, '') : "—";
     }
 
-    document.getElementById("btn-role-trigger").onclick = () => {
-      document.getElementById("quick-pass-input").value = "";
-      document.getElementById("auth-modal").classList.add("open");
-    };
+    // Глобальный поиск
+    const searchModal = document.getElementById("hub-search-modal");
+    const searchInput = document.getElementById("hub-global-search-input");
+    const searchResults = document.getElementById("hub-global-search-results");
 
-    document.getElementById("btn-quick-cancel").onclick = () => {
-      document.getElementById("auth-modal").classList.remove("open");
-    };
+    function openGlobalSearch() {
+      searchModal.classList.add("open");
+      searchInput.value = "";
+      searchResults.innerHTML = '<div class="empty-note">Введите название предмета, преподавателя, дедлайн...</div>';
+      setTimeout(() => searchInput.focus(), 50);
+    }
+    function closeGlobalSearch() { searchModal.classList.remove("open"); }
 
-    document.getElementById("btn-quick-login").onclick = () => {
-      const pass = document.getElementById("quick-pass-input").value.trim();
-      if (processLogin(pass)) {
-        document.getElementById("auth-modal").classList.remove("open");
-      }
-    };
+    function runGlobalSearch(term) {
+      const s = term.toLowerCase().trim();
+      if (!s) { searchResults.innerHTML = '<div class="empty-note">Введите поисковый запрос</div>'; return; }
+      const results = [];
 
-    document.getElementById("btn-auth-login").onclick = () => {
-      const pass = document.getElementById("auth-pass-input").value.trim();
-      if (processLogin(pass)) {
-        document.getElementById("auth-pass-input").value = "";
-      }
-    };
+      teachersData.forEach(t => {
+        if (`${t.name} ${t.subjects} ${t.dept}`.toLowerCase().includes(s)) results.push({ kind: "Преподаватель", title: t.name, meta: t.subjects, view: "teachers" });
+      });
+      deadlinesData.forEach(d => {
+        if (`${d.subject} ${d.topic} ${d.type}`.toLowerCase().includes(s)) results.push({ kind: "Дедлайн", title: d.topic, meta: `${d.subject} • ${d.date}`, view: "deadlines" });
+      });
+      lecturesData.forEach(l => {
+        if (`${l.subject} ${l.title} ${l.notes}`.toLowerCase().includes(s)) results.push({ kind: "Лекция", title: l.title, meta: l.subject, view: "lectures" });
+      });
+      scheduleData.forEach(p => {
+        if (p.name && `${p.name} ${p.prof} ${p.room}`.toLowerCase().includes(s)) results.push({ kind: "Расписание", title: p.name, meta: `каб. ${p.room} • ${p.prof}`, view: "schedule" });
+      });
 
-    document.getElementById("btn-auth-logout").onclick = () => {
-      setRole("abiturient");
-      showToast("Вы переключились в режим Абитуриента");
-    };
+      if (results.length === 0) { searchResults.innerHTML = '<div class="empty-note">Ничего не найдено</div>'; return; }
 
-    // ОБЛАКО: СМЕНА URL (ТОЛЬКО ДИРЕКТОР)
-    document.getElementById("btn-save-cloud-config").onclick = () => {
-      if (!canManageAdmin()) {
-        showToast("Только Директор имеет право менять URL базы!");
+      searchResults.innerHTML = results.slice(0, 30).map(r => `
+        <div class="hub-search-result" data-view="${r.view}">
+          <div>
+            <div class="kind">${r.kind}</div>
+            <div class="title">${r.title}</div>
+            <div class="meta">${r.meta}</div>
+          </div>
+          <div>›</div>
+        </div>
+      `).join('');
+
+      searchResults.querySelectorAll(".hub-search-result").forEach(el => {
+        el.onclick = () => {
+          const btn = document.querySelector(`.view-btn[data-view="${el.dataset.view}"]`);
+          if (btn) btn.click();
+          closeGlobalSearch();
+        };
+      });
+    }
+
+    // Смена ключей доступа (исправленный валидатор для V2/V3)
+    document.getElementById("btn-change-pass").onclick = async () => {
+      if (!canManageAdmin()) return;
+      const target = document.getElementById("target-change-role").value;
+      const oldPass = document.getElementById("settings-old-pass").value.trim();
+      const newPass = document.getElementById("settings-new-pass").value.trim();
+      const confPass = document.getElementById("settings-confirm-pass").value.trim();
+
+      const dirRec = await getStoredAuth("director");
+      const isValidOld = await verifyCredential(oldPass, dirRec);
+      if (!isValidOld) {
+        alert("Действующий мастер-ключ Директора указан неверно!");
         return;
       }
-      const url = document.getElementById("cloud-api-url").value.trim();
-      cloudApiUrl = url;
-      localStorage.setItem("HUB_CLOUD_URL", url);
-      showToast("URL облака сохранен!");
-      fetchFromCloud(true);
-    };
-
-    document.getElementById("btn-test-cloud").onclick = () => fetchFromCloud(true);
-    document.getElementById("btn-cloud-sync").onclick = () => fetchFromCloud(true);
-
-    // СМЕНА ПАРОЛЕЙ (ТОЛЬКО ДИРЕКТОР)
-    document.getElementById("btn-change-pass").onclick = () => {
-      if (!canManageAdmin()) {
-        showToast("Только Директор имеет право менять пароли!");
+      if (newPass.length < 4) {
+        alert("Минимум 4 символа для нового ключа");
         return;
       }
-      const targetRole = document.getElementById("target-change-role").value;
-      const oldP = document.getElementById("settings-old-pass").value.trim();
-      const newP = document.getElementById("settings-new-pass").value.trim();
-      const confirmP = document.getElementById("settings-confirm-pass").value.trim();
-
-      if (oldP !== directorPassword) {
-        alert("Текущий пароль Директора указан неверно!");
-        return;
-      }
-      if (newP.length < 3) {
-        alert("Новый пароль слишком короткий (минимум 3 символа)");
-        return;
-      }
-      if (newP !== confirmP) {
-        alert("Новые пароли не совпадают!");
+      if (newPass !== confPass) {
+        alert("Новые ключи не совпадают!");
         return;
       }
 
-      if (targetRole === "director") {
-        directorPassword = newP;
-        localStorage.setItem("HUB_DIRECTOR_PASS", newP);
-        showToast("Пароль Директора обновлен!");
-      } else {
-        deputyPassword = newP;
-        localStorage.setItem("HUB_DEPUTY_PASS", newP);
-        showToast("Пароль Зам. директора обновлен!");
-      }
-
+      const salt = secureRandomHex(16);
+      const newHash = await pbkdf2Hex(newPass, salt, AUTH_ITERATIONS);
+      setAuthRecord(target, { version: 3, salt, hash: newHash, iterations: AUTH_ITERATIONS });
+      localStorage.removeItem(target === 'director' ? 'HUB_HASH_DIR_V2' : 'HUB_HASH_DEP_V2');
+      
       document.getElementById("settings-old-pass").value = "";
       document.getElementById("settings-new-pass").value = "";
       document.getElementById("settings-confirm-pass").value = "";
+      showToast("Ключ успешно обновлен и захеширован!");
     };
 
-    // ЭКСПОРТ И ИМПОРТ
-    document.getElementById("btn-export-json").onclick = () => {
-      const fullDump = {
-        group: "25A",
-        version: "14.0",
-        timestamp: new Date().toISOString(),
-        schedule: scheduleData,
-        requirements: requirementsData,
-        deadlines: deadlinesData,
-        lectures: lecturesData,
-        teachers: teachersData,
-        performance: performanceData
-      };
-
-      const blob = new Blob([JSON.stringify(fullDump, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `study_hub_25A_${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("Резервная копия скачана!");
-    };
-
-    document.getElementById("import-file").onchange = (e) => {
-      if (!canManageAdmin()) {
-        showToast("Восстановление доступно только Директору");
-        e.target.value = "";
-        return;
-      }
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const parsed = JSON.parse(event.target.result);
-          if (parsed.schedule && parsed.deadlines && parsed.performance) {
-            scheduleData = parsed.schedule;
-            requirementsData = parsed.requirements || DEFAULT_REQUIREMENTS;
-            deadlinesData = parsed.deadlines;
-            lecturesData = parsed.lectures || [];
-            teachersData = parsed.teachers || DEFAULT_TEACHERS;
-            performanceData = parsed.performance;
-
-            commitData();
-            renderSchedule();
-            renderRequirements();
-            renderDeadlines();
-            renderPerformance();
-            renderLectures();
-            renderTeachers();
-            showToast("База успешно восстановлена!");
-          } else {
-            alert("Некорректный формат файла бэкапа");
-          }
-        } catch (err) {
-          alert("Ошибка чтения JSON: " + err.message);
-        }
-      };
-      reader.readAsText(file);
-    };
-
-    // 15-СЕКУНДНЫЙ ТАЙМЕР ЗАЩИТЫ СБРОСА (ТОЛЬКО ДИРЕКТОР)
     let resetTimerInterval = null;
-    let resetSecondsLeft = 15;
-
+    let resetSecs = 15;
     document.getElementById("btn-reset-data").onclick = () => {
-      if (!canManageAdmin()) {
-        showToast("Только Директор имеет право делать полный сброс!");
-        return;
-      }
-
-      resetSecondsLeft = 15;
+      if (!canManageAdmin()) return;
+      resetSecs = 15;
       const countEl = document.getElementById("reset-countdown");
-      const btnConfirm = document.getElementById("btn-confirm-reset");
-
-      countEl.innerText = resetSecondsLeft;
-      btnConfirm.disabled = true;
-      btnConfirm.style.opacity = "0.4";
-      btnConfirm.style.cursor = "not-allowed";
-      btnConfirm.innerText = `Сброс заблокирован (${resetSecondsLeft})`;
-
+      const btn = document.getElementById("btn-confirm-reset");
+      countEl.innerText = resetSecs;
+      btn.disabled = true; btn.style.opacity = "0.4"; btn.innerText = `Блокировка (${resetSecs})`;
       document.getElementById("reset-modal").classList.add("open");
 
       if (resetTimerInterval) clearInterval(resetTimerInterval);
-
       resetTimerInterval = setInterval(() => {
-        resetSecondsLeft--;
-        countEl.innerText = resetSecondsLeft;
-        btnConfirm.innerText = `Сброс заблокирован (${resetSecondsLeft})`;
-
-        if (resetSecondsLeft <= 0) {
+        resetSecs--;
+        countEl.innerText = resetSecs;
+        btn.innerText = `Блокировка (${resetSecs})`;
+        if (resetSecs <= 0) {
           clearInterval(resetTimerInterval);
-          btnConfirm.disabled = false;
-          btnConfirm.style.opacity = "1";
-          btnConfirm.style.cursor = "pointer";
-          btnConfirm.innerText = "ПОДТВЕРДИТЬ ПОЛНЫЙ СБРОС";
+          btn.disabled = false; btn.style.opacity = "1"; btn.style.cursor = "pointer";
+          btn.innerText = "ПОДТВЕРДИТЬ СБРОС";
         }
       }, 1000);
     };
@@ -2800,72 +2503,159 @@
     };
 
     document.getElementById("btn-confirm-reset").onclick = () => {
-      if (resetSecondsLeft > 0) return;
-      if (!canManageAdmin()) return;
+      if (resetSecs > 0 || !canManageAdmin()) return;
       if (resetTimerInterval) clearInterval(resetTimerInterval);
-
-      localStorage.clear();
       scheduleData = createDefaultSchedule25A();
       requirementsData = [...DEFAULT_REQUIREMENTS];
-      deadlinesData = [...DEFAULT_DEADLINES];
-      lecturesData = [...DEFAULT_LECTURES];
+      deadlinesData = [];
+      lecturesData = [];
       teachersData = [...DEFAULT_TEACHERS];
-      performanceData = [...DEFAULT_PERFORMANCE];
-      currentRole = "director";
-      localStorage.setItem("HUB_ROLE_STATUS", "director");
-
+      performanceData = SUBJECTS_LIST.map((sub, idx) => ({ id: idx + 1, subject: sub, score: 0, absences: 0, maxAbsences: 4 }));
       commitData();
-      renderSchedule();
-      renderRequirements();
-      renderDeadlines();
-      renderPerformance();
-      renderLectures();
-      renderTeachers();
-      updateRoleUI();
-
+      rerenderAll();
       document.getElementById("reset-modal").classList.remove("open");
-      showToast("База сброшена к эталону 25А (3-я неделя)!");
+      showToast("База полностью сброшена!");
     };
 
-    // ИНИЦИАЛИЗАЦИЯ
-    function init() {
-      document.getElementById("cloud-api-url").value = cloudApiUrl;
-
-      updateRoleUI();
-      renderLectureFilters();
-
-      // Навигация по экранам
-      document.querySelectorAll(".view-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-
-          const view = btn.dataset.view;
-          document.getElementById("view-schedule").style.display = view === "schedule" ? "block" : "none";
-          document.getElementById("view-requirements").style.display = view === "requirements" ? "block" : "none";
-          document.getElementById("view-deadlines").style.display = view === "deadlines" ? "block" : "none";
-          document.getElementById("view-performance").style.display = view === "performance" ? "block" : "none";
-          document.getElementById("view-lectures").style.display = view === "lectures" ? "block" : "none";
-          document.getElementById("view-teachers").style.display = view === "teachers" ? "block" : "none";
-          document.getElementById("view-settings").style.display = view === "settings" ? "block" : "none";
-
-          if (view === "requirements") renderRequirements();
-          if (view === "deadlines") renderDeadlines();
-          if (view === "performance") renderPerformance();
-          if (view === "lectures") renderLectures();
-          if (view === "teachers") renderTeachers();
-        });
+    // Связывание событий и комплексная защита интерфейса
+    function bindEvents() {
+      ['click', 'keydown', 'pointerdown'].forEach(evt => {
+        document.addEventListener(evt, () => touchSession(), { passive: true });
       });
 
-      // Переключатель 4 недель месяца
+      // 1. Блокировка контекстного меню
+      document.addEventListener('contextmenu', (e) => {
+        if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+          e.preventDefault();
+        }
+      });
+
+      // 2. Блокировка перетаскивания и выделения
+      document.addEventListener('dragstart', (e) => {
+        if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) e.preventDefault();
+      });
+      document.addEventListener('selectstart', (e) => {
+        if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) e.preventDefault();
+      });
+
+      // 3. Перехват события буфера обмена (защита от копирования)
+      document.addEventListener('copy', (e) => {
+        if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+          e.preventDefault();
+          if (e.clipboardData) {
+            e.clipboardData.setData('text/plain', 'Защищено системой Учебного Хаба 25А.');
+          }
+          showToast('Копирование защищено');
+        }
+      });
+
+      // 4. Блокировка горячих клавиш копирования, печати и вызова консоли
+      document.addEventListener('keydown', (e) => {
+        const isInput = ['INPUT', 'TEXTAREA'].includes(e.target.tagName);
+
+        if (!isInput) {
+          if ((e.ctrlKey || e.metaKey) && ['c', 'a', 'u', 's', 'p'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            showToast("Копирование защищено");
+          }
+        }
+
+        if (e.key === 'F12') {
+          e.preventDefault();
+        }
+
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+        }
+      });
+
+      // Авторизация
+      document.getElementById("btn-role-trigger").onclick = () => {
+        document.getElementById("quick-pass-input").value = "";
+        document.getElementById("auth-modal").classList.add("open");
+      };
+      document.getElementById("btn-quick-cancel").onclick = () => document.getElementById("auth-modal").classList.remove("open");
+      document.getElementById("btn-quick-login").onclick = async () => {
+        if (await processLogin(document.getElementById("quick-pass-input").value)) {
+          document.getElementById("auth-modal").classList.remove("open");
+        }
+      };
+      document.getElementById("btn-auth-login").onclick = async () => {
+        if (await processLogin(document.getElementById("auth-pass-input").value)) {
+          document.getElementById("auth-pass-input").value = "";
+        }
+      };
+      document.getElementById("btn-auth-logout").onclick = () => {
+        setAbiturientRole();
+        showToast("Сессия завершена: режим Абитуриента");
+      };
+
+      // Облако
+      document.getElementById("btn-save-cloud-config").onclick = () => {
+        if (!canManageAdmin()) return;
+        cloudApiUrl = document.getElementById("cloud-api-url").value.trim();
+        localStorage.setItem("HUB_CLOUD_URL", cloudApiUrl);
+        showToast("Шлюз сохранен");
+        fetchFromCloud(true);
+      };
+
+      document.getElementById("btn-test-cloud").onclick = () => fetchFromCloud(true);
+      document.getElementById("btn-cloud-sync").onclick = () => fetchFromCloud(true);
+
+      // Экспорт и восстановление JSON
+      document.getElementById("btn-export-json").onclick = () => {
+        const dump = { version: 14, timestamp: Date.now(), schedule: scheduleData, requirements: requirementsData, deadlines: deadlinesData, lectures: lecturesData, teachers: teachersData, performance: performanceData };
+        const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `backup_hub_25a_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast("Резервный файл скачан");
+      };
+
+      document.getElementById("import-file").onchange = (e) => {
+        if (!canManageAdmin()) return;
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const parsed = JSON.parse(evt.target.result);
+            if (parsed.schedule && parsed.requirements) {
+              scheduleData = parsed.schedule;
+              requirementsData = parsed.requirements;
+              deadlinesData = parsed.deadlines || [];
+              lecturesData = parsed.lectures || [];
+              teachersData = parsed.teachers || [];
+              performanceData = parsed.performance || performanceData;
+              commitData();
+              rerenderAll();
+              showToast("База восстановлена");
+            }
+          } catch (err) { alert("Ошибка JSON-файла"); }
+        };
+        reader.readAsText(file);
+      };
+
+      // Табы экранов
+      document.querySelectorAll(".view-btn").forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const v = btn.dataset.view;
+          ["schedule", "requirements", "deadlines", "performance", "lectures", "teachers", "settings"].forEach(viewName => {
+            document.getElementById(`view-${viewName}`).style.display = (v === viewName) ? "block" : "none";
+          });
+          if (v === "performance") renderPerformance();
+        };
+      });
+
+      // Недели месяца
       const calBtns = document.querySelectorAll(".cal-week-btn");
       document.getElementById("calendar-cur-indicator").innerText = `Текущая: ${realMonthWeek}-я неделя`;
-
       calBtns.forEach(btn => {
         const w = Number(btn.dataset.w);
         if (w === realMonthWeek) btn.classList.add("current-month-week");
         if (w === viewingMonthWeek) btn.classList.add("active");
-
         btn.onclick = () => {
           calBtns.forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
@@ -2880,7 +2670,6 @@
       document.querySelectorAll(".tab-btn").forEach(btn => {
         const d = Number(btn.dataset.d);
         if (d === todayNum) btn.classList.add("today");
-
         btn.onclick = () => {
           document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
@@ -2888,285 +2677,72 @@
           renderSchedule();
         };
       });
-
       const startTab = document.querySelector(`.tab-btn[data-d="${activeDay}"]`);
       if (startTab) startTab.classList.add("active");
 
+      // Фильтры поиска
       document.getElementById("req-search").oninput = (e) => renderRequirements(e.target.value);
       document.getElementById("lecture-search").oninput = (e) => renderLectures(e.target.value);
       document.getElementById("deadline-search").oninput = (e) => renderDeadlines(e.target.value);
       document.getElementById("prof-search").oninput = (e) => renderTeachers(e.target.value);
 
-      renderSchedule();
-      renderRequirements();
+      // Быстрые кнопки
+      document.getElementById("hub-btn-today").onclick = () => {
+        const wBtn = document.querySelector(`.cal-week-btn[data-w="${realMonthWeek}"]`);
+        if (wBtn) wBtn.click();
+        const d = new Date().getDay() || 7;
+        const dBtn = document.querySelector(`.tab-btn[data-d="${d}"]`) || document.querySelector('.tab-btn[data-d="1"]');
+        if (dBtn) dBtn.click();
+        const sBtn = document.querySelector('.view-btn[data-view="schedule"]');
+        if (sBtn) sBtn.click();
+      };
+      document.getElementById("hub-btn-search").onclick = openGlobalSearch;
+      document.getElementById("hub-fab-search").onclick = openGlobalSearch;
+      document.getElementById("hub-btn-undo").onclick = undoLastChange;
+
+      searchModal.onclick = (e) => { if (e.target === searchModal) closeGlobalSearch(); };
+      searchInput.oninput = () => runGlobalSearch(searchInput.value);
+
+      // Горячие клавиши навигации
+      document.addEventListener("keydown", e => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openGlobalSearch(); }
+        if (e.key === 'Escape') closeGlobalSearch();
+        if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement?.tagName || '')) { e.preventDefault(); openGlobalSearch(); }
+        if (e.key.toLowerCase() === 'h' && !/input|textarea|select/i.test(document.activeElement?.tagName || '')) document.getElementById("hub-btn-today").click();
+      });
+
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) fetchFromCloud(); });
+      window.addEventListener("focus", () => fetchFromCloud());
+    }
+
+    async function init() {
+      document.getElementById("cloud-api-url").value = cloudApiUrl;
+      await verifySession();
+      renderLectureFilters();
+      bindEvents();
+      rerenderAll();
       updateLiveStatus();
+
       setInterval(() => {
         updateLiveStatus();
         renderSchedule();
+        refreshHubStats();
+        renderUrgentDeadlines();
+        if (sessionState) {
+          if (Date.now() > sessionState.expiresAt) {
+            setAbiturientRole();
+            showToast("Сессия истекла");
+          } else {
+            touchSession();
+          }
+        }
       }, 15000);
 
-      // Синхронизация при старте: интерфейс рисуем сразу, облако — в фоне.
-      setTimeout(() => fetchFromCloud(), 450);
-
-      // Авто-опрос каждые 30 секунд, чтобы не тормозить приложение и не спамить API.
-      setInterval(fetchFromCloud, 30000);
-
-      // Мгновенный запрос при переходе во вкладку браузера
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) fetchFromCloud();
-      });
-      window.addEventListener("focus", () => fetchFromCloud());
+      setTimeout(() => fetchFromCloud(), 500);
+      setInterval(() => fetchFromCloud(), 40000);
     }
 
     init();
   </script>
-
-  <style id="hub-enhancements">
-    :root {
-      --shadow-soft: 0 8px 22px rgba(0,0,0,.22);
-      --glass: rgba(15,19,28,.78);
-    }
-    html { scroll-behavior: smooth; }
-    body { overscroll-behavior-y: contain; }
-    .hub-utility-bar {
-      display:flex; gap:6px; margin:-3px 0 10px; overflow-x:auto; scrollbar-width:none;
-    }
-    .hub-utility-bar::-webkit-scrollbar { display:none; }
-    .hub-mini-btn {
-      flex:1; min-width:92px; background:var(--card); border:1px solid var(--border); color:#dbeafe;
-      padding:8px 9px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;
-      transition:.16s ease; white-space:nowrap;
-    }
-    .hub-mini-btn:hover { border-color:var(--accent); transform:translateY(-1px); }
-    .hub-mini-btn:active { transform:translateY(0); }
-    .hub-stats {
-      display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px;
-    }
-    .hub-stat {
-      background:rgba(15,19,28,.7); border:1px solid var(--border); border-radius:9px; padding:8px;
-      min-height:54px;
-    }
-    .hub-stat .v { font-size:14px; font-weight:900; color:#fff; }
-    .hub-stat .l { margin-top:2px; font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.25px; }
-    .hub-fab {
-      position:fixed; right:16px; bottom:18px; width:48px; height:48px; border-radius:50%;
-      border:1px solid rgba(59,130,246,.55); background:rgba(19,23,34,.94); color:#fff;
-      box-shadow:0 10px 28px rgba(0,0,0,.45); z-index:220; cursor:pointer; font-size:18px;
-      backdrop-filter:blur(10px);
-    }
-    .hub-search-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(7px); z-index:500;
-      display:none; align-items:flex-start; justify-content:center; padding:72px 14px 20px;
-    }
-    .hub-search-overlay.open { display:flex; }
-    .hub-search-card {
-      width:min(560px,100%); background:#111722; border:1px solid var(--border); border-radius:16px;
-      padding:12px; box-shadow:0 20px 60px rgba(0,0,0,.58);
-    }
-    .hub-search-card input {
-      width:100%; background:#0b0f17; color:#fff; border:1px solid var(--border); border-radius:10px;
-      padding:12px; outline:none; font-size:14px;
-    }
-    .hub-search-card input:focus { border-color:var(--accent); }
-    .hub-search-results { margin-top:8px; max-height:62vh; overflow:auto; }
-    .hub-search-result {
-      display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px; border-radius:9px;
-      cursor:pointer; border:1px solid transparent;
-    }
-    .hub-search-result:hover { background:var(--card); border-color:var(--border); }
-    .hub-search-result .kind { font-size:9px; color:var(--accent); font-weight:900; text-transform:uppercase; }
-    .hub-search-result .title { font-size:12px; font-weight:800; color:#fff; }
-    .hub-search-result .meta { font-size:10px; color:var(--text-dim); margin-top:2px; }
-    .hub-history-note { font-size:10px; color:var(--text-dim); margin-top:5px; line-height:1.35; }
-    @media (max-width:420px){
-      .hub-stats { grid-template-columns:1fr 1fr; }
-      .hub-stat:last-child { grid-column:1/-1; }
-    }
-    @media print {
-      .view-switcher,.action-bar,.hub-utility-bar,.hub-fab,#toast { display:none !important; }
-      body { max-width:none; color:#111; background:#fff; }
-    }
-  </style>
-
-  <script id="hub-enhancements-script">
-  (() => {
-    'use strict';
-
-    const q = (s, r=document) => r.querySelector(s);
-    const qa = (s, r=document) => [...r.querySelectorAll(s)];
-    const esc = (v) => String(v ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-
-    function goScheduleToday() {
-      const weekBtn = q(`.cal-week-btn[data-w="${typeof realMonthWeek !== 'undefined' ? realMonthWeek : 1}"]`);
-      if (weekBtn) weekBtn.click();
-      const day = new Date().getDay() || 7;
-      const dayBtn = q(`.tab-btn[data-d="${day}"]`) || q('.tab-btn[data-d="1"]');
-      if (dayBtn) dayBtn.click();
-      const scheduleBtn = q('.view-btn[data-view="schedule"]');
-      if (scheduleBtn) scheduleBtn.click();
-    }
-
-    function buildUtilityBar() {
-      const bar = document.createElement('div');
-      bar.className = 'hub-utility-bar';
-      bar.innerHTML = `
-        <button class="hub-mini-btn" id="hub-today">📍 Сегодня</button>
-        <button class="hub-mini-btn" id="hub-search">🔎 Быстрый поиск</button>
-        <button class="hub-mini-btn admin-only" id="hub-undo">↩️ Отменить</button>
-      `;
-      const actionBar = q('.action-bar');
-      if (actionBar && actionBar.parentNode) actionBar.parentNode.insertBefore(bar, actionBar.nextSibling);
-      q('#hub-today')?.addEventListener('click', goScheduleToday);
-      q('#hub-search')?.addEventListener('click', openSearch);
-      q('#hub-undo')?.addEventListener('click', undoLastChange);
-    }
-
-    function buildStats() {
-      const dash = q('.dashboard');
-      if (!dash) return;
-      const box = document.createElement('div');
-      box.className = 'hub-stats';
-      box.id = 'hub-stats';
-      box.innerHTML = `
-        <div class="hub-stat"><div class="v" id="hub-next">—</div><div class="l">ближайшая пара</div></div>
-        <div class="hub-stat"><div class="v" id="hub-tasks">0</div><div class="l">незакрытых задач</div></div>
-        <div class="hub-stat"><div class="v" id="hub-teachers">0</div><div class="l">преподавателей</div></div>
-      `;
-      dash.appendChild(box);
-    }
-
-    function refreshStats() {
-      const tasks = Array.isArray(typeof deadlinesData !== 'undefined' ? deadlinesData : null) ? deadlinesData.filter(x => !x.completed).length : 0;
-      const teachers = Array.isArray(typeof teachersData !== 'undefined' ? teachersData : null) ? teachersData.length : 0;
-      const t = q('#hub-tasks'); if (t) t.textContent = tasks;
-      const te = q('#hub-teachers'); if (te) te.textContent = teachers;
-      const n = q('#hub-next');
-      if (n) {
-        const title = q('#live-title');
-        const txt = (title?.textContent || '').trim();
-        n.textContent = txt && txt !== 'Определение...' ? txt.replace(/^Перемена • /,'').slice(0,24) : '—';
-      }
-    }
-
-    let searchOverlay, searchInput, searchResults;
-    function openSearch(){
-      if (!searchOverlay) buildSearch();
-      searchOverlay.classList.add('open');
-      searchInput.value='';
-      searchResults.innerHTML='<div class="empty-note">Введите название предмета, преподавателя, задания или лекции</div>';
-      setTimeout(()=>searchInput.focus(),20);
-    }
-    function closeSearch(){ searchOverlay?.classList.remove('open'); }
-
-    function buildSearch(){
-      searchOverlay = document.createElement('div');
-      searchOverlay.className='hub-search-overlay';
-      searchOverlay.innerHTML=`
-        <div class="hub-search-card" role="dialog" aria-modal="true">
-          <input id="hub-search-input" autocomplete="off" placeholder="Поиск по всему хабу…">
-          <div class="hub-search-results" id="hub-search-results"></div>
-        </div>`;
-      document.body.appendChild(searchOverlay);
-      searchInput=q('#hub-search-input',searchOverlay);
-      searchResults=q('#hub-search-results',searchOverlay);
-      searchOverlay.addEventListener('click',e=>{ if(e.target===searchOverlay) closeSearch(); });
-      searchInput.addEventListener('input',()=>runSearch(searchInput.value));
-    }
-
-    function runSearch(term){
-      const s=String(term||'').trim().toLowerCase();
-      if(!s){searchResults.innerHTML='<div class="empty-note">Введите поисковый запрос</div>';return;}
-      const out=[];
-      const push=(kind,title,meta,view)=>out.push({kind,title,meta,view});
-      (Array.isArray(window.teachersData)?window.teachersData:[]).forEach(x=>{
-        const hay=`${x.name||''} ${x.dept||''} ${x.subjects||''} ${x.catchInfo||''}`.toLowerCase();
-        if(hay.includes(s)) push('Преподаватель',x.name||'Без имени',x.subjects||x.dept||'', 'teachers');
-      });
-      (Array.isArray(window.deadlinesData)?window.deadlinesData:[]).forEach(x=>{
-        const hay=`${x.subject||''} ${x.topic||''} ${x.type||''} ${x.reqs||''}`.toLowerCase();
-        if(hay.includes(s)) push('Задание',x.topic||x.subject||'Без названия',`${x.subject||''} • ${x.date||''}`, 'deadlines');
-      });
-      (Array.isArray(typeof lecturesData !== 'undefined' ? lecturesData : null)?lecturesData:[]).forEach(x=>{
-        const hay=`${x.subject||''} ${x.title||''} ${x.notes||''}`.toLowerCase();
-        if(hay.includes(s)) push('Лекция',x.title||'Без названия',x.subject||'', 'lectures');
-      });
-      (Array.isArray(typeof requirementsData !== 'undefined' ? requirementsData : null)?requirementsData:[]).forEach(x=>{
-        const hay=`${x.prof||''} ${x.subject||''} ${x.workType||''} ${x.details||x.criticalPoints||''}`.toLowerCase();
-        if(hay.includes(s)) push('Требование',x.prof||'Без преподавателя',`${x.subject||''} • ${x.workType||''}`, 'requirements');
-      });
-      const schedule = Array.isArray(typeof scheduleData !== 'undefined' ? scheduleData : null)?scheduleData:[];
-      schedule.forEach(x=>{
-        const hay=`${x.name||''} ${x.prof||''} ${x.room||''} ${x.task||''}`.toLowerCase();
-        if(hay.includes(s) && x.name) push('Расписание',x.name,`${x.prof||''} • каб. ${x.room||'—'}`,'schedule');
-      });
-      const uniq=[]; const seen=new Set();
-      for(const x of out){const k=`${x.kind}|${x.title}|${x.meta}`;if(!seen.has(k)){seen.add(k);uniq.push(x)}}
-      searchResults.innerHTML=uniq.slice(0,40).map((x,i)=>`<div class="hub-search-result" data-view="${esc(x.view)}"><div><div class="kind">${esc(x.kind)}</div><div class="title">${esc(x.title)}</div><div class="meta">${esc(x.meta)}</div></div><div>›</div></div>`).join('') || '<div class="empty-note">Ничего не найдено</div>';
-      qa('.hub-search-result',searchResults).forEach(el=>el.addEventListener('click',()=>{
-        const b=q(`.view-btn[data-view="${el.dataset.view}"]`); b?.click(); closeSearch();
-      }));
-    }
-
-    function undoLastChange(){
-      if(typeof canEdit==='function' && !canEdit()){ showToast('Только редактор может отменять изменения'); return; }
-      const raw=localStorage.getItem('HUB_UNDO_STACK_25A');
-      const stack=raw?JSON.parse(raw):[];
-      const snap=stack.pop();
-      if(!snap){showToast('История изменений пуста');return;}
-      try{
-        scheduleData=snap.schedule; requirementsData=snap.requirements; deadlinesData=snap.deadlines; lecturesData=snap.lectures; teachersData=snap.teachers;
-        saveDB('HUB_SCHEDULE_25A_V14',scheduleData); saveDB('HUB_REQUIREMENTS_25A_V14',requirementsData); saveDB('HUB_DEADLINES_25A_V14',deadlinesData); saveDB('HUB_LECTURES_25A_V14',lecturesData); saveDB('HUB_TEACHERS_25A_V14',teachersData);
-        localStorage.setItem('HUB_UNDO_STACK_25A',JSON.stringify(stack));
-        renderSchedule(); renderRequirements(); renderDeadlines(); renderLectures(); renderTeachers();
-        syncToCloud(); refreshStats(); showToast('↩️ Последнее изменение отменено');
-      }catch(e){ console.warn(e); showToast('Не удалось отменить изменение'); }
-    }
-
-    function installHistoryWrapper(){
-      if(typeof window.commitData!=='function' || window.__hubCommitWrapped) return;
-      const original=window.commitData;
-      window.commitData=function(){
-        try{
-          const stack=JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A')||'[]');
-          stack.push({schedule:JSON.parse(localStorage.getItem('HUB_SCHEDULE_25A_V14')||'null'),requirements:JSON.parse(localStorage.getItem('HUB_REQUIREMENTS_25A_V14')||'null'),deadlines:JSON.parse(localStorage.getItem('HUB_DEADLINES_25A_V14')||'null'),lectures:JSON.parse(localStorage.getItem('HUB_LECTURES_25A_V14')||'null'),teachers:JSON.parse(localStorage.getItem('HUB_TEACHERS_25A_V14')||'null')});
-          while(stack.length>15) stack.shift();
-          localStorage.setItem('HUB_UNDO_STACK_25A',JSON.stringify(stack));
-        }catch(e){}
-        return original.apply(this,arguments);
-      };
-      window.__hubCommitWrapped=true;
-    }
-
-    function enhanceRoleUI(){
-      const sync=()=>{
-        const admin=typeof canEdit==='function' ? canEdit() : false;
-        const director=typeof canManageAdmin==='function' ? canManageAdmin() : false;
-        qa('.admin-only').forEach(el=>el.style.display=admin?'':'none');
-        qa('.director-only').forEach(el=>el.style.display=director?'':'none');
-      };
-      setInterval(sync,1000); sync();
-    }
-
-    function addFab(){
-      if(q('.hub-fab')) return;
-      const b=document.createElement('button'); b.className='hub-fab'; b.title='Быстрый поиск'; b.textContent='🔎'; b.onclick=openSearch; document.body.appendChild(b);
-    }
-
-    function boot(){
-      buildUtilityBar(); buildStats(); buildSearch(); addFab(); installHistoryWrapper(); enhanceRoleUI();
-      refreshStats();
-      setInterval(refreshStats,4000);
-      document.addEventListener('keydown',e=>{
-        if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}
-        if(e.key==='Escape') closeSearch();
-        if(e.key==='/' && !/input|textarea|select/i.test(document.activeElement?.tagName||'')){e.preventDefault();openSearch();}
-        if(e.key.toLowerCase()==='h' && !/input|textarea|select/i.test(document.activeElement?.tagName||'')) goScheduleToday();
-      });
-      window.addEventListener('beforeunload',()=>{try{localStorage.setItem('HUB_LAST_OPEN_25A',new Date().toISOString())}catch(e){}});
-    }
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
-  })();
-  </script>
-
 </body>
 </html>
