@@ -35,7 +35,6 @@
 
     html { scroll-behavior: smooth; }
 
-    /* Полный запрет выделения и вызова контекстных меню мобильных браузеров */
     body {
       background: var(--bg);
       color: var(--text);
@@ -51,7 +50,6 @@
       -webkit-touch-callout: none;
     }
 
-    /* Выделение и ввод разрешены строго в рабочих полях форм */
     input, textarea {
       -webkit-user-select: auto !important;
       -moz-user-select: auto !important;
@@ -60,7 +58,6 @@
       -webkit-touch-callout: default !important;
     }
 
-    /* Панель статуса и роли */
     .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 4px 2px; }
     .app-brand { font-size: 14px; font-weight: 800; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; }
     .role-badge-btn {
@@ -71,7 +68,6 @@
     .role-badge-btn.role-deputy { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .role-badge-btn.role-director { color: #4ade80; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
 
-    /* Чистое CSS-управление правами без костылей */
     body.is-abiturient .admin-only,
     body.is-abiturient .edit-btn,
     body.is-abiturient .delete-btn,
@@ -80,7 +76,6 @@
     body.is-abiturient #hub-btn-undo { display: none !important; }
     body:not(.is-director) .director-only { display: none !important; }
 
-    /* Навигация */
     .view-switcher {
       display: flex; gap: 3px; background: #0f131c; padding: 4px; border-radius: 12px; border: 1px solid var(--border);
       margin-bottom: 10px; position: sticky; top: 6px; z-index: 100; backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none;
@@ -93,7 +88,6 @@
     }
     .view-btn.active { background: var(--card); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid var(--border); }
 
-    /* Тост */
     #toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b;
       color: #fff; border: 1px solid var(--accent); padding: 9px 16px; border-radius: 20px; font-size: 12px;
@@ -101,7 +95,6 @@
     }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    /* Дашборд */
     .dashboard {
       background: linear-gradient(145deg, #171e2e, #111520); border: 1px solid var(--border); border-radius: 14px;
       padding: 14px; margin-bottom: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -114,7 +107,6 @@
     .indicator.idle { background: var(--text-dim); box-shadow: none; }
     .dash-sub { font-size: 12px; color: var(--text-dim); }
 
-    /* Горящие дедлайны на 48 часов */
     .urgent-banner {
       background: rgba(239, 68, 68, 0.12); border: 1px solid var(--red); border-radius: 10px;
       padding: 8px 10px; margin-top: 10px; display: none; flex-direction: column; gap: 5px;
@@ -128,7 +120,6 @@
     .hub-stat .v { font-size: 13px; font-weight: 900; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .hub-stat .l { margin-top: 2px; font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .25px; }
 
-    /* Панели действий */
     .action-bar, .hub-utility-bar { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none; }
     .action-bar::-webkit-scrollbar, .hub-utility-bar::-webkit-scrollbar { display: none; }
     .btn-action, .hub-mini-btn {
@@ -139,20 +130,11 @@
     .btn-action:hover, .hub-mini-btn:hover { border-color: var(--accent); color: #fff; }
     .btn-action.highlight { background: rgba(59, 130, 246, 0.15); border-color: var(--accent); color: #93c5fd; }
 
-    /* Календарная сетка */
-    .calendar-month-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
-    .calendar-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-dim); }
-    .calendar-weeks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-    .cal-week-btn { background: #0f131c; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 2px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
-    .cal-week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .cal-week-btn.current-month-week { border-bottom: 2px solid var(--green); }
-
     .tabs-row { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px; }
-    .tab-btn { flex: 1; min-width: 44px; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 0; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
+    .tab-btn { flex: 1; min-width: 44px; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 10px 0; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; text-align: center; }
     .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .tab-btn.today { border-bottom: 3px solid var(--green); }
 
-    /* Карточки пар */
     .cards-box { display: flex; flex-direction: column; gap: 8px; }
     .pair-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; position: relative; overflow: hidden; }
     .pair-item.current { border-color: var(--green); background: #141b2a; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
@@ -176,14 +158,12 @@
     .room-tag { background: #1d2536; border: 1px solid var(--border); padding: 4px 7px; border-radius: 6px; font-size: 11px; font-weight: 800; white-space: nowrap; }
     .room-floor { font-size: 10px; color: var(--text-dim); font-weight: 600; text-align: right; }
 
-    /* Домашка и шпаргалка ссылок */
     .task-bar { border-top: 1px dashed var(--border); padding-top: 7px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .task-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; flex: 1; }
     .task-label.done span { text-decoration: line-through; color: var(--text-dim); }
     .task-checkbox { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
     .attach-link { background: var(--accent-glow); border: 1px solid var(--accent); color: #93c5fd; padding: 3px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 
-    /* Формы и карточки */
     .search-box { margin-bottom: 12px; }
     .search-input, .form-input, .form-select { width: 100%; background: var(--card); border: 1px solid var(--border); color: #fff; padding: 9px 12px; border-radius: 8px; font-size: 13px; outline: none; }
     .search-input:focus, .form-input:focus, .form-select:focus { border-color: var(--accent); }
@@ -201,12 +181,10 @@
     .req-tag { background: #1b2233; border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 700; color: #93c5fd; }
     .req-tag.alert { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: #fca5a5; }
 
-    /* ГОСТ-баннер */
     .gost-banner { background: linear-gradient(145deg, #181f30, #121622); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 11px; line-height: 1.4; color: #94a3b8; margin-bottom: 12px; }
     .gost-banner b { color: #38bdf8; }
     .gost-actions { display: flex; gap: 6px; margin-top: 8px; }
 
-    /* БРС и калькулятор */
     .score-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .score-subject { font-size: 14px; font-weight: 700; color: #fff; }
     .score-target { font-size: 11px; font-weight: 700; color: var(--text-dim); }
@@ -226,11 +204,9 @@
       color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.25); display: flex; justify-content: space-between; align-items: center;
     }
 
-    /* Преподаватели */
     .prof-dept { font-size: 12px; color: var(--accent); font-weight: 600; }
     .prof-loc { background: #0f131c; border-radius: 6px; padding: 8px; font-size: 12px; color: #cbd5e1; border-left: 3px solid var(--green); line-height: 1.4; margin-top: 4px; }
 
-    /* Модалки и формы */
     .form-box { background: #0f131c; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
     .form-box h4 { font-size: 13px; margin-bottom: 8px; color: var(--text); }
     .form-grid { display: flex; flex-direction: column; gap: 7px; }
@@ -243,13 +219,11 @@
     .card-actions-row { display: flex; align-items: center; gap: 10px; }
     .empty-note { text-align: center; color: var(--text-dim); padding: 25px 0; font-size: 13px; }
 
-    /* Бэкап и таймер */
     .backup-panel { display: flex; flex-direction: column; gap: 10px; }
     .backup-btn { background: var(--card); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
     .backup-btn.danger { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
     .timer-circle { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--red); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: var(--red); margin: 12px auto; }
 
-    /* Поиск и FAB */
     .hub-fab { position: fixed; right: 16px; bottom: 18px; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(59,130,246,.55); background: rgba(19,23,34,.94); color: #fff; box-shadow: 0 10px 28px rgba(0,0,0,.45); z-index: 220; cursor: pointer; font-size: 18px; backdrop-filter: blur(10px); }
     .hub-search-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(7px); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 72px 14px 20px; }
     .hub-search-overlay.open { display: flex; }
@@ -299,7 +273,7 @@
     <div class="dashboard">
       <div class="dash-top">
         <span id="clock">--:--</span>
-        <span class="status-badge" id="current-week-tag">1-я неделя</span>
+        <span class="status-badge" id="current-day-badge">ПН</span>
       </div>
       <div class="dash-title">
         <div class="indicator idle" id="live-indicator"></div>
@@ -307,7 +281,6 @@
       </div>
       <div class="dash-sub" id="live-desc">Синхронизация времени</div>
 
-      <!-- Горящие дедлайны 48ч -->
       <div class="urgent-banner" id="hub-urgent-box">
         <div class="urgent-banner-title">
           <span>🔥</span>
@@ -324,7 +297,7 @@
     </div>
 
     <div class="action-bar">
-      <button class="btn-action highlight admin-only" id="btn-open-parser">⚡ Парсер недели</button>
+      <button class="btn-action highlight admin-only" id="btn-open-parser">⚡ Парсер пар</button>
       <button class="btn-action" id="btn-cloud-sync">🔄 Обновить базу</button>
       <button class="btn-action" id="btn-copy-today">📋 В беседу</button>
       <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
@@ -334,19 +307,6 @@
       <button class="hub-mini-btn" id="hub-btn-today">📍 Сегодня</button>
       <button class="hub-mini-btn" id="hub-btn-search">🔎 Быстрый поиск</button>
       <button class="hub-mini-btn admin-only" id="hub-btn-undo">↩️ Отменить</button>
-    </div>
-
-    <div class="calendar-month-bar">
-      <div class="calendar-head">
-        <span>Сетка месяца:</span>
-        <span id="calendar-cur-indicator">Текущая: 1 неделя</span>
-      </div>
-      <div class="calendar-weeks-grid">
-        <button class="cal-week-btn active" data-w="1">1 Неделя</button>
-        <button class="cal-week-btn" data-w="2">2 Неделя</button>
-        <button class="cal-week-btn" data-w="3">3 Неделя</button>
-        <button class="cal-week-btn" data-w="4">4 Неделя</button>
-      </div>
     </div>
 
     <div class="tabs-row">
@@ -474,7 +434,6 @@
   <!-- ЭКРАН 7: НАСТРОЙКИ И ОБЛАКО -->
   <div id="view-settings" style="display: none;">
     <div class="backup-panel">
-
       <div class="form-box" style="border-style: solid; border-color: var(--accent);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>☁️ Облачное расписание группы</span>
@@ -544,7 +503,7 @@
       <div class="backup-btn danger director-only" id="btn-reset-data">
         <div>
           <div>⚠️ Заводской сброс базы 25А (Директор)</div>
-          <div style="font-size: 11px; color: #f87171; font-weight: normal;">Таймер 15 сек • Полный откат к чистой 3-й неделе</div>
+          <div style="font-size: 11px; color: #f87171; font-weight: normal;">Таймер 15 сек • Сброс к эталонному расписанию</div>
         </div>
         <span>🔄</span>
       </div>
@@ -568,7 +527,6 @@
     </div>
   </div>
 
-  <!-- Модалка редактирования пары со шпаргалкой ссылок -->
   <div class="modal-overlay" id="edit-pair-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;" id="modal-pair-title">Редактировать пару</h3>
@@ -592,21 +550,9 @@
             </select>
           </div>
         </div>
-        <div style="display: flex; gap: 6px;">
-          <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Неделя месяца</label>
-            <select class="form-select" id="edit-pair-week">
-              <option value="all">Все недели</option>
-              <option value="1">1-я неделя</option>
-              <option value="2">2-я неделя</option>
-              <option value="3">3-я неделя</option>
-              <option value="4">4-я неделя</option>
-            </select>
-          </div>
-          <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Преподаватель</label>
-            <input type="text" class="form-input" id="edit-pair-prof" placeholder="Фамилия И.О.">
-          </div>
+        <div>
+          <label style="font-size: 11px; color: var(--text-dim);">Преподаватель</label>
+          <input type="text" class="form-input" id="edit-pair-prof" placeholder="Фамилия И.О.">
         </div>
         <div>
           <label style="font-size: 11px; color: var(--text-dim);">Задание к паре</label>
@@ -781,28 +727,16 @@
 
   <div class="modal-overlay" id="parser-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Парсер недели (Группа 25А)</h3>
+      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Парсер пар (Группа 25А)</h3>
       <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
-        Вставьте сырое сообщение. Алгоритм структурирует пары по звонкам 1-7 и аудиториям.
+        Вставьте текст расписания с днями недели. Пары распределятся по дням ПН–СБ.
       </p>
       <div class="form-grid">
         <textarea class="form-input" id="parser-input" rows="7" placeholder="Понедельник&#10;1 пара Финансы с.2 Моторина Д.В. (211)"></textarea>
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-          <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Назначить на неделю:</label>
-            <select class="form-select" id="parser-week-target" style="padding: 5px 8px; font-size: 11px;">
-              <option value="3">3-я неделя (базовая)</option>
-              <option value="all">Все 4 недели</option>
-              <option value="1">1-я неделя</option>
-              <option value="2">2-я неделя</option>
-              <option value="4">4-я неделя</option>
-            </select>
-          </div>
-          <label style="font-size: 11px; color: #cbd5e1; display: flex; align-items: center; gap: 5px; cursor: pointer; margin-top: 14px;">
-            <input type="checkbox" id="parser-clear-old" checked style="accent-color: var(--accent);">
-            <span>Заменить</span>
-          </label>
-        </div>
+        <label style="font-size: 11px; color: #cbd5e1; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+          <input type="checkbox" id="parser-clear-old" checked style="accent-color: var(--accent);">
+          <span>Очистить старое расписание перед записью</span>
+        </label>
         <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить типовую неделю 25А</button>
         <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и записать</button>
         <button class="btn-action" id="btn-close-parser">Закрыть</button>
@@ -837,12 +771,10 @@
   <script>
     'use strict';
 
-    // Frame-busting защита: предотвращает запуск интерфейса внутри скрытых фреймов
     if (window.top !== window.self) {
       try { window.top.location = window.self.location; } catch (_) {}
     }
 
-    // Зашифрованный шлюз npoint
     const _DEF_ENDPOINT = [104,116,116,112,115,58,47,47,97,112,105,46,110,112,111,105,110,116,46,105,111,47,50,101,102,56,56,101,49,49,52,51,100,102,50,51,50,55,56,56,97,99]
       .map(c => String.fromCharCode(c)).join('');
 
@@ -902,15 +834,16 @@
       const list = [];
       for (let d = 1; d <= 6; d++) {
         for (let n = 1; n <= 7; n++) {
-          list.push({ id: d * 100 + n, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false });
+          list.push({ id: d * 100 + n, day: d, num: n, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", taskDone: false });
         }
       }
       return list;
     }
 
+    // Жестко зашитая сетка 25А без разделения на недели
     function createDefaultSchedule25A() {
       const grid = generateEmptyWeekGrid();
-      const filledWeek3 = {
+      const filled = {
         "1-1": { name: "Финансы, ден.обращ. и кредит", prof: "Моторина Д.В.", room: "211", type: "seminar", task: "Семинар №2", link: "", linkTitle: "" },
         "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "209", type: "lecture", task: "Конспект лекции №5", link: "", linkTitle: "" },
         "1-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1107", type: "lecture", task: "Конспект вводной темы (л.3)", link: "", linkTitle: "" },
@@ -927,11 +860,11 @@
         "5-2": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
         "5-3": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "1006", type: "seminar", task: "Семинар №2", link: "", linkTitle: "" },
         "5-4": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Лекция №3", link: "", linkTitle: "" },
-        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2", link: "", linkTitle: "" }
+        "5-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "seminar", task: "Лабораторная работа №2", link: "" }
       };
       return grid.map(item => {
         const key = `${item.day}-${item.num}`;
-        return filledWeek3[key] ? { ...item, ...filledWeek3[key], week: "3" } : item;
+        return filled[key] ? { ...item, ...filled[key] } : item;
       });
     }
 
@@ -953,25 +886,25 @@
       localStorage.setItem(key, JSON.stringify(val));
     }
 
-    let scheduleData = loadDB("HUB_SCHEDULE_25A_V14", createDefaultSchedule25A());
-    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V14", DEFAULT_REQUIREMENTS);
-    let deadlinesData = loadDB("HUB_DEADLINES_25A_V14", [
+    // Версия V15 сбрасывает старый багованный кэш
+    let scheduleData = loadDB("HUB_SCHEDULE_25A_V15", createDefaultSchedule25A());
+    let requirementsData = loadDB("HUB_REQUIREMENTS_25A_V15", DEFAULT_REQUIREMENTS);
+    let deadlinesData = loadDB("HUB_DEADLINES_25A_V15", [
       { id: 1, subject: "Менеджмент", type: "Реферат", date: "2026-09-28", topic: "Эволюция школ менеджмента и методы мотивации", reqs: "15-20 страниц, оригинальность от 65%", link: "", completed: false },
       { id: 2, subject: "Статистика", type: "Расчетная работа", date: "2026-10-12", topic: "Сводка и группировка статистических данных", reqs: "Вариант из методички, расчет медианы и моды", link: "", completed: false },
       { id: 3, subject: "ИТ в проф деятельности", type: "Лабораторная", date: "2026-09-22", topic: "Обработка массивов данных в электронных таблицах", reqs: "Сдача файла на проверку", link: "", completed: false }
     ]);
-    let lecturesData = loadDB("HUB_LECTURES_25A_V14", [
+    let lecturesData = loadDB("HUB_LECTURES_25A_V15", [
       { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов. Финансовая система", date: "14.09.2026", notes: "3 функции: распределительная, контрольная, стабилизирующая.", link: "" },
       { id: 2, subject: "Статистика", title: "Абсолютные и относительные величины", date: "15.09.2026", notes: "Темпы роста и прироста. Базисный и цепной методы.", link: "" }
     ]);
-    let teachersData = loadDB("HUB_TEACHERS_25A_V14", DEFAULT_TEACHERS);
-    let performanceData = loadDB("HUB_PERF_25A_V14", SUBJECTS_LIST.map((sub, idx) => ({ id: idx + 1, subject: sub, score: 0, absences: 0, maxAbsences: 4 })));
+    let teachersData = loadDB("HUB_TEACHERS_25A_V15", DEFAULT_TEACHERS);
+    let performanceData = loadDB("HUB_PERF_25A_V15", SUBJECTS_LIST.map((sub, idx) => ({ id: idx + 1, subject: sub, score: 0, absences: 0, maxAbsences: 4 })));
 
     let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || _DEF_ENDPOINT;
     let localDataTimestamp = Number(localStorage.getItem("HUB_LOCAL_TIMESTAMP")) || Date.now();
     let isSyncing = false;
 
-    // СИСТЕМА УСИЛЕННОЙ АВТОРИЗАЦИИ (PBKDF2-HMAC-SHA256, 180k итераций, salt)
     const AUTH_ITERATIONS = 180000;
     const AUTH_SESSION_TTL = 30 * 60 * 1000;
     const AUTH_MAX_FAILS = 5;
@@ -1029,12 +962,10 @@
       const existing = getAuthRecord(role);
       if (existing && existing.hash && existing.salt && existing.iterations) return existing;
 
-      // Проверка наличия старого V2 хеша
       const legacyHashKey = role === 'director' ? 'HUB_HASH_DIR_V2' : 'HUB_HASH_DEP_V2';
       const legacyHash = localStorage.getItem(legacyHashKey);
       if (legacyHash) return { version: 2, legacyHash };
 
-      // Защищенная инициализация по умолчанию
       const code = role === 'director'
         ? [1076,1080,1088,1077,1082,1090,1086,1088,50,53]
         : [1079,1072,1084,50,53];
@@ -1046,7 +977,6 @@
       return record;
     }
 
-    // Универсальный валидатор учетных записей (исправляет проблему совместимости V2/V3)
     async function verifyCredential(supplied, record) {
       if (!record || typeof supplied !== 'string') return false;
       if (record.legacyHash) {
@@ -1167,7 +1097,6 @@
         for (const [role, rec] of candidates) {
           const matched = await verifyCredential(supplied, rec);
           if (matched) {
-            // Мгновенная прозрачная миграция V2 в V3
             if (rec.legacyHash) {
               const salt = secureRandomHex(16);
               const migratedHash = await pbkdf2Hex(supplied, salt, AUTH_ITERATIONS);
@@ -1209,13 +1138,11 @@
       setTimeout(() => t.classList.remove('show'), 2400);
     }
 
-    // Защита целостности облака: расчет цифрового слепка структуры данных
     async function calculateIntegritySeal(source) {
-      const digestKey = [source.version || 14, (source.schedule || []).length, (source.requirements || []).length, "HUB_25A_SEAL"].join(":");
+      const digestKey = [15, (source.schedule || []).length, (source.requirements || []).length, "HUB_25A_SEAL"].join(":");
       return await sha256(digestKey);
     }
 
-    // УМНЫЙ ОБМЕН С NPOINT.IO С КОНТРОЛЕМ ВЕРСИЙ И ЦИФРОВЫМ СЛЕПКОМ
     async function syncToCloud() {
       if (!cloudApiUrl || !canEdit() || isSyncing) return;
       isSyncing = true;
@@ -1223,7 +1150,7 @@
       localStorage.setItem("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
 
       const payload = {
-        version: 14,
+        version: 15,
         timestamp: localDataTimestamp,
         schedule: scheduleData,
         requirements: requirementsData,
@@ -1270,7 +1197,6 @@
           const source = data.record || data;
           const remoteTime = Number(source.timestamp) || 0;
 
-          // Проверка целостности структуры облака
           if (source.seal) {
             const expectedSeal = await calculateIntegritySeal(source);
             if (!constantTimeEqual(source.seal, expectedSeal)) {
@@ -1295,11 +1221,11 @@
             teachersData = source.teachers || teachersData;
             localDataTimestamp = remoteTime || Date.now();
 
-            saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
-            saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
-            saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
-            saveDB("HUB_LECTURES_25A_V14", lecturesData);
-            saveDB("HUB_TEACHERS_25A_V14", teachersData);
+            saveDB("HUB_SCHEDULE_25A_V15", scheduleData);
+            saveDB("HUB_REQUIREMENTS_25A_V15", requirementsData);
+            saveDB("HUB_DEADLINES_25A_V15", deadlinesData);
+            saveDB("HUB_LECTURES_25A_V15", lecturesData);
+            saveDB("HUB_TEACHERS_25A_V15", teachersData);
             localStorage.setItem("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
 
             rerenderAll();
@@ -1315,7 +1241,6 @@
       }
     }
 
-    // ИСТОРИЯ ИЗМЕНЕНИЙ (UNDO)
     function pushUndoSnapshot() {
       try {
         const stack = JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A') || '[]');
@@ -1343,11 +1268,11 @@
       lecturesData = snap.lectures;
       teachersData = snap.teachers;
 
-      saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
-      saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
-      saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
-      saveDB("HUB_LECTURES_25A_V14", lecturesData);
-      saveDB("HUB_TEACHERS_25A_V14", teachersData);
+      saveDB("HUB_SCHEDULE_25A_V15", scheduleData);
+      saveDB("HUB_REQUIREMENTS_25A_V15", requirementsData);
+      saveDB("HUB_DEADLINES_25A_V15", deadlinesData);
+      saveDB("HUB_LECTURES_25A_V15", lecturesData);
+      saveDB("HUB_TEACHERS_25A_V15", teachersData);
       localStorage.setItem('HUB_UNDO_STACK_25A', JSON.stringify(stack));
 
       commitData(false);
@@ -1357,11 +1282,11 @@
 
     function commitData(saveHistory = true) {
       if (saveHistory) pushUndoSnapshot();
-      saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
-      saveDB("HUB_REQUIREMENTS_25A_V14", requirementsData);
-      saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
-      saveDB("HUB_LECTURES_25A_V14", lecturesData);
-      saveDB("HUB_TEACHERS_25A_V14", teachersData);
+      saveDB("HUB_SCHEDULE_25A_V15", scheduleData);
+      saveDB("HUB_REQUIREMENTS_25A_V15", requirementsData);
+      saveDB("HUB_DEADLINES_25A_V15", deadlinesData);
+      saveDB("HUB_LECTURES_25A_V15", lecturesData);
+      saveDB("HUB_TEACHERS_25A_V15", teachersData);
       syncToCloud();
       refreshHubStats();
       renderUrgentDeadlines();
@@ -1385,21 +1310,15 @@
       return !isNaN(num) ? `${Math.floor(num / 100)} этаж` : "Корпус уточняется";
     }
 
-    function getRealMonthWeek() {
-      return Math.min(4, Math.ceil(new Date().getDate() / 7));
-    }
-
-    let realMonthWeek = getRealMonthWeek();
-    let viewingMonthWeek = realMonthWeek;
-    let activeDay = new Date().getDay() || 1;
-    if (activeDay === 0) activeDay = 1;
+    // Инициализация активного дня
+    const initToday = new Date().getDay();
+    let activeDay = (initToday === 0) ? 1 : initToday;
 
     function timeToMins(t) {
       const [h, m] = t.split(":").map(Number);
       return h * 60 + m;
     }
 
-    // Горящие дедлайны на 48 часов
     function renderUrgentDeadlines() {
       const box = document.getElementById("hub-urgent-box");
       const listEl = document.getElementById("hub-urgent-list");
@@ -1442,21 +1361,20 @@
       });
     }
 
-    // Рендер расписания
     function renderSchedule() {
       const box = document.getElementById("schedule-list");
       box.innerHTML = "";
 
       const pairs = [];
       for (let num = 1; num <= 7; num++) {
-        let p = scheduleData.find(x => x.day === activeDay && x.num === num && (x.week === "all" || x.week === String(viewingMonthWeek)));
-        if (!p) p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false };
+        let p = scheduleData.find(x => x.day === activeDay && x.num === num);
+        if (!p) p = { id: activeDay * 100 + num, day: activeDay, num, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", taskDone: false };
         pairs.push(p);
       }
 
       const now = new Date();
       const currentMins = now.getHours() * 60 + now.getMinutes();
-      const isActuallyToday = activeDay === (now.getDay() || 7) && viewingMonthWeek === realMonthWeek;
+      const isActuallyToday = activeDay === (now.getDay() || 7);
 
       pairs.forEach(p => {
         const bell = BELLS.find(b => b.num === p.num) || { start: "--:--", end: "--:--" };
@@ -1528,7 +1446,6 @@
             <div class="pair-details">
               <div class="tag-line">
                 <span class="type-pill ${typeClass}">${typeText}</span>
-                ${p.week !== "all" ? `<span class="type-pill" style="background: rgba(139,92,246,0.2); color:#c4b5fd;">${p.week} нед.</span>` : ''}
                 ${canEdit() ? `<button class="edit-btn" onclick="openEditPairModal(${p.id})">✏️ изм.</button>` : ''}
               </div>
               <div class="lesson-title">${p.name}</div>
@@ -1549,7 +1466,7 @@
       const item = scheduleData.find(p => p.id === id);
       if (item) {
         item.taskDone = !item.taskDone;
-        saveDB("HUB_SCHEDULE_25A_V14", scheduleData);
+        saveDB("HUB_SCHEDULE_25A_V15", scheduleData);
         renderSchedule();
       }
     };
@@ -1558,7 +1475,7 @@
       if (!canEdit()) return;
       let p = scheduleData.find(x => x.id === id);
       if (!p) {
-        p = { id, day: Math.floor(id / 100), num: id % 100, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", week: "all", taskDone: false };
+        p = { id, day: Math.floor(id / 100), num: id % 100, name: "", prof: "", room: "", type: "lecture", task: "", link: "", linkTitle: "", taskDone: false };
         scheduleData.push(p);
       }
       document.getElementById("edit-pair-id").value = p.id;
@@ -1566,7 +1483,6 @@
       document.getElementById("edit-pair-name").value = p.name || "";
       document.getElementById("edit-pair-room").value = p.room || "";
       document.getElementById("edit-pair-type").value = p.type || "lecture";
-      document.getElementById("edit-pair-week").value = p.week || "all";
       document.getElementById("edit-pair-prof").value = p.prof || "";
       document.getElementById("edit-pair-task").value = p.task || "";
       document.getElementById("edit-pair-link-title").value = p.linkTitle || "";
@@ -1584,7 +1500,6 @@
         p.name = document.getElementById("edit-pair-name").value.trim();
         p.room = document.getElementById("edit-pair-room").value.trim();
         p.type = document.getElementById("edit-pair-type").value;
-        p.week = document.getElementById("edit-pair-week").value;
         p.prof = document.getElementById("edit-pair-prof").value.trim();
         p.task = document.getElementById("edit-pair-task").value.trim();
         p.linkTitle = document.getElementById("edit-pair-link-title").value.trim();
@@ -1611,7 +1526,6 @@
       }
     };
 
-    // Шаблоны ГОСТ и скачивание Word-файла
     document.getElementById("btn-copy-title-page").onclick = () => {
       const template = `МИНИСТЕРСТВО ОБРАЗОВАНИЯ, НАУКИ И МОЛОДЕЖИ
 КАФЕДРА ФИНАНСОВ, ДЕНЕЖНОГО ОБРАЩЕНИЯ И КРЕДИТА
@@ -1671,7 +1585,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       showToast("📄 Шаблон Word (.doc) сгенерирован!");
     };
 
-    // Требования
     function renderRequirements(q = "") {
       const box = document.getElementById("requirements-list");
       box.innerHTML = "";
@@ -1777,7 +1690,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       }
     };
 
-    // Дедлайны
     function renderDeadlines(q = "") {
       const box = document.getElementById("deadlines-list");
       box.innerHTML = "";
@@ -1830,7 +1742,7 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       const dl = deadlinesData.find(x => x.id === id);
       if (dl) {
         dl.completed = !dl.completed;
-        saveDB("HUB_DEADLINES_25A_V14", deadlinesData);
+        saveDB("HUB_DEADLINES_25A_V15", deadlinesData);
         renderDeadlines(document.getElementById("deadline-search").value);
         refreshHubStats();
         renderUrgentDeadlines();
@@ -1896,7 +1808,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       showToast("Дедлайн внесен");
     };
 
-    // БРС и динамический калькулятор прогноза
     function renderPerformance() {
       const box = document.getElementById("performance-list");
       box.innerHTML = "";
@@ -1956,7 +1867,7 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       const item = performanceData.find(x => x.id === id);
       if (item) {
         item.score = Math.max(0, Math.min(100, item.score + d));
-        saveDB("HUB_PERF_25A_V14", performanceData);
+        saveDB("HUB_PERF_25A_V15", performanceData);
         renderPerformance();
       }
     };
@@ -1966,12 +1877,11 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       if (item) {
         item.absences = Math.max(0, item.absences + d);
         if (item.absences >= item.maxAbsences) showToast(`Лимит пропусков по ${item.subject} исчерпан!`);
-        saveDB("HUB_PERF_25A_V14", performanceData);
+        saveDB("HUB_PERF_25A_V15", performanceData);
         renderPerformance();
       }
     };
 
-    // Лекции
     let activeLectureFilter = "Все";
     function renderLectureFilters() {
       const bar = document.getElementById("subject-filter-bar");
@@ -2090,7 +2000,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       }
     };
 
-    // Преподаватели
     function renderTeachers(q = "") {
       const box = document.getElementById("teachers-list");
       box.innerHTML = "";
@@ -2182,17 +2091,16 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       }
     };
 
-    // Парсер
     document.getElementById("btn-open-parser").onclick = () => { if (canEdit()) document.getElementById("parser-modal").classList.add("open"); };
     document.getElementById("btn-close-parser").onclick = () => document.getElementById("parser-modal").classList.remove("open");
 
     document.getElementById("btn-insert-sample").onclick = () => {
-      document.getElementById("parser-input").value = `14.09.26 Понедельник
+      document.getElementById("parser-input").value = `Понедельник
 1 пара Финансы, ден.обращ. и кредит с.2 Моторина Д.В. (211)
 2 пара Финансы, денежное обращение и кредит л.5 Моторина Д.В. (209)
 3 пара Экономика организаций л.3 Мазниченко В.Л. (1107)
 
-15.09.26 Вторник
+Вторник
 1 пара Статистика л.3 Фурин А.Д. (209)
 2 пара Основы финансовой грамотности л.3 Моисеенко Д.Д. (1002)
 3 пара Экономика организаций л.4 Мазниченко В.Л. (1107)
@@ -2204,7 +2112,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       const raw = document.getElementById("parser-input").value;
       if (!raw.trim()) { alert("Вставьте текст"); return; }
 
-      const targetWeek = document.getElementById("parser-week-target").value;
       const clearOld = document.getElementById("parser-clear-old").checked;
       let baseGrid = clearOld ? generateEmptyWeekGrid() : [...scheduleData];
       let currentDay = null;
@@ -2254,7 +2161,7 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
           if (name) {
             const targetId = currentDay * 100 + num;
             const idx = baseGrid.findIndex(x => x.id === targetId);
-            const entry = { id: targetId, day: currentDay, num, name, prof, room, type: ptype, task: "", link: "", linkTitle: "", week: targetWeek, taskDone: false };
+            const entry = { id: targetId, day: currentDay, num, name, prof, room, type: ptype, task: "", link: "", linkTitle: "", taskDone: false };
             if (idx !== -1) baseGrid[idx] = entry; else baseGrid.push(entry);
             parsed++;
           }
@@ -2270,24 +2177,23 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       showToast(`Импортировано пар: ${parsed}!`);
     };
 
-    // Буфер обмена и экспорт ICS
     document.getElementById("btn-copy-today").onclick = () => {
       const activePairs = scheduleData
-        .filter(p => p.day === activeDay && (p.week === "all" || p.week === String(viewingMonthWeek)) && p.name.trim().length > 0)
+        .filter(p => p.day === activeDay && p.name.trim().length > 0)
         .sort((a, b) => a.num - b.num);
 
       const dayName = DAYS_SHORT[activeDay];
       if (activePairs.length === 0) {
-        navigator.clipboard.writeText(`Расписание 25А на ${dayName} (${viewingMonthWeek}-я нед.): Пар нет! Свободный день 🎉`);
+        navigator.clipboard.writeText(`Расписание 25А на ${dayName}: Пар нет! Свободный день 🎉`);
         showToast("Скопировано: Пар нет!");
         return;
       }
 
-      let text = `📅 Расписание 25А на ${dayName} (${viewingMonthWeek}-я неделя):\n`;
+      let text = `📅 Расписание 25А на ${dayName}:\n`;
       activePairs.forEach(p => {
         const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
         text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${p.type === 'seminar' ? 'Сем' : 'Лек'}] каб. ${p.room} (${p.prof})\n`;
-        if (p.task && !p.taskDone) text += `   ⚠️ Задание: ${p.task}\n`;
+        if (p.task && !p.taskDone) text += `    ⚠️ Задание: ${p.task}\n`;
       });
       navigator.clipboard.writeText(text);
       showToast("Скопировано для беседы!");
@@ -2300,8 +2206,7 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         const target = new Date(now); target.setDate(now.getDate() + dayOffset);
         const dayIdx = target.getDay();
         if (dayIdx === 0) continue;
-        const weekNum = Math.min(4, Math.ceil(target.getDate() / 7));
-        const dayPairs = scheduleData.filter(p => p.day === dayIdx && (p.week === "all" || p.week === String(weekNum)) && p.name.trim().length > 0);
+        const dayPairs = scheduleData.filter(p => p.day === dayIdx && p.name.trim().length > 0);
 
         dayPairs.forEach(p => {
           const bell = BELLS.find(b => b.num === p.num);
@@ -2330,29 +2235,58 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       showToast("Календарь .ics сформирован!");
     };
 
-    // Живой статус
+    function getNextPairInfo() {
+      const now = new Date();
+      const curDay = now.getDay();
+      const curMins = now.getHours() * 60 + now.getMinutes();
+      const todayPairs = scheduleData
+        .filter(p => p.day === curDay && p.name.trim().length > 0)
+        .sort((a, b) => a.num - b.num);
+
+      if (curDay === 0 || todayPairs.length === 0) return "Нет пар";
+
+      for (let p of todayPairs) {
+        const bell = BELLS.find(b => b.num === p.num);
+        if (!bell) continue;
+        const bStart = timeToMins(bell.start);
+        const bEnd = timeToMins(bell.end);
+        if (curMins >= bStart && curMins <= bEnd) return `${p.num} пара (до ${bell.end})`;
+        if (curMins < bStart) return `${p.num} пара (${bell.start})`;
+      }
+      return "Завершены";
+    }
+
     function updateLiveStatus() {
       const now = new Date();
-      document.getElementById("clock").innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const curDay = now.getDay();
       const curMins = now.getHours() * 60 + now.getMinutes();
       const ind = document.getElementById("live-indicator");
       const title = document.getElementById("live-title");
       const desc = document.getElementById("live-desc");
-      document.getElementById("current-week-tag").innerText = `${viewingMonthWeek}-я неделя`;
+      
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById("clock").innerText = `${dateStr} • ${timeStr}`;
+      document.getElementById("current-day-badge").innerText = DAYS_SHORT[curDay] || "ПН";
 
       const todayPairs = scheduleData
-        .filter(p => p.day === curDay && (p.week === "all" || p.week === String(realMonthWeek)) && p.name.trim().length > 0)
+        .filter(p => p.day === curDay && p.name.trim().length > 0)
         .sort((a, b) => a.num - b.num);
 
       if (curDay === 0 || todayPairs.length === 0) {
-        ind.className = "indicator idle"; title.innerText = "Пар сегодня нет"; desc.innerText = "Свободный день"; return;
+        ind.className = "indicator idle";
+        title.innerText = "Пар сегодня нет";
+        desc.innerText = curDay === 0 ? "Воскресенье • Выходной" : "Свободный день";
+        return;
       }
 
       let active = null;
       for (let p of todayPairs) {
         const bell = BELLS.find(b => b.num === p.num);
-        if (bell && curMins >= timeToMins(bell.start) && curMins <= timeToMins(bell.end)) { active = { ...p, bell }; break; }
+        if (bell && curMins >= timeToMins(bell.start) && curMins <= timeToMins(bell.end)) { 
+          active = { ...p, bell }; 
+          break; 
+        }
       }
 
       if (active) {
@@ -2365,16 +2299,29 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       let next = null;
       for (let p of todayPairs) {
         const bell = BELLS.find(b => b.num === p.num);
-        if (bell && curMins < timeToMins(bell.start)) { next = { ...p, bell }; break; }
+        if (bell && curMins < timeToMins(bell.start)) { 
+          next = { ...p, bell }; 
+          break; 
+        }
       }
 
       if (next) {
         const diff = timeToMins(next.bell.start) - curMins;
         ind.className = "indicator break";
-        title.innerText = diff > 30 ? `Окно • След: ${next.num} пара` : `Перемена • След: каб. ${next.room}`;
-        desc.innerText = `${next.name} через ${diff} мин`;
+        if (next.num === todayPairs[0].num) {
+          title.innerText = diff > 45 ? `До 1-й пары: ${diff} мин` : `Скоро пара • каб. ${next.room}`;
+          desc.innerText = `${next.name} (${next.bell.start})`;
+        } else if (diff > 30) {
+          title.innerText = `Окно • След: ${next.num} пара`;
+          desc.innerText = `${next.name} через ${diff} мин (каб. ${next.room})`;
+        } else {
+          title.innerText = `Перемена • След: каб. ${next.room}`;
+          desc.innerText = `${next.name} через ${diff} мин`;
+        }
       } else {
-        ind.className = "indicator idle"; title.innerText = "Пары завершены"; desc.innerText = "Свободный вечер";
+        ind.className = "indicator idle";
+        title.innerText = "Пары завершены";
+        desc.innerText = "Свободный вечер";
       }
     }
 
@@ -2382,11 +2329,9 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       const tasksCount = deadlinesData.filter(x => !x.completed).length;
       document.getElementById("hub-stat-tasks").textContent = tasksCount;
       document.getElementById("hub-stat-teachers").textContent = teachersData.length;
-      const live = document.getElementById("live-title").textContent;
-      document.getElementById("hub-stat-next").textContent = (live && live !== "Определение...") ? live.replace(/^(Идет|Перемена • След:)\s*/i, '') : "—";
+      document.getElementById("hub-stat-next").textContent = getNextPairInfo();
     }
 
-    // Глобальный поиск
     const searchModal = document.getElementById("hub-search-modal");
     const searchInput = document.getElementById("hub-global-search-input");
     const searchResults = document.getElementById("hub-global-search-results");
@@ -2439,7 +2384,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       });
     }
 
-    // Смена ключей доступа (исправленный валидатор для V2/V3)
     document.getElementById("btn-change-pass").onclick = async () => {
       if (!canManageAdmin()) return;
       const target = document.getElementById("target-change-role").value;
@@ -2517,20 +2461,17 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       showToast("База полностью сброшена!");
     };
 
-    // Связывание событий и комплексная защита интерфейса
     function bindEvents() {
       ['click', 'keydown', 'pointerdown'].forEach(evt => {
         document.addEventListener(evt, () => touchSession(), { passive: true });
       });
 
-      // 1. Блокировка контекстного меню
       document.addEventListener('contextmenu', (e) => {
         if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
           e.preventDefault();
         }
       });
 
-      // 2. Блокировка перетаскивания и выделения
       document.addEventListener('dragstart', (e) => {
         if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) e.preventDefault();
       });
@@ -2538,7 +2479,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) e.preventDefault();
       });
 
-      // 3. Перехват события буфера обмена (защита от копирования)
       document.addEventListener('copy', (e) => {
         if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
           e.preventDefault();
@@ -2549,7 +2489,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         }
       });
 
-      // 4. Блокировка горячих клавиш копирования, печати и вызова консоли
       document.addEventListener('keydown', (e) => {
         const isInput = ['INPUT', 'TEXTAREA'].includes(e.target.tagName);
 
@@ -2569,7 +2508,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         }
       });
 
-      // Авторизация
       document.getElementById("btn-role-trigger").onclick = () => {
         document.getElementById("quick-pass-input").value = "";
         document.getElementById("auth-modal").classList.add("open");
@@ -2590,7 +2528,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         showToast("Сессия завершена: режим Абитуриента");
       };
 
-      // Облако
       document.getElementById("btn-save-cloud-config").onclick = () => {
         if (!canManageAdmin()) return;
         cloudApiUrl = document.getElementById("cloud-api-url").value.trim();
@@ -2602,9 +2539,8 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       document.getElementById("btn-test-cloud").onclick = () => fetchFromCloud(true);
       document.getElementById("btn-cloud-sync").onclick = () => fetchFromCloud(true);
 
-      // Экспорт и восстановление JSON
       document.getElementById("btn-export-json").onclick = () => {
-        const dump = { version: 14, timestamp: Date.now(), schedule: scheduleData, requirements: requirementsData, deadlines: deadlinesData, lectures: lecturesData, teachers: teachersData, performance: performanceData };
+        const dump = { version: 15, timestamp: Date.now(), schedule: scheduleData, requirements: requirementsData, deadlines: deadlinesData, lectures: lecturesData, teachers: teachersData, performance: performanceData };
         const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
         a.download = `backup_hub_25a_${new Date().toISOString().slice(0,10)}.json`;
@@ -2636,7 +2572,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         reader.readAsText(file);
       };
 
-      // Табы экранов
       document.querySelectorAll(".view-btn").forEach(btn => {
         btn.onclick = () => {
           document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
@@ -2649,27 +2584,11 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
         };
       });
 
-      // Недели месяца
-      const calBtns = document.querySelectorAll(".cal-week-btn");
-      document.getElementById("calendar-cur-indicator").innerText = `Текущая: ${realMonthWeek}-я неделя`;
-      calBtns.forEach(btn => {
-        const w = Number(btn.dataset.w);
-        if (w === realMonthWeek) btn.classList.add("current-month-week");
-        if (w === viewingMonthWeek) btn.classList.add("active");
-        btn.onclick = () => {
-          calBtns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          viewingMonthWeek = w;
-          updateLiveStatus();
-          renderSchedule();
-        };
-      });
-
-      // Дни недели
       const todayNum = new Date().getDay() || 7;
       document.querySelectorAll(".tab-btn").forEach(btn => {
         const d = Number(btn.dataset.d);
-        if (d === todayNum) btn.classList.add("today");
+        btn.classList.toggle("today", d === todayNum);
+        btn.classList.toggle("active", d === activeDay);
         btn.onclick = () => {
           document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
@@ -2677,24 +2596,21 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
           renderSchedule();
         };
       });
-      const startTab = document.querySelector(`.tab-btn[data-d="${activeDay}"]`);
-      if (startTab) startTab.classList.add("active");
 
-      // Фильтры поиска
       document.getElementById("req-search").oninput = (e) => renderRequirements(e.target.value);
       document.getElementById("lecture-search").oninput = (e) => renderLectures(e.target.value);
       document.getElementById("deadline-search").oninput = (e) => renderDeadlines(e.target.value);
       document.getElementById("prof-search").oninput = (e) => renderTeachers(e.target.value);
 
-      // Быстрые кнопки
       document.getElementById("hub-btn-today").onclick = () => {
-        const wBtn = document.querySelector(`.cal-week-btn[data-w="${realMonthWeek}"]`);
-        if (wBtn) wBtn.click();
         const d = new Date().getDay() || 7;
-        const dBtn = document.querySelector(`.tab-btn[data-d="${d}"]`) || document.querySelector('.tab-btn[data-d="1"]');
+        const targetD = d > 6 ? 1 : d;
+        const dBtn = document.querySelector(`.tab-btn[data-d="${targetD}"]`);
         if (dBtn) dBtn.click();
         const sBtn = document.querySelector('.view-btn[data-view="schedule"]');
         if (sBtn) sBtn.click();
+        updateLiveStatus();
+        renderSchedule();
       };
       document.getElementById("hub-btn-search").onclick = openGlobalSearch;
       document.getElementById("hub-fab-search").onclick = openGlobalSearch;
@@ -2703,7 +2619,6 @@ p { margin:0 0 6pt 0; text-indent:1.25cm; }
       searchModal.onclick = (e) => { if (e.target === searchModal) closeGlobalSearch(); };
       searchInput.oninput = () => runGlobalSearch(searchInput.value);
 
-      // Горячие клавиши навигации
       document.addEventListener("keydown", e => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openGlobalSearch(); }
         if (e.key === 'Escape') closeGlobalSearch();
