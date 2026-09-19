@@ -4045,6 +4045,1199 @@ ${raw.slice(0, 4500)}
         setInterval(() => fetchFromCloud(), 40000);
       }
 
+
+      // ============================================================
+      // ДОБАВОЧНЫЙ СЛОЙ СИНХРОНИЗАЦИИ МЕЖДУ ВСЕМИ УСТРОЙСТВАМИ
+      // Ничего из существующей базы/интерфейса не заменяет.
+      // ============================================================
+      (() => {
+        const HUB_SYNC_INTERVAL_MS = 8000;
+        const HUB_CLOUD_BOOTSTRAP_KEY = "HUB_CLOUD_BOOTSTRAPPED_V2";
+        const HUB_CLOUD_DIRTY_KEY = "HUB_CLOUD_DIRTY_V2";
+        const HUB_CLOUD_LAST_REMOTE_KEY = "HUB_CLOUD_LAST_REMOTE_V2";
+
+        const hubSyncSet = (key, value) => {
+          try { localStorage.setItem(key, String(value)); } catch (_) {}
+        };
+
+        const hubSyncGet = (key, fallback = "") => {
+          try {
+            const v = localStorage.getItem(key);
+            return v === null ? fallback : v;
+          } catch (_) {
+            return fallback;
+          }
+        };
+
+        const hubSyncHasPendingChanges = () => hubSyncGet(HUB_CLOUD_DIRTY_KEY, "0") === "1";
+
+        // В исходной версии новое устройство получает Date.now() и из-за этого
+        // может решить, что его локальная база "новее" облачной. Для первого
+        // облачного чтения это отключаем: облако является источником истины.
+        if (!localStorage.getItem("HUB_LOCAL_TIMESTAMP")) {
+          localDataTimestamp = 0;
+          try { localStorage.removeItem(HUB_CLOUD_BOOTSTRAP_KEY); } catch (_) {}
+        }
+
+        const hubOriginalCommitData = commitData;
+
+        // Любое существующее изменение данных помечаем как ожидающее отправки.
+        // Саму существующую функцию commitData не переписываем.
+        commitData = function(saveHistory = true, pushCloud = true) {
+          if (pushCloud) hubSyncSet(HUB_CLOUD_DIRTY_KEY, "1");
+          return hubOriginalCommitData(saveHistory, pushCloud);
+        };
+
+        // Усиленная отправка: те же данные, тот же шлюз, тот же формат.
+        syncToCloud = async function() {
+          if (!cloudApiUrl || !canEdit() || isSyncing) return;
+
+          isSyncing = true;
+          const writeTimestamp = Math.max(Date.now(), Number(localDataTimestamp) + 1);
+          localDataTimestamp = writeTimestamp;
+          hubSyncSet("HUB_LOCAL_TIMESTAMP", writeTimestamp);
+          hubSyncSet(HUB_CLOUD_DIRTY_KEY, "1");
+
+          const payload = {
+            version: 35,
+            appVersion: appVersion,
+            timestamp: writeTimestamp,
+            schedule: scheduleData,
+            requirements: requirementsData,
+            deadlines: deadlinesData,
+            lectures: lecturesData,
+            teachers: teachersData,
+            seminarStore: seminarStore
+          };
+
+          payload.seal = await calculateIntegritySeal(payload);
+
+          try {
+            const res = await fetch(cloudApiUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              body: JSON.stringify(payload),
+              cache: "no-store"
+            });
+
+            if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
+
+            hubSyncSet(HUB_CLOUD_DIRTY_KEY, "0");
+            hubSyncSet(HUB_CLOUD_BOOTSTRAP_KEY, "1");
+            hubSyncSet(HUB_CLOUD_LAST_REMOTE_KEY, writeTimestamp);
+
+            const ind = document.getElementById("cloud-status-indicator");
+            if (ind) {
+              ind.innerText = "🟢 Синхронизировано";
+              ind.style.color = "var(--green)";
+            }
+
+            showToast("☁️ База обновлена для всех устройств");
+          } catch (err) {
+            // Не сбрасываем DIRTY: повторная отправка произойдет при следующем
+            // изменении/обновлении после восстановления соединения.
+            const ind = document.getElementById("cloud-status-indicator");
+            if (ind) {
+              ind.innerText = "🟠 Не отправлено";
+              ind.style.color = "var(--orange)";
+            }
+            console.warn("Cloud write error:", err);
+          } finally {
+            isSyncing = false;
+          }
+        };
+
+        const applyHubRemoteData = (source, remoteTime, manual) => {
+          scheduleData = source.schedule;
+          requirementsData = source.requirements;
+          deadlinesData = source.deadlines || [];
+          lecturesData = source.lectures || [];
+          teachersData = source.teachers || [];
+          seminarStore = source.seminarStore || {};
+
+          if (source.appVersion) {
+            appVersion = source.appVersion;
+            localStorage.setItem("HUB_APP_VERSION", appVersion);
+          }
+
+          localDataTimestamp = remoteTime || Date.now();
+          hubSyncSet("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
+          hubSyncSet(HUB_CLOUD_BOOTSTRAPPED_KEY, "1");
+          hubSyncSet(HUB_CLOUD_DIRTY_KEY, "0");
+          hubSyncSet(HUB_CLOUD_LAST_REMOTE_KEY, localDataTimestamp);
+
+          commitData(false, false);
+          rerenderAll();
+
+          const ind = document.getElementById("cloud-status-indicator");
+          if (ind) {
+            ind.innerText = "🟢 На связи";
+            ind.style.color = "var(--green)";
+          }
+
+          if (manual) showToast("☁️ База синхронизирована");
+        };
+
+        // Усиленное чтение: новое устройство сразу получает общую базу.
+        fetchFromCloud = async function(manual = false) {
+          if (!cloudApiUrl || isSyncing) return;
+
+          try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 9000);
+
+            let res;
+            try {
+              res = await fetch(cloudApiUrl + "?hub_sync=" + Date.now(), {
+                cache: "no-store",
+                signal: controller.signal,
+                headers: { "Cache-Control": "no-cache" }
+              });
+            } finally {
+              clearTimeout(timeout);
+            }
+
+            if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
+
+            const data = await res.json();
+            const source = data.record || data;
+            const remoteTime = Number(source.timestamp) || 0;
+
+            if (!source || !source.schedule || !source.requirements || !remoteTime) {
+              const ind = document.getElementById("cloud-status-indicator");
+              if (ind) {
+                ind.innerText = "🟡 Облако пустое";
+                ind.style.color = "var(--orange)";
+              }
+              return;
+            }
+
+            if (source.seal) {
+              const expectedSeal = await calculateIntegritySeal(source);
+              if (!constantTimeEqual(source.seal, expectedSeal)) {
+                const ind = document.getElementById("cloud-status-indicator");
+                if (ind) {
+                  ind.innerText = "⚠️ Слепок поврежден";
+                  ind.style.color = "var(--orange)";
+                }
+                if (manual) showToast("Облачные данные повреждены!");
+                return;
+              }
+            }
+
+            const localStamp = Number(localDataTimestamp) || 0;
+            const bootstrapped = hubSyncGet(HUB_CLOUD_BOOTSTRAP_KEY, "0") === "1";
+            const dirty = hubSyncHasPendingChanges();
+
+            // Ручное "Обновить базу" и первое открытие нового устройства.
+            if (manual || !bootstrapped || localStamp === 0) {
+              if (dirty && bootstrapped && manual) {
+                showToast("⚠️ Есть неотправленные локальные изменения");
+                return;
+              }
+              applyHubRemoteData(source, remoteTime, manual);
+              return;
+            }
+
+            // Автообновление: забираем только действительно более свежую облачную версию.
+            if (remoteTime > localStamp) {
+              if (dirty) {
+                const ind = document.getElementById("cloud-status-indicator");
+                if (ind) {
+                  ind.innerText = "🟠 Есть локальные изменения";
+                  ind.style.color = "var(--orange)";
+                }
+                return;
+              }
+
+              applyHubRemoteData(source, remoteTime, false);
+              showToast("☁️ База обновилась с другого устройства");
+              return;
+            }
+
+            const ind = document.getElementById("cloud-status-indicator");
+            if (ind) {
+              ind.innerText = "🟢 Актуально";
+              ind.style.color = "var(--green)";
+            }
+          } catch (err) {
+            const ind = document.getElementById("cloud-status-indicator");
+            if (ind) {
+              ind.innerText = "🔴 Офлайн-режим";
+              ind.style.color = "var(--red)";
+            }
+            console.warn("Cloud read error:", err);
+          }
+        };
+
+        // Если страница была открыта до изменения другой стороной — проверяем облако
+        // каждые 8 секунд, а не только раз в 40 секунд.
+        setInterval(() => {
+          if (document.visibilityState === "visible") fetchFromCloud(false);
+        }, HUB_SYNC_INTERVAL_MS);
+
+        // Мгновенная проверка при возврате во вкладку/фокусе.
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") fetchFromCloud(false);
+        });
+
+        window.addEventListener("focus", () => fetchFromCloud(false));
+        window.addEventListener("pageshow", () => fetchFromCloud(false));
+
+        // После успешной обычной синхронизации дополнительно проверяем облако:
+        // это ускоряет появление общей базы на других устройствах.
+        setTimeout(() => fetchFromCloud(false), 1200);
+      })();
+
+
+      // ============================================================
+      // ДОПОЛНИТЕЛЬНЫЙ УРОВЕНЬ НАДЁЖНОСТИ СИНХРОНИЗАЦИИ V2
+      // Реализует:
+      // 1) мягкую защиту от перезаписи через GET + timestamp;
+      // 2) офлайн-очередь и автоповтор;
+      // 3) журнал действий;
+      // 4) BroadcastChannel для мгновенной синхронизации вкладок;
+      // 5) автоматические локальные снапшоты/бэкапы.
+      // Существующий интерфейс и база данных не переписываются.
+      // ============================================================
+      (() => {
+        const HUB_BASE_REMOTE_KEY = "HUB_CLOUD_BASE_TIMESTAMP_V3";
+        const HUB_OFFLINE_QUEUE_KEY = "HUB_OFFLINE_QUEUE_V3";
+        const HUB_AUDIT_LOG_KEY = "HUB_AUDIT_LOG_V3";
+        const HUB_AUTO_BACKUPS_KEY = "HUB_AUTO_BACKUPS_V3";
+        const HUB_SYNC_DEVICE_KEY = "HUB_SYNC_DEVICE_V3";
+        const HUB_TAB_CHANNEL = "HUB_25A_SYNC_V3";
+        const HUB_MAX_QUEUE = 10;
+        const HUB_MAX_AUDIT = 50;
+        const HUB_MAX_BACKUPS = 5;
+
+        let hubConflictPending = null;
+        let hubConflictIgnoredTimestamp = 0;
+        let hubLastCommittedState = null;
+        let hubSyncEnhancedBusy = false;
+        let hubFetchEnhancedBusy = false;
+
+        const hubDeviceId = (() => {
+          try {
+            const saved = localStorage.getItem(HUB_SYNC_DEVICE_KEY);
+            if (saved) return saved;
+            const id = "device_" + Math.random().toString(36).slice(2, 10) + "_" + Date.now().toString(36);
+            localStorage.setItem(HUB_SYNC_DEVICE_KEY, id);
+            return id;
+          } catch (_) {
+            return "device_unknown";
+          }
+        })();
+
+        let hubChannel = null;
+        try {
+          if ("BroadcastChannel" in window) {
+            hubChannel = new BroadcastChannel(HUB_TAB_CHANNEL);
+          }
+        } catch (_) {
+          hubChannel = null;
+        }
+
+        const hubJsonClone = value => {
+          try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
+        };
+
+        const hubReadJSON = (key, fallback) => {
+          try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+          } catch (_) {
+            return fallback;
+          }
+        };
+
+        const hubWriteJSON = (key, value) => {
+          try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+          } catch (_) {
+            return false;
+          }
+        };
+
+        const hubStateSnapshot = () => ({
+          version: 35,
+          appVersion,
+          schedule: hubJsonClone(scheduleData),
+          requirements: hubJsonClone(requirementsData),
+          deadlines: hubJsonClone(deadlinesData),
+          lectures: hubJsonClone(lecturesData),
+          teachers: hubJsonClone(teachersData),
+          seminarStore: hubJsonClone(seminarStore)
+        });
+
+        const hubRoleLabel = () => {
+          if (currentRole === "director") return "Директор";
+          if (currentRole === "deputy") return "Зам. директора";
+          return "Система";
+        };
+
+        const hubStampText = ts => {
+          try {
+            return new Date(Number(ts) || Date.now()).toLocaleString("ru-RU", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            });
+          } catch (_) {
+            return "";
+          }
+        };
+
+        const hubSetStatus = (text, tone = "dim") => {
+          const palette = {
+            green: "var(--green)",
+            orange: "var(--orange)",
+            red: "var(--red)",
+            accent: "var(--accent)",
+            dim: "var(--text-dim)"
+          };
+          const color = palette[tone] || palette.dim;
+
+          const ind = document.getElementById("cloud-status-indicator");
+          if (ind) {
+            ind.innerText = text;
+            ind.style.color = color;
+          }
+
+          const badge = document.getElementById("hub-sync-status");
+          if (badge) {
+            badge.innerText = text;
+            badge.style.color = color;
+          }
+        };
+
+        const hubEnsureSyncHeader = () => {
+          const actions = document.querySelector(".header-actions");
+          if (!actions || document.getElementById("hub-sync-status")) return;
+
+          const badge = document.createElement("span");
+          badge.id = "hub-sync-status";
+          badge.textContent = "☁️ Проверка";
+          badge.style.cssText = [
+            "background:rgba(255,255,255,.04)",
+            "border:1px solid var(--border)",
+            "color:var(--text-dim)",
+            "padding:3px 7px",
+            "border-radius:12px",
+            "font-size:9px",
+            "font-weight:800",
+            "white-space:nowrap"
+          ].join(";");
+
+          const version = actions.querySelector(".version-tag");
+          if (version && version.nextSibling) {
+            actions.insertBefore(badge, version.nextSibling);
+          } else {
+            actions.insertBefore(badge, actions.firstChild);
+          }
+        };
+
+        const hubInjectStyles = () => {
+          if (document.getElementById("hub-sync-v2-styles")) return;
+          const style = document.createElement("style");
+          style.id = "hub-sync-v2-styles";
+          style.textContent = `
+            .hub-conflict-banner {
+              position: fixed;
+              left: 10px;
+              right: 10px;
+              bottom: 78px;
+              z-index: 1200;
+              background: linear-gradient(145deg,#251b12,#17131a);
+              border: 1px solid var(--orange);
+              box-shadow: 0 16px 38px rgba(0,0,0,.62);
+              border-radius: 14px;
+              padding: 12px;
+            }
+            .hub-conflict-title { font-size: 13px; font-weight: 900; color: #fbbf24; }
+            .hub-conflict-text { font-size: 11px; line-height: 1.45; color: #cbd5e1; margin-top: 5px; }
+            .hub-conflict-actions { display:flex; gap:6px; margin-top:9px; }
+            .hub-sync-mini { margin-top: 6px; font-size: 10px; color: var(--text-dim); }
+            .hub-history-card, .hub-backup-card {
+              margin-top: 10px;
+              background: #0f131c;
+              border: 1px solid var(--border);
+              border-radius: 12px;
+              overflow: hidden;
+            }
+            .hub-history-head, .hub-backup-head {
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:8px;
+              padding:10px 12px;
+              cursor:pointer;
+            }
+            .hub-history-head h4, .hub-backup-head h4 { font-size:12px; }
+            .hub-history-list, .hub-backup-list { border-top:1px solid var(--border); display:none; max-height:290px; overflow:auto; }
+            .hub-history-card.open .hub-history-list,
+            .hub-backup-card.open .hub-backup-list { display:block; }
+            .hub-history-item, .hub-backup-item {
+              padding:9px 11px;
+              border-bottom:1px solid rgba(32,39,56,.8);
+            }
+            .hub-history-item:last-child, .hub-backup-item:last-child { border-bottom:none; }
+            .hub-history-meta, .hub-backup-meta {
+              font-size:9px;
+              color:var(--text-dim);
+              margin-bottom:3px;
+            }
+            .hub-history-action { font-size:11px; color:#e2e8f0; line-height:1.35; }
+            .hub-backup-row { display:flex; justify-content:space-between; gap:7px; align-items:center; }
+            .hub-backup-title { font-size:11px; color:#e2e8f0; font-weight:700; }
+            .hub-backup-button {
+              border:1px solid var(--border);
+              background:var(--card);
+              color:#cbd5e1;
+              border-radius:7px;
+              padding:5px 8px;
+              font-size:10px;
+              font-weight:800;
+              cursor:pointer;
+            }
+            .hub-backup-button:hover { border-color:var(--accent); color:#fff; }
+          `;
+          document.head.appendChild(style);
+        };
+
+        const hubRenderHistory = () => {
+          const list = document.getElementById("hub-history-list");
+          if (!list) return;
+          const history = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
+          if (!history.length) {
+            list.innerHTML = '<div class="empty-note">История пока пуста</div>';
+            return;
+          }
+
+          list.innerHTML = history.slice().reverse().map(item => `
+            <div class="hub-history-item">
+              <div class="hub-history-meta">${escapeHTML(item.actor || "Система")} • ${escapeHTML(hubStampText(item.timestamp))}</div>
+              <div class="hub-history-action">${escapeHTML(item.action || "Изменена база")}</div>
+            </div>
+          `).join("");
+        };
+
+        const hubEnsureAdminPanels = () => {
+          const settings = document.getElementById("view-settings");
+          if (!settings || document.getElementById("hub-history-card")) return;
+
+          const panel = document.createElement("div");
+          panel.className = "form-box admin-only";
+          panel.id = "hub-admin-tools-v2";
+          panel.innerHTML = `
+            <div id="hub-history-card" class="hub-history-card">
+              <div class="hub-history-head">
+                <h4>🕘 История правок</h4>
+                <span style="font-size:10px;color:var(--text-dim);">▾</span>
+              </div>
+              <div id="hub-history-list" class="hub-history-list"></div>
+            </div>
+
+            <div id="hub-backup-card" class="hub-backup-card">
+              <div class="hub-backup-head">
+                <h4>🛟 Автоматические снапшоты</h4>
+                <span id="hub-backup-count" style="font-size:10px;color:var(--text-dim);">0/5</span>
+              </div>
+              <div id="hub-backup-list" class="hub-backup-list"></div>
+            </div>
+          `;
+          settings.querySelector(".backup-panel")?.appendChild(panel);
+
+          const historyCard = panel.querySelector("#hub-history-card");
+          const backupCard = panel.querySelector("#hub-backup-card");
+
+          historyCard.querySelector(".hub-history-head").onclick = () => {
+            historyCard.classList.toggle("open");
+            hubRenderHistory();
+          };
+
+          backupCard.querySelector(".hub-backup-head").onclick = () => {
+            backupCard.classList.toggle("open");
+            hubRenderBackups();
+          };
+
+          hubRenderHistory();
+          hubRenderBackups();
+        };
+
+        const hubRenderBackups = () => {
+          const list = document.getElementById("hub-backup-list");
+          const count = document.getElementById("hub-backup-count");
+          if (!list || !count) return;
+
+          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
+          count.innerText = `${backups.length}/${HUB_MAX_BACKUPS}`;
+
+          if (!backups.length) {
+            list.innerHTML = '<div class="empty-note">Автобэкапов пока нет</div>';
+            return;
+          }
+
+          list.innerHTML = backups.slice().reverse().map((item, idx) => {
+            const realIndex = backups.length - 1 - idx;
+            return `
+              <div class="hub-backup-item">
+                <div class="hub-backup-row">
+                  <div>
+                    <div class="hub-backup-title">${escapeHTML(item.label || "Снимок базы")}</div>
+                    <div class="hub-backup-meta">${escapeHTML(hubStampText(item.timestamp))}</div>
+                  </div>
+                  <button class="hub-backup-button" data-backup-index="${realIndex}">Восстановить</button>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          list.querySelectorAll("[data-backup-index]").forEach(btn => {
+            btn.onclick = () => hubRestoreBackup(Number(btn.dataset.backupIndex));
+          });
+        };
+
+        const hubAddHistory = action => {
+          const history = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
+          history.push({
+            id: "audit_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8),
+            timestamp: Date.now(),
+            actor: hubRoleLabel(),
+            action: String(action || "Изменена база"),
+            device: hubDeviceId
+          });
+
+          while (history.length > HUB_MAX_AUDIT) history.shift();
+          hubWriteJSON(HUB_AUDIT_LOG_KEY, history);
+          hubRenderHistory();
+          return history;
+        };
+
+        const hubMergeAuditLogs = (remoteLog, localLog) => {
+          const map = new Map();
+          [...(remoteLog || []), ...(localLog || [])].forEach(item => {
+            if (!item || !item.id) return;
+            map.set(item.id, item);
+          });
+          return [...map.values()]
+            .sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0))
+            .slice(-HUB_MAX_AUDIT);
+        };
+
+        const hubDescribeChanges = (before, after) => {
+          if (!before || !after) return "Изменена база";
+
+          const parts = [];
+          const fieldNames = {
+            name: "название",
+            prof: "преподаватель",
+            room: "кабинет",
+            type: "тип",
+            task: "задание",
+            link: "ссылка",
+            linkTitle: "название ссылки"
+          };
+
+          const beforeSchedule = Array.isArray(before.schedule) ? before.schedule : [];
+          const afterSchedule = Array.isArray(after.schedule) ? after.schedule : [];
+          const beforeMap = new Map(beforeSchedule.map(x => [String(x.id), x]));
+          const afterMap = new Map(afterSchedule.map(x => [String(x.id), x]));
+
+          for (const [id, next] of afterMap.entries()) {
+            const prev = beforeMap.get(id);
+            if (!prev) {
+              parts.push(`Добавлена пара: ${next.name || "пустой слот"}`);
+            } else {
+              for (const key of Object.keys(fieldNames)) {
+                const a = prev[key] ?? "";
+                const b = next[key] ?? "";
+                if (String(a) !== String(b)) {
+                  const label = fieldNames[key];
+                  const extra = key === "room"
+                    ? `каб. ${a || "—"} → ${b || "—"}`
+                    : `${label}: ${a || "—"} → ${b || "—"}`;
+                  parts.push(`${next.name || "Пара"} — ${extra}`);
+                  break;
+                }
+              }
+            }
+            if (parts.length >= 3) break;
+          }
+
+          for (const keyInfo of [
+            ["requirements", "регламентов"],
+            ["deadlines", "заданий"],
+            ["lectures", "лекций"],
+            ["teachers", "преподавателей"]
+          ]) {
+            if (parts.length >= 3) break;
+            const beforeList = JSON.stringify(before[keyInfo[0]] || []);
+            const afterList = JSON.stringify(after[keyInfo[0]] || []);
+            if (beforeList !== afterList) {
+              parts.push(`Изменены ${keyInfo[1]}`);
+            }
+          }
+
+          if (JSON.stringify(before.seminarStore || {}) !== JSON.stringify(after.seminarStore || {})) {
+            parts.push("Изменены темы семинаров");
+          }
+
+          return parts.slice(0, 3).join(" • ") || "Изменена база";
+        };
+
+        const hubQueueLoad = () => hubReadJSON(HUB_OFFLINE_QUEUE_KEY, []);
+        const hubQueueSave = queue => {
+          const safe = Array.isArray(queue) ? queue.slice(-HUB_MAX_QUEUE) : [];
+          hubWriteJSON(HUB_OFFLINE_QUEUE_KEY, safe);
+        };
+
+        const hubQueuePush = baseState => {
+          const queue = hubQueueLoad();
+          queue.push({
+            timestamp: Date.now(),
+            baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
+            state: hubJsonClone(baseState)
+          });
+          hubQueueSave(queue);
+        };
+
+        const hubQueueClear = () => {
+          try { localStorage.removeItem(HUB_OFFLINE_QUEUE_KEY); } catch (_) {}
+        };
+
+        const hubCreateAutoBackup = (label = "Автоматический снимок") => {
+          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
+          backups.push({
+            id: "backup_" + Date.now().toString(36),
+            timestamp: Date.now(),
+            label,
+            actor: hubRoleLabel(),
+            state: hubStateSnapshot()
+          });
+
+          while (backups.length > HUB_MAX_BACKUPS) backups.shift();
+
+          // При переполнении localStorage уменьшаем число снимков до тех пор,
+          // пока запись не пройдёт. Самая новая копия сохраняется первой.
+          let current = backups;
+          while (current.length > 0 && !hubWriteJSON(HUB_AUTO_BACKUPS_KEY, current)) {
+            current = current.slice(1);
+          }
+          hubRenderBackups();
+        };
+
+        function hubRestoreBackup(index) {
+          if (!canManageAdmin()) {
+            showToast("🔒 Восстановление автобэкапа доступно только директору");
+            return;
+          }
+
+          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
+          const item = backups[index];
+          if (!item || !item.state) {
+            showToast("Автобэкап не найден");
+            return;
+          }
+
+          if (!confirm(`Восстановить снимок от ${hubStampText(item.timestamp)}? Текущая база перед этим сохранится в Undo.`)) {
+            return;
+          }
+
+          const state = item.state;
+          scheduleData = hubJsonClone(state.schedule || scheduleData);
+          requirementsData = hubJsonClone(state.requirements || requirementsData);
+          deadlinesData = hubJsonClone(state.deadlines || deadlinesData);
+          lecturesData = hubJsonClone(state.lectures || lecturesData);
+          teachersData = hubJsonClone(state.teachers || teachersData);
+          seminarStore = hubJsonClone(state.seminarStore || seminarStore);
+          if (state.appVersion) {
+            appVersion = state.appVersion;
+            localStorage.setItem("HUB_APP_VERSION", appVersion);
+            updateVersionUI();
+          }
+
+          hubConflictIgnoredTimestamp = 0;
+          commitData(true, true);
+          rerenderAll();
+          hubAddHistory(`Восстановлен автобэкап от ${hubStampText(item.timestamp)}`);
+          showToast("🛟 Снимок восстановлен и отправляется в облако");
+        }
+
+        const hubShowConflict = (source, remoteTime, manual = false) => {
+          if (!source || !remoteTime) return;
+          if (!manual && hubConflictIgnoredTimestamp === remoteTime) return;
+
+          hubConflictPending = { source: hubJsonClone(source), remoteTime };
+          let box = document.getElementById("hub-conflict-banner");
+
+          if (!box) {
+            box = document.createElement("div");
+            box.id = "hub-conflict-banner";
+            box.className = "hub-conflict-banner";
+            document.body.appendChild(box);
+          }
+
+          box.innerHTML = `
+            <div class="hub-conflict-title">⚠️ База изменилась на другом устройстве</div>
+            <div class="hub-conflict-text">
+              Облако: <b>${escapeHTML(hubStampText(remoteTime))}</b>.
+              Твои локальные изменения ещё не были записаны поверх этой версии.
+            </div>
+            <div class="hub-conflict-actions">
+              <button id="hub-conflict-accept" class="btn-submit" style="flex:1;">🔄 Обновить данные</button>
+              <button id="hub-conflict-dismiss" class="btn-action" style="flex:1;">Оставить мои изменения</button>
+            </div>
+          `;
+
+          box.querySelector("#hub-conflict-accept").onclick = () => {
+            const pending = hubConflictPending;
+            if (pending) hubApplyRemote(pending.source, pending.remoteTime, true);
+            hubConflictPending = null;
+            box.remove();
+          };
+
+          box.querySelector("#hub-conflict-dismiss").onclick = () => {
+            if (hubConflictPending) hubConflictIgnoredTimestamp = hubConflictPending.remoteTime;
+            hubConflictPending = null;
+            box.remove();
+            hubSetStatus("🟠 Ожидает решения", "orange");
+          };
+        };
+
+        const hubHideConflict = () => {
+          hubConflictPending = null;
+          const box = document.getElementById("hub-conflict-banner");
+          if (box) box.remove();
+        };
+
+        const hubApplyRemote = (source, remoteTime, manual = false) => {
+          if (!source || !source.schedule || !source.requirements) return;
+
+          scheduleData = hubJsonClone(source.schedule);
+          requirementsData = hubJsonClone(source.requirements);
+          deadlinesData = hubJsonClone(source.deadlines || []);
+          lecturesData = hubJsonClone(source.lectures || []);
+          teachersData = hubJsonClone(source.teachers || []);
+          seminarStore = hubJsonClone(source.seminarStore || {});
+
+          if (source.appVersion) {
+            appVersion = source.appVersion;
+            localStorage.setItem("HUB_APP_VERSION", appVersion);
+            updateVersionUI();
+          }
+
+          if (Array.isArray(source.auditLog)) {
+            hubWriteJSON(HUB_AUDIT_LOG_KEY, source.auditLog.slice(-HUB_MAX_AUDIT));
+          }
+
+          localDataTimestamp = Number(remoteTime) || Date.now();
+          localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(localDataTimestamp));
+          localStorage.setItem(HUB_BASE_REMOTE_KEY, String(localDataTimestamp));
+
+          try { localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1"); } catch (_) {}
+          try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0"); } catch (_) {}
+          try { localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(localDataTimestamp)); } catch (_) {}
+
+          hubQueueClear();
+          hubLastCommittedState = hubStateSnapshot();
+
+          commitData(false, false);
+          rerenderAll();
+          hubRenderHistory();
+          hubRenderBackups();
+          hubHideConflict();
+          hubConflictIgnoredTimestamp = 0;
+          hubSetStatus("🟢 Синхронизировано", "green");
+
+          if (manual) showToast("☁️ База синхронизирована");
+        };
+
+        const hubFetchRemote = async () => {
+          if (!cloudApiUrl) return null;
+
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 9000);
+
+          try {
+            const res = await fetch(cloudApiUrl + "?hub_sync_v3=" + Date.now(), {
+              cache: "no-store",
+              signal: controller.signal,
+              headers: { "Cache-Control": "no-cache" }
+            });
+
+            if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
+
+            const data = await res.json();
+            const source = data.record || data;
+            const remoteTime = Number(source && source.timestamp) || 0;
+
+            if (!source || !remoteTime || !source.schedule || !source.requirements) {
+              return { source: null, remoteTime: 0 };
+            }
+
+            if (source.seal) {
+              const expectedSeal = await calculateIntegritySeal(source);
+              if (!constantTimeEqual(source.seal, expectedSeal)) {
+                throw new Error("integrity");
+              }
+            }
+
+            return { source, remoteTime };
+          } finally {
+            clearTimeout(timeout);
+          }
+        };
+
+        const hubOfflineStatusFromError = () => {
+          hubSetStatus(navigator.onLine ? "🟠 Ожидает сети" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
+        };
+
+        // Сохраняем текущую версию базы как очередь, если изменение появилось
+        // без подтверждённой записи в облаке.
+        const hubMarkLocalPending = state => {
+          hubQueuePush(state);
+          try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "1"); } catch (_) {}
+          hubSetStatus(navigator.onLine ? "🟠 Ожидает отправки" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
+        };
+
+        // Перехватываем commitData после уже существующего слоя синхронизации.
+        const hubPreviousCommitDataV2 = commitData;
+        hubLastCommittedState = hubStateSnapshot();
+
+        commitData = function(saveHistory = true, pushCloud = true) {
+          const before = hubJsonClone(hubLastCommittedState || hubStateSnapshot());
+
+          // Только директор/зам. директора являются источниками общей базы.
+          // Личные действия студента (например, отметка задания) не попадают
+          // в общую очередь и не создают административный журнал.
+          if (pushCloud && canEdit()) {
+            hubConflictIgnoredTimestamp = 0;
+            localDataTimestamp = Math.max(Date.now(), Number(localDataTimestamp) + 1);
+            try { localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(localDataTimestamp)); } catch (_) {}
+
+            const after = hubStateSnapshot();
+            hubMarkLocalPending(after);
+
+            const action = saveHistory
+              ? hubDescribeChanges(before, after)
+              : "↩️ Отмена/восстановление изменения";
+
+            hubAddHistory(action);
+
+            if (hubChannel) {
+              try {
+                hubChannel.postMessage({
+                  type: "state",
+                  sender: hubDeviceId,
+                  timestamp: localDataTimestamp,
+                  baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
+                  actor: hubRoleLabel(),
+                  action,
+                  state: after
+                });
+              } catch (_) {}
+            }
+
+            // Локальный снапшот делается до попытки облачной записи.
+            hubCreateAutoBackup(saveHistory ? action : "Локальное восстановление");
+          }
+
+          const result = hubPreviousCommitDataV2(saveHistory, pushCloud);
+
+          // Первый слой старой совместимости мог поставить DIRTY даже для
+          // пользовательского действия без права редактирования. Возвращаем
+          // правильное состояние для таких локальных изменений.
+          if (pushCloud && !canEdit()) {
+            try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0"); } catch (_) {}
+          }
+
+          hubLastCommittedState = hubStateSnapshot();
+          return result;
+        };
+
+        // Защищённая запись: сначала читаем актуальную облачную версию,
+        // затем сравниваем её с базовой версией, от которой были сделаны правки.
+        syncToCloud = async function() {
+          if (!cloudApiUrl || !canEdit() || isSyncing || hubSyncEnhancedBusy) return false;
+          if (!navigator.onLine) {
+            hubSetStatus("🔴 Офлайн", "red");
+            return false;
+          }
+
+          hubSyncEnhancedBusy = true;
+          isSyncing = true;
+
+          try {
+            const remote = await hubFetchRemote();
+            const remoteSource = remote && remote.source;
+            const remoteTime = Number(remote && remote.remoteTime) || 0;
+            const baseRemoteTime = Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0;
+
+            // Если облако уже изменилось относительно той версии, на которой
+            // пользователь начал редактирование — не затираем изменения вслепую.
+            if (remoteTime > 0 && remoteTime !== baseRemoteTime) {
+              hubShowConflict(remoteSource, remoteTime, false);
+              hubSetStatus("⚠️ Конфликт", "orange");
+              return false;
+            }
+
+            const localState = hubStateSnapshot();
+            let auditLog = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
+            if (remoteSource && Array.isArray(remoteSource.auditLog)) {
+              auditLog = hubMergeAuditLogs(remoteSource.auditLog, auditLog);
+              hubWriteJSON(HUB_AUDIT_LOG_KEY, auditLog);
+              hubRenderHistory();
+            }
+
+            const writeTimestamp = Math.max(
+              Date.now(),
+              remoteTime + 1,
+              Number(localDataTimestamp) + 1
+            );
+
+            const payload = {
+              ...localState,
+              timestamp: writeTimestamp,
+              auditLog
+            };
+            payload.seal = await calculateIntegritySeal(payload);
+
+            const res = await fetch(cloudApiUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              body: JSON.stringify(payload),
+              cache: "no-store"
+            });
+
+            if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
+
+            localDataTimestamp = writeTimestamp;
+            try {
+              localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(writeTimestamp));
+              localStorage.setItem(HUB_BASE_REMOTE_KEY, String(writeTimestamp));
+              localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(writeTimestamp));
+              localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
+              localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1");
+            } catch (_) {}
+
+            hubQueueClear();
+            hubConflictIgnoredTimestamp = 0;
+            hubHideConflict();
+            hubCreateAutoBackup("☁️ Успешно сохранено в облако");
+            hubSetStatus("🟢 Сохранено", "green");
+            hubRenderHistory();
+
+            if (hubChannel) {
+              try {
+                hubChannel.postMessage({
+                  type: "cloud-commit",
+                  sender: hubDeviceId,
+                  timestamp: writeTimestamp,
+                  baseRemoteTimestamp: writeTimestamp,
+                  actor: hubRoleLabel(),
+                  action: "☁️ База сохранена в облако",
+                  state: hubJsonClone(localState),
+                  auditLog
+                });
+              } catch (_) {}
+            }
+
+            showToast("☁️ База сохранена для всех устройств");
+            return true;
+          } catch (err) {
+            if (err && err.message === "integrity") {
+              hubSetStatus("⚠️ Слепок поврежден", "orange");
+              showToast("Облачные данные не прошли проверку целостности");
+              return false;
+            }
+
+            hubOfflineStatusFromError();
+            return false;
+          } finally {
+            isSyncing = false;
+            hubSyncEnhancedBusy = false;
+          }
+        };
+
+        // Чтение облака теперь учитывает базовую удалённую версию и локальную очередь.
+        fetchFromCloud = async function(manual = false) {
+          if (!cloudApiUrl || hubSyncEnhancedBusy || hubFetchEnhancedBusy) return false;
+
+          hubFetchEnhancedBusy = true;
+          try {
+            const remote = await hubFetchRemote();
+            const source = remote && remote.source;
+            const remoteTime = Number(remote && remote.remoteTime) || 0;
+
+            if (!source || !remoteTime) {
+              hubSetStatus(navigator.onLine ? "🟡 Облако пустое" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
+              return false;
+            }
+
+            const baseRemoteTime = Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0;
+            const dirty = localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1";
+
+            if (dirty && remoteTime !== baseRemoteTime) {
+              hubShowConflict(source, remoteTime, manual);
+              hubSetStatus("⚠️ Конфликт", "orange");
+              return false;
+            }
+
+            if (!dirty && (manual || baseRemoteTime === 0 || remoteTime > baseRemoteTime)) {
+              hubApplyRemote(source, remoteTime, manual);
+              return true;
+            }
+
+            hubSetStatus("🟢 Актуально", "green");
+            return true;
+          } catch (err) {
+            hubOfflineStatusFromError();
+
+            if (manual && err && err.message === "integrity") {
+              showToast("Облачные данные повреждены или не прошли проверку");
+            }
+
+            return false;
+          } finally {
+            hubFetchEnhancedBusy = false;
+          }
+        };
+
+        // Мгновенная синхронизация между вкладками одного браузера.
+        if (hubChannel) {
+          hubChannel.onmessage = event => {
+            const msg = event && event.data;
+            if (!msg || msg.sender === hubDeviceId) return;
+            if (msg.type !== "state" && msg.type !== "cloud-commit") return;
+            if (!msg.state || !msg.timestamp) return;
+
+            const incomingTs = Number(msg.timestamp) || 0;
+            const localTs = Number(localDataTimestamp) || 0;
+            const dirty = localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1";
+
+            if (incomingTs <= localTs) return;
+
+            if (dirty && msg.type === "state") {
+              hubSetStatus("⚠️ Конфликт вкладок", "orange");
+              return;
+            }
+
+            try {
+              scheduleData = hubJsonClone(msg.state.schedule || scheduleData);
+              requirementsData = hubJsonClone(msg.state.requirements || requirementsData);
+              deadlinesData = hubJsonClone(msg.state.deadlines || deadlinesData);
+              lecturesData = hubJsonClone(msg.state.lectures || lecturesData);
+              teachersData = hubJsonClone(msg.state.teachers || teachersData);
+              seminarStore = hubJsonClone(msg.state.seminarStore || seminarStore);
+
+              if (msg.state.appVersion) {
+                appVersion = msg.state.appVersion;
+                localStorage.setItem("HUB_APP_VERSION", appVersion);
+                updateVersionUI();
+              }
+
+              if (Array.isArray(msg.auditLog)) {
+                hubWriteJSON(HUB_AUDIT_LOG_KEY, msg.auditLog.slice(-HUB_MAX_AUDIT));
+              }
+
+              localDataTimestamp = incomingTs;
+              localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(incomingTs));
+
+              if (msg.type === "cloud-commit") {
+                localStorage.setItem(HUB_BASE_REMOTE_KEY, String(Number(msg.baseRemoteTimestamp) || incomingTs));
+                localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
+                hubQueueClear();
+              }
+
+              hubLastCommittedState = hubStateSnapshot();
+              commitData(false, false);
+              rerenderAll();
+              hubRenderHistory();
+              hubSetStatus(msg.type === "cloud-commit" ? "🟢 Сохранено" : "🟢 Вкладка синхронизирована", "green");
+            } catch (err) {
+              console.warn("Broadcast sync error:", err);
+            }
+          };
+        }
+
+        // Состояние сети.
+        window.addEventListener("offline", () => {
+          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
+            hubSetStatus("🔴 Офлайн — изменения сохранены", "red");
+          } else {
+            hubSetStatus("🔴 Офлайн", "red");
+          }
+        });
+
+        window.addEventListener("online", async () => {
+          hubSetStatus("🟡 Сеть восстановлена", "orange");
+          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
+            await syncToCloud();
+          } else {
+            await fetchFromCloud(false);
+          }
+        });
+
+        // Автоповтор очереди + облачная проверка.
+        setInterval(() => {
+          if (document.visibilityState !== "visible") return;
+
+          if (!navigator.onLine) {
+            if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
+              hubSetStatus("🔴 Офлайн — изменения сохранены", "red");
+            }
+            return;
+          }
+
+          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
+            syncToCloud();
+          } else {
+            fetchFromCloud(false);
+          }
+        }, 8000);
+
+        // Предотвращаем потерю локальных изменений при закрытии/перезагрузке:
+        // актуальный снимок уже находится в localStorage/очереди.
+        window.addEventListener("beforeunload", () => {
+          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
+            const current = hubStateSnapshot();
+            hubWriteJSON(HUB_OFFLINE_QUEUE_KEY, [{
+              timestamp: Date.now(),
+              baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
+              state: current
+            }]);
+          }
+        });
+
+        // UI готов к моменту вызова init().
+        hubInjectStyles();
+        hubEnsureSyncHeader();
+        hubEnsureAdminPanels();
+        hubRenderHistory();
+        hubRenderBackups();
+
+        if (!localStorage.getItem(HUB_BASE_REMOTE_KEY)) {
+          try { localStorage.setItem(HUB_BASE_REMOTE_KEY, "0"); } catch (_) {}
+        }
+
+        // Одна стартовая проверка чуть позже отрисовки.
+        setTimeout(() => {
+          if (navigator.onLine) fetchFromCloud(false);
+          else hubSetStatus("🔴 Офлайн", "red");
+        }, 250);
+      })();
+
       init();
     })();
   </script>
