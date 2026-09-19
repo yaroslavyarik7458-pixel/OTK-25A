@@ -36,7 +36,7 @@
     .role-badge-btn.role-abiturient { color: #94a3b8; border-color: #334155; }
     .role-badge-btn.role-deputy { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .role-badge-btn.role-director { color: #4ade80; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
-    body.is-abiturient .admin-only, body.is-abiturient .edit-btn, body.is-abiturient .delete-btn, body.is-abiturient .admin-form, body.is-abiturient #btn-open-parser, body.is-abiturient #hub-btn-undo, body.is-abiturient .admin-select-zone { display: none !important; }
+    body.is-abiturient .admin-only:not(.allow-all), body.is-abiturient .delete-btn, body.is-abiturient #hub-btn-undo { display: none !important; }
     body:not(.is-director) .director-only { display: none !important; }
     .view-switcher { display: flex; gap: 3px; background: #0f131c; padding: 4px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; position: sticky; top: 6px; z-index: 100; backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none; }
     .view-switcher::-webkit-scrollbar { display: none; }
@@ -53,6 +53,7 @@
     .indicator.idle { background: var(--text-dim); box-shadow: none; }
     .dash-sub { font-size: 12px; color: var(--text-dim); }
     .student-badge-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); padding: 6px 10px; border-radius: 8px; margin-top: 10px; font-size: 11px; }
+    .btn-profile-edit { background: transparent; border: 1px solid var(--border); color: #93c5fd; padding: 3px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; }
     .urgent-banner { background: rgba(239, 68, 68, 0.12); border: 1px solid var(--red); border-radius: 10px; padding: 8px 10px; margin-top: 10px; display: none; flex-direction: column; gap: 5px; }
     .urgent-banner-title { font-size: 11px; font-weight: 800; color: #fca5a5; display: flex; align-items: center; gap: 5px; }
     .urgent-item-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; background: rgba(19, 23, 34, 0.6); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
@@ -200,7 +201,7 @@
     <button class="view-btn" data-view="requirements"><span>📋</span><span>Требования</span></button>
     <button class="view-btn" data-view="deadlines"><span>📌</span><span>Задания</span></button>
     <button class="view-btn" data-view="lectures"><span>📚</span><span>Лекции</span></button>
-    <button class="view-btn admin-only" data-view="ai-ingest"><span>🧠</span><span>ИИ-Синтез</span></button>
+    <button class="view-btn" data-view="ai-ingest"><span>🧠</span><span>ИИ-Синтез</span></button>
     <button class="view-btn" data-view="teachers"><span>🔍</span><span>Преподы</span></button>
     <button class="view-btn" data-view="settings"><span>⚙️</span><span>Облако</span></button>
   </div>
@@ -222,7 +223,7 @@
 
       <div class="student-badge-bar">
         <span>👤 Студент: <b id="hub-student-name-display" style="color: #93c5fd;">Не указан</b></span>
-        <button class="edit-btn" id="btn-change-student-id">Профиль ✏️</button>
+        <button class="btn-profile-edit" id="btn-change-student-id">Профиль ✏️</button>
       </div>
 
       <div class="my-topic-banner" id="hub-my-topic-box">
@@ -250,7 +251,7 @@
     </div>
 
     <div class="action-bar">
-      <button class="btn-action highlight admin-only" id="btn-open-parser">⚡ Импорт расписания</button>
+      <button class="btn-action highlight" id="btn-open-parser">⚡ Импорт расписания</button>
       <button class="btn-action" id="btn-cloud-sync">🔄 Обновить базу</button>
       <button class="btn-action" id="btn-copy-today">📋 В беседу</button>
       <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
@@ -284,7 +285,7 @@
       </div>
     </div>
 
-    <div class="form-box admin-form admin-only">
+    <div class="form-box admin-form">
       <h4>+ Добавить регламент кафедры</h4>
       <div class="form-grid">
         <input type="text" class="form-input" id="new-req-prof" placeholder="ФИО преподавателя">
@@ -310,7 +311,7 @@
 
   <!-- ЭКРАН 3: ДЕДЛАЙНЫ -->
   <div id="view-deadlines" style="display: none;">
-    <div class="form-box admin-form admin-only">
+    <div class="form-box admin-form">
       <h4>+ Добавить дедлайн</h4>
       <div class="form-grid">
         <select class="form-select" id="new-dl-subject"></select>
@@ -343,13 +344,13 @@
     </div>
     <div class="tabs-row" id="subject-filter-bar" style="overflow-x: auto;"></div>
 
-    <div class="form-box admin-form admin-only">
+    <div class="form-box admin-form">
       <h4>+ Записать лекцию / ссылку</h4>
       <div class="form-grid">
         <select class="form-select" id="new-lec-subject"></select>
         <input type="text" class="form-input" id="new-lec-title" placeholder="Тема лекции">
         <textarea class="form-input" id="new-lec-notes" placeholder="Тезисы, формулы или конспект..." rows="2"></textarea>
-        <input type="url" class="form-input" id="new-lec-link" placeholder="Ссылка на материалы (облачное хранилище)">
+        <input type="url" class="form-input" id="new-lec-link" placeholder="Ссылка на материалы">
         <button class="btn-submit" id="btn-add-lecture">Сохранить конспект</button>
       </div>
     </div>
@@ -357,22 +358,22 @@
     <div id="lectures-list"></div>
   </div>
 
-  <!-- ЭКРАН 5: ИИ-СИНТЕЗ (СТРОГО РУКОВОДСТВО) -->
+  <!-- ЭКРАН 5: ИИ-СИНТЕЗ -->
   <div id="view-ai-ingest" style="display: none;">
     <div class="gost-banner" style="background: linear-gradient(145deg, #18192a, #101221); border-color: rgba(139,92,246,0.4);">
-      🧠 <b>Интеллектуальный модификатор хаба:</b> загрузите расписание Excel (.xls / .xlsx), методичку или учебный документ. Система автоматически найдет столбец <b>25А</b>, распознает объединенные потоковые пары, сформирует дедлайны и обновит базу хаба.
+      🧠 <b>Интеллектуальный модификатор хаба:</b> загрузите расписание Excel (.xls / .xlsx), методичку или учебный документ. Система автоматически найдет столбец <b>25А</b>, сформирует дедлайны и обновит базу хаба.
     </div>
 
     <div class="form-box" style="border-color: var(--purple);">
       <label class="file-drop-zone" for="ingest-file-input" id="ingest-file-dropzone" style="padding: 18px 10px; margin-bottom: 8px;">
-        <div class="file-drop-title" style="font-size: 13px; color: #c4b5fd;">📂 Перетащите расписание Excel (.xls, .xlsx) или методичку (.docx, .txt)</div>
-        <div class="file-drop-sub" id="ingest-file-name-label">Автоматический фокус на группу 25А • Учет объединенных поточных ячеек</div>
+        <div class="file-drop-title" style="font-size: 13px; color: #c4b5fd;">📂 Выберите расписание Excel (.xls, .xlsx) или методичку (.docx, .txt)</div>
+        <div class="file-drop-sub" id="ingest-file-name-label">Автоматический фокус на группу 25А</div>
         <input type="file" id="ingest-file-input" accept=".xls,.xlsx,.txt,.doc,.docx,.rtf,.json" style="display: none;">
       </label>
 
       <div class="form-grid">
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Сценарий применения правок:</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Сценарий применения:</label>
           <select class="form-select" id="ingest-target-mode">
             <option value="auto_patch">⚡ Авто-модификация хаба (Сетка пар 25А, Дедлайны, Конспект)</option>
             <option value="auto_lecture">📚 Обновить или создать лекцию в базе</option>
@@ -382,18 +383,18 @@
         </div>
 
         <div id="ingest-seminar-pair-row" style="display: none;">
-          <label style="font-size: 11px; color: var(--text-dim);">Выберите пару семинара для наполнения темами:</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Выберите пару семинара:</label>
           <select class="form-select" id="ingest-target-pair"></select>
         </div>
 
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Параметры доработки (нормативные акты, формулы, акценты):</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Параметры доработки:</label>
           <input type="text" class="form-input" id="ingest-custom-prompt" placeholder="Например: акцент на статьи БК РФ, расчет ликвидности...">
         </div>
 
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Содержимое документа (текст или извлеченные пары 25А):</label>
-          <textarea class="form-input" id="ingest-raw-text" rows="7" placeholder="Здесь отобразится извлеченное расписание 25А или текст документа..."></textarea>
+          <label style="font-size: 11px; color: var(--text-dim);">Содержимое документа:</label>
+          <textarea class="form-input" id="ingest-raw-text" rows="7" placeholder="Здесь отобразится текст расписания 25А или документа..."></textarea>
         </div>
 
         <button class="btn-submit" id="btn-run-ingest" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 11px; font-weight: 800;">
@@ -415,7 +416,7 @@
       <div class="academic-paper-sheet" id="ingest-detected-body" style="max-height: 38vh; font-size: 13pt !important;"></div>
 
       <div style="display: flex; gap: 8px; margin-top: 4px;">
-        <button class="btn-submit admin-only" id="btn-commit-ingest" style="flex: 1; background: var(--green);">
+        <button class="btn-submit" id="btn-commit-ingest" style="flex: 1; background: var(--green);">
           💾 Применить правки в базу хаба
         </button>
         <button class="btn-action highlight" id="btn-download-ingest-doc" style="flex: 1;">
@@ -427,7 +428,7 @@
 
   <!-- ЭКРАН 6: ПРЕПОДАВАТЕЛИ -->
   <div id="view-teachers" style="display: none;">
-    <div class="form-box admin-form admin-only">
+    <div class="form-box admin-form">
       <h4>+ Добавить преподавателя в базу</h4>
       <div class="form-grid">
         <input type="text" class="form-input" id="new-prof-name" placeholder="ФИО преподавателя">
@@ -477,7 +478,7 @@
           <span id="settings-role-indicator" style="font-size: 11px; color: var(--accent);">Абитуриент</span>
         </h4>
         <div style="font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px;">
-          Для редактирования расписания, синтеза и управления темами введите код доступа.
+          Для закрепления расширенных прав управления введите служебный ключ.
         </div>
         <div class="form-grid">
           <input type="password" class="form-input" id="auth-pass-input" placeholder="Код авторизации администратора..." autocomplete="off">
@@ -541,9 +542,6 @@
   <div class="modal-overlay" id="auth-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 8px; color: #fff;">Вход в систему управления</h3>
-      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4;">
-        Введите служебный ключ редактора (Зам. директора / Директор).
-      </p>
       <div class="form-grid">
         <input type="password" class="form-input" id="quick-pass-input" placeholder="Код авторизации администратора..." autocomplete="off">
         <div style="display: flex; gap: 8px; margin-top: 6px;">
@@ -557,9 +555,6 @@
   <div class="modal-overlay" id="student-name-modal">
     <div class="modal-card">
       <h3 style="font-size: 15px; margin-bottom: 8px; color: #fff;">👤 Профиль студента группы 25А</h3>
-      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
-        Укажите ваши Фамилию и Имя для индивидуального закрепления вариантов докладов.
-      </p>
       <div class="form-grid">
         <input type="text" class="form-input" id="student-name-input" placeholder="Фамилия и Имя студента">
         <div style="display: flex; gap: 8px; margin-top: 6px;">
@@ -582,28 +577,28 @@
       </div>
 
       <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 7px 9px; margin-bottom: 8px; font-size: 11px; line-height: 1.4; color: #93c5fd;">
-        ⚡ <b>Регламент:</b> 1 студент выбирает строго 1 тему. Конспект фиксируется за студентом.
+        ⚡ <b>Регламент:</b> 1 студент выбирает строго 1 тему.
       </div>
 
-      <div class="admin-only ai-workshop-panel">
+      <div class="ai-workshop-panel">
         <div class="ai-workshop-title">
           <span>🤖 Генератор вариантов (до 30 тем)</span>
           <span id="sem-topics-counter-badge" style="font-size: 10px; color: var(--green); font-weight: 800;">0/30 тем</span>
         </div>
 
         <div style="display: flex; gap: 6px;">
-          <input type="text" class="form-input" id="sem-batch-theme" placeholder="Тематический блок (например: Бюджетный дефицит)..." style="flex: 2;">
+          <input type="text" class="form-input" id="sem-batch-theme" placeholder="Тематический блок..." style="flex: 2;">
           <input type="number" class="form-input" id="sem-batch-count" placeholder="Кол-во" min="1" max="30" value="10" style="flex: 0.8; text-align: center;">
         </div>
 
         <div style="display: flex; gap: 6px;">
           <select class="form-select" id="sem-target-volume" style="flex: 1.2;">
-            <option value="1_page">Объем: 1 лист (~270 слов)</option>
-            <option value="2_pages" selected>Объем: 2 листа (~540 слов)</option>
-            <option value="3_pages">Объем: 3 листа (~820 слов)</option>
-            <option value="5_pages">Объем: 4-5 листов (~1350 слов)</option>
+            <option value="1_page">1 лист (~270 слов)</option>
+            <option value="2_pages" selected>2 листа (~540 слов)</option>
+            <option value="3_pages">3 листа (~820 слов)</option>
+            <option value="5_pages">4-5 листов (~1350 слов)</option>
           </select>
-          <input type="text" class="form-input" id="sem-custom-focus" placeholder="Фокус (статьи БК/НК РФ, расчеты)..." style="flex: 1.8;">
+          <input type="text" class="form-input" id="sem-custom-focus" placeholder="Фокус (статьи БК/НК РФ)..." style="flex: 1.8;">
         </div>
 
         <div style="display: flex; gap: 6px;">
@@ -613,13 +608,13 @@
         </div>
 
         <label class="file-drop-zone" for="sem-file-input" id="sem-file-dropzone" style="padding: 6px 10px; margin-top: 2px;">
-          <div class="file-drop-title">📂 Загрузить файл методических указаний (.txt, .doc, .docx)</div>
-          <div class="file-drop-sub" id="sem-file-name-label">Автоматическое извлечение тем и параграфов из файла</div>
+          <div class="file-drop-title">📂 Загрузить файл указаний (.txt, .doc, .docx)</div>
+          <div class="file-drop-sub" id="sem-file-name-label">Автоматическое извлечение тем</div>
           <input type="file" id="sem-file-input" accept=".txt,.doc,.docx,.rtf,.json" style="display: none;">
         </label>
       </div>
 
-      <div class="admin-only batch-actions-bar" id="sem-selected-bar" style="display: none;">
+      <div class="batch-actions-bar" id="sem-selected-bar" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="font-size: 11px; font-weight: 800; color: #c4b5fd;">
             Выбрано вариантов: <b id="sem-selected-count">0</b>
@@ -630,14 +625,14 @@
           </div>
         </div>
         <div style="display: flex; gap: 6px;">
-          <input type="text" class="form-input" id="sem-ai-modify-prompt" placeholder="Инструкция для ИИ (например: нормативная база, формулы)..." style="font-size: 11px; padding: 6px 10px;">
+          <input type="text" class="form-input" id="sem-ai-modify-prompt" placeholder="Инструкция для ИИ..." style="font-size: 11px; padding: 6px 10px;">
           <button class="btn-action highlight" id="btn-ai-modify-selected" style="white-space: nowrap; padding: 6px 10px; font-size: 11px;">✨ Переписать</button>
           <button class="btn-action" id="btn-delete-selected" style="border-color: rgba(239,68,68,0.4); color: #fca5a5; padding: 6px 10px; font-size: 11px;">🗑️ Удалить</button>
         </div>
       </div>
 
       <div id="sem-ai-progress-box" style="display: none; background: rgba(59,130,246,0.15); border: 1px dashed var(--accent); padding: 8px; border-radius: 8px; font-size: 11px; color: #93c5fd; text-align: center; margin-bottom: 8px;">
-        ⏳ <span id="sem-ai-progress-text">Генерация уникальных академических материалов...</span>
+        ⏳ <span id="sem-ai-progress-text">Генерация академических материалов...</span>
       </div>
 
       <div id="seminar-topics-container" style="max-height: 48vh; overflow-y: auto; padding-right: 2px;"></div>
@@ -648,7 +643,7 @@
     <div class="modal-card" style="max-width: 530px;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
         <span class="topic-num" id="reader-topic-number">Тема №1</span>
-        <span class="topic-status-badge" id="reader-topic-status">Доступна для закрепления</span>
+        <span class="topic-status-badge" id="reader-topic-status">Доступна</span>
       </div>
 
       <div class="topic-metrics-bar">
@@ -671,12 +666,12 @@
       </div>
 
       <div id="reader-reserve-controls" style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
-        <button class="btn-submit" id="btn-confirm-reserve-topic" style="background: var(--green); padding: 11px;">✅ Закрепить тему за мной (1 выбор)</button>
+        <button class="btn-submit" id="btn-confirm-reserve-topic" style="background: var(--green); padding: 11px;">✅ Закрепить тему за мной</button>
         <button class="btn-action" id="btn-cancel-my-reservation" style="display: none; border-color: rgba(239,68,68,0.5); color: #fca5a5; padding: 10px; font-weight: 800;">❌ Отказаться от темы</button>
         
         <div style="display: flex; gap: 6px;">
-          <button class="btn-action highlight admin-only" id="btn-toggle-edit-topic" style="flex: 1; display: none;">✏️ Редактировать (Руководство)</button>
-          <button class="btn-submit" id="btn-save-topic-edits" style="flex: 1; display: none; background: var(--green);">💾 Сохранить изменения</button>
+          <button class="btn-action highlight" id="btn-toggle-edit-topic" style="flex: 1; display: none;">✏️ Редактировать</button>
+          <button class="btn-submit" id="btn-save-topic-edits" style="flex: 1; display: none; background: var(--green);">💾 Сохранить</button>
           <button class="btn-action" id="btn-cancel-edit-topic" style="display: none;">Отмена</button>
         </div>
 
@@ -711,7 +706,7 @@
       <div class="form-grid">
         <input type="hidden" id="edit-pair-id">
         <div>
-          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина (очистить для окна/пропуска)</label>
+          <label style="font-size: 11px; color: var(--text-dim);">Дисциплина (очистить для окна)</label>
           <input type="text" class="form-input" id="edit-pair-name">
         </div>
         <div style="display: flex; gap: 6px;">
@@ -739,7 +734,7 @@
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1;">
             <label style="font-size: 11px; color: var(--text-dim);">Название ссылки</label>
-            <input type="text" class="form-input" id="edit-pair-link-title" placeholder="Материалы курса">
+            <input type="text" class="form-input" id="edit-pair-link-title" placeholder="Материалы">
           </div>
           <div style="flex: 1.5;">
             <label style="font-size: 11px; color: var(--text-dim);">URL ссылки</label>
@@ -842,11 +837,7 @@
 
   <div class="modal-overlay" id="parser-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Автоматический импорт расписания</h3>
-      <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
-        Загрузите Excel-таблицу или вставьте текст расписания. Система выделит группу 25А.
-      </p>
-
+      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Импорт расписания</h3>
       <div class="form-grid">
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1;">
@@ -862,14 +853,14 @@
         </div>
 
         <label class="file-drop-zone" for="parser-file-input">
-          <div class="file-drop-title">📂 Загрузить файл расписания (.xls, .xlsx, .docx, .txt)</div>
-          <div class="file-drop-sub" id="parser-file-name-label">Автоматический разбор сетки колледжа</div>
+          <div class="file-drop-title">📂 Загрузить файл (.xls, .xlsx, .docx, .txt)</div>
+          <div class="file-drop-sub" id="parser-file-name-label">Авто-разбор сетки</div>
           <input type="file" id="parser-file-input" accept=".xls,.xlsx,.txt,.doc,.docx,.csv,.rtf" style="display: none;">
         </label>
 
-        <textarea class="form-input" id="parser-input" rows="6" placeholder="Текстовый формат расписания..."></textarea>
+        <textarea class="form-input" id="parser-input" rows="6" placeholder="Текст расписания..."></textarea>
         
-        <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Вставить типовой шаблон 25А</button>
+        <button class="btn-action" id="btn-insert-sample" style="border-style: dashed;">Шаблон 25А</button>
         <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px;">🚀 Распознать и применить</button>
         <button class="btn-action" id="btn-close-parser">Закрыть</button>
       </div>
@@ -879,11 +870,7 @@
   <div class="modal-overlay" id="reset-modal">
     <div class="modal-card" style="text-align: center;">
       <h3 style="font-size: 16px; color: var(--red); margin-bottom: 6px;">⚠️ Заводской сброс базы данных</h3>
-      <p style="font-size: 12px; color: var(--text-dim); line-height: 1.4;">
-        Откат сетки расписания и связанных записей к первоначальной конфигурации.
-      </p>
       <div class="timer-circle" id="reset-countdown">15</div>
-      <div style="font-size: 11px; color: #fca5a5; margin-bottom: 14px;">Защита от случайной инициализации.</div>
       <div style="display: flex; gap: 8px;">
         <button class="btn-action" style="flex: 1;" id="btn-cancel-reset">Отмена</button>
         <button class="btn-submit" style="flex: 1; background: var(--red); opacity: 0.4; cursor: not-allowed;" id="btn-confirm-reset" disabled>Блокировка (15)</button>
@@ -926,7 +913,7 @@
       }
 
       // ==========================================
-      // ИНТЕЛЛЕКТУАЛЬНЫЙ ПАРСИНГ УЧЕБНЫХ ДАННЫХ
+      // ПАРСИНГ УЧЕБНЫХ ДАННЫХ
       // ==========================================
       function parseLessonCellString(rawText) {
         let raw = String(rawText || '').replace(/\r?\n/g, ' ').trim();
@@ -1082,7 +1069,7 @@
 
         if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
           if (typeof XLSX === 'undefined') {
-            alert("Библиотека XLSX еще загружается. Повторите попытку через секунду.");
+            alert("Библиотека XLSX загружается. Повторите через секунду.");
             return "";
           }
           const data = await file.arrayBuffer();
@@ -1143,16 +1130,16 @@
       ];
 
       const DEFAULT_REQUIREMENTS = [
-        { id: 1, prof: "Инжиева Д. М.", subject: "Менеджмент", workType: "Реферат + Доклад", volume: "15-20 страниц", originality: "от 65%", deadlineRule: "До 28 сентября / защита на паре", criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут. Термины школ управления." },
+        { id: 1, prof: "Инжиева Д. М.", subject: "Менеджмент", workType: "Реферат + Доклад", volume: "15-20 страниц", originality: "от 65%", deadlineRule: "До 28 сентября / защита на паре", criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут." },
         { id: 2, prof: "Фурин А. Д.", subject: "Статистика", workType: "РГР", volume: "10-15 страниц", originality: "Индивидуальный расчет", deadlineRule: "Практики (каб. 806)", criticalPoints: "Строго свой вариант. Сводные таблицы, расчет медианы, моды и дисперсии." },
-        { id: 3, prof: "Моторина Д. В.", subject: "Финансы, денежное обращение и кредит", workType: "Семинарский опрос", volume: "Тетрадь конспектов", originality: "Термины БК/НК РФ", deadlineRule: "Каждый семинар (каб. 211)", criticalPoints: "Структура бюджетной системы РФ. Вопросы по статьям БК РФ и НК РФ." },
-        { id: 4, prof: "Мазниченко В. Л.", subject: "Экономика организаций", workType: "Типовой расчет", volume: "12-18 страниц", originality: "от 60%", deadlineRule: "Защита лично (каб. 1107)", criticalPoints: "Показатели основных средств, амортизация, себестоимость. Экономический смысл формул." },
-        { id: 5, prof: "Григор О. Г.", subject: "Профессиональная этика", workType: "Эссе", volume: "8-12 страниц", originality: "от 70%", deadlineRule: "До зачетной недели (каб. 802)", criticalPoints: "Кодексы корпоративной этики финансистов. Точные сноски на литературу." },
-        { id: 6, prof: "Бридель Т. В.", subject: "ИТ в проф деятельности", workType: "Практикум Excel", volume: "Файл .xlsx + отчет", originality: "100% формулы", deadlineRule: "Конец пары (каб. 606)", criticalPoints: "Расчеты через динамические формулы (ВПР, СУММЕСЛИ). Без констант в ячейках." },
-        { id: 7, prof: "Страхова И. В.", subject: "История России", workType: "Доклад + тест", volume: "10-15 страниц", originality: "от 65%", deadlineRule: "По графику тем (каб. 1003)", criticalPoints: "Хронология событий и реформ. Презентация: карты, даты и персоналии." },
-        { id: 8, prof: "Конкова А. М.", subject: "Ин. яз. в проф. деятельности", workType: "Unit-тесты", volume: "2500 знаков на юнит", originality: "Устный перевод", deadlineRule: "Еженедельно (каб. 201)", criticalPoints: "Проверка профессионального вокабуляра наизусть." },
-        { id: 9, prof: "Моисеенко Д. Д.", subject: "Основы финансовой грамотности", workType: "Финплан", volume: "7-10 страниц", originality: "от 60%", deadlineRule: "Семинары (каб. 1102)", criticalPoints: "Личный финансовый план и оптимизация налоговых вычетов." },
-        { id: 10, prof: "Войнов С. В.", subject: "Безопасность жизнедеятельности", workType: "Реферат по ЧС", volume: "12-15 страниц", originality: "от 55%", deadlineRule: "Консультации кафедры", criticalPoints: "Первая доврачебная помощь, классификация техногенных катастроф." }
+        { id: 3, prof: "Моторина Д. В.", subject: "Финансы, денежное обращение и кредит", workType: "Семинарский опрос", volume: "Тетрадь конспектов", originality: "Термины БК/НК РФ", deadlineRule: "Каждый семинар (каб. 211)", criticalPoints: "Структура бюджетной системы РФ. Статьи БК РФ и НК РФ." },
+        { id: 4, prof: "Мазниченко В. Л.", subject: "Экономика организаций", workType: "Типовой расчет", volume: "12-18 страниц", originality: "от 60%", deadlineRule: "Защита лично (каб. 1107)", criticalPoints: "Показатели основных средств, амортизация, себестоимость." },
+        { id: 5, prof: "Григор О. Г.", subject: "Профессиональная этика", workType: "Эссе", volume: "8-12 страниц", originality: "от 70%", deadlineRule: "До зачетной недели (каб. 802)", criticalPoints: "Кодексы корпоративной этики финансистов." },
+        { id: 6, prof: "Бридель Т. В.", subject: "ИТ в проф деятельности", workType: "Практикум Excel", volume: "Файл .xlsx + отчет", originality: "100% формулы", deadlineRule: "Конец пары (каб. 606)", criticalPoints: "Динамические формулы (ВПР, СУММЕСЛИ)." },
+        { id: 7, prof: "Страхова И. В.", subject: "История России", workType: "Доклад + тест", volume: "10-15 страниц", originality: "от 65%", deadlineRule: "По графику тем (каб. 1003)", criticalPoints: "Хронология событий и реформ. Карты, даты и персоналии." },
+        { id: 8, prof: "Конкова А. М.", subject: "Ин. яз. в проф. деятельности", workType: "Unit-тесты", volume: "2500 знаков на юнит", originality: "Устный перевод", deadlineRule: "Еженедельно (каб. 201)", criticalPoints: "Профессиональный вокабуляр." },
+        { id: 9, prof: "Моисеенко Д. Д.", subject: "Основы финансовой грамотности", workType: "Финплан", volume: "7-10 страниц", originality: "от 60%", deadlineRule: "Семинары (каб. 1102)", criticalPoints: "Личный финансовый план и налоговые вычеты." },
+        { id: 10, prof: "Войнов С. В.", subject: "Безопасность жизнедеятельности", workType: "Реферат по ЧС", volume: "12-15 страниц", originality: "от 55%", deadlineRule: "Консультации кафедры", criticalPoints: "Первая доврачебная помощь." }
       ];
 
       const DEFAULT_TEACHERS = [
@@ -1249,11 +1236,11 @@
 
       let geminiApiToken = localStorage.getItem("HUB_GEMINI_API_KEY") || "";
       let cloudApiUrl = localStorage.getItem("HUB_CLOUD_URL") || _DEF_ENDPOINT;
-      let localDataTimestamp = Number(localStorage.getItem("HUB_LOCAL_TIMESTAMP")) || Date.now();
+      let localDataTimestamp = Number(localStorage.getItem("HUB_LOCAL_TIMESTAMP")) || 0;
       let isSyncing = false;
 
       // ==========================================
-      // КРИПТОГРАФИЧЕСКАЯ ЗАЩИТА СЕССИЙ (V4)
+      // АВТОРИЗАЦИЯ И СЕССИИ (V4)
       // ==========================================
       const AUTH_ITERATIONS = 180000;
       const AUTH_SESSION_TTL = 30 * 60 * 1000;
@@ -1386,7 +1373,7 @@
       }
 
       function canEdit() {
-        return !!sessionState && (currentRole === 'director' || currentRole === 'deputy') && Date.now() <= sessionState.expiresAt;
+        return true; // Разрешаем всем устройствам вносить правки в общую сеть
       }
 
       function canManageAdmin() {
@@ -1422,26 +1409,10 @@
           document.body.classList.add('is-deputy'); btn.classList.add('role-deputy'); icon.innerText = '👔'; text.innerText = 'Зам. директора';
           setInd.innerText = 'Зам. директора (Редактор)'; setInd.style.color = 'var(--orange)';
         } else {
-          document.body.classList.add('is-abiturient'); btn.classList.add('role-abiturient'); icon.innerText = '👀'; text.innerText = 'Абитуриент';
-          setInd.innerText = 'Абитуриент (Режим чтения)'; setInd.style.color = 'var(--text-dim)';
-          const activeViewBtn = document.querySelector('.view-btn.active');
-          if (activeViewBtn && activeViewBtn.dataset.view === 'ai-ingest') {
-            const schedBtn = document.querySelector('.view-btn[data-view="schedule"]');
-            if (schedBtn) schedBtn.click();
-          }
+          document.body.classList.add('is-abiturient'); btn.classList.add('role-abiturient'); icon.innerText = '👀'; text.innerText = 'Студент';
+          setInd.innerText = 'Студент'; setInd.style.color = 'var(--text-dim)';
         }
       }
-
-      const domGuard = new MutationObserver(() => {
-        const authorized = canEdit();
-        if (!authorized) {
-          if (document.body.classList.contains('is-director') || document.body.classList.contains('is-deputy')) {
-            document.body.classList.remove('is-director', 'is-deputy');
-            document.body.classList.add('is-abiturient');
-          }
-        }
-      });
-      domGuard.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
       async function processLogin(pass) {
         if (authBusy) return false;
@@ -1451,7 +1422,7 @@
         const guard = readAuthGuard();
         if (Date.now() < Number(guard.lockedUntil || 0)) {
           const sec = Math.ceil((guard.lockedUntil - Date.now()) / 1000);
-          showToast(`Блокировка: подождите ${sec} сек.`);
+          showToast(`Блокировка: ${sec} сек.`);
           return false;
         }
 
@@ -1503,7 +1474,7 @@
       }
 
       async function calculateIntegritySeal(source) {
-        const content = JSON.stringify({
+        const signed = {
           v: source.appVersion || '',
           s: source.schedule || [],
           r: source.requirements || [],
@@ -1511,110 +1482,291 @@
           l: source.lectures || [],
           t: source.teachers || [],
           sem: source.seminarStore || {}
-        });
-        return await sha256(content);
+        };
+        if (Object.prototype.hasOwnProperty.call(source, 'auditLog')) {
+          signed.auditLog = Array.isArray(source.auditLog) ? source.auditLog : [];
+        }
+        return await sha256(JSON.stringify(signed));
+      }
+
+      // ============================================================
+      // ЕДИНАЯ ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ (V4)
+      // ============================================================
+      const HUB_SYNC = {
+        BASE_KEY: "HUB_CLOUD_BASE_TIMESTAMP_V4",
+        DIRTY_KEY: "HUB_CLOUD_DIRTY_V4",
+        AUDIT_KEY: "HUB_AUDIT_LOG_V4",
+        BACKUPS_KEY: "HUB_AUTO_BACKUPS_V4",
+        DEVICE_KEY: "HUB_SYNC_DEVICE_V4",
+        POLL_MS: 5000,
+        FETCH_TIMEOUT_MS: 5500,
+        MAX_AUDIT: 50,
+        MAX_BACKUPS: 5,
+        CHANNEL_NAME: "HUB_25A_SYNC_V4"
+      };
+
+      let hubSyncBusy = false;
+      let hubFetchBusy = false;
+      let hubLastCommittedState = null;
+      let hubChannel = null;
+
+      function hubReadJSON(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (_) { return fallback; }
+      }
+
+      function hubWriteJSON(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+          return true;
+        } catch (_) { return false; }
+      }
+
+      function hubClone(value) {
+        try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
+      }
+
+      function hubStateSnapshot() {
+        return {
+          version: 35,
+          appVersion,
+          schedule: hubClone(scheduleData),
+          requirements: hubClone(requirementsData),
+          deadlines: hubClone(deadlinesData),
+          lectures: hubClone(lecturesData),
+          teachers: hubClone(teachersData),
+          seminarStore: hubClone(seminarStore)
+        };
+      }
+
+      function hubActor() {
+        if (currentRole === 'director') return 'Директор';
+        if (currentRole === 'deputy') return 'Зам. директора';
+        return currentStudentName || 'Студент';
+      }
+
+      function hubNowText(ts) {
+        try {
+          return new Date(Number(ts) || Date.now()).toLocaleString('ru-RU', {
+            day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'
+          });
+        } catch (_) { return ''; }
+      }
+
+      const hubDeviceId = (() => {
+        try {
+          const existing = localStorage.getItem(HUB_SYNC.DEVICE_KEY);
+          if (existing) return existing;
+          const id = 'device_' + Math.random().toString(36).slice(2,10) + '_' + Date.now().toString(36);
+          localStorage.setItem(HUB_SYNC.DEVICE_KEY, id);
+          return id;
+        } catch (_) { return 'device_unknown'; }
+      })();
+
+      function hubStatus(text, tone='dim') {
+        const colors = { green:'var(--green)', orange:'var(--orange)', red:'var(--red)', dim:'var(--text-dim)' };
+        const color = colors[tone] || colors.dim;
+        const a = document.getElementById('cloud-status-indicator');
+        if (a) { a.innerText = text; a.style.color = color; }
+        const b = document.getElementById('hub-sync-status');
+        if (b) { b.innerText = text; b.style.color = color; }
+      }
+
+      function hubEnsureStatusUI() {
+        if (!document.getElementById('hub-sync-status')) {
+          const actions = document.querySelector('.header-actions');
+          if (actions) {
+            const el = document.createElement('span');
+            el.id = 'hub-sync-status';
+            el.textContent = '☁️ В сети';
+            el.style.cssText = 'background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-dim);padding:3px 7px;border-radius:12px;font-size:9px;font-weight:800;white-space:nowrap;';
+            const version = actions.querySelector('.version-tag');
+            if (version && version.nextSibling) actions.insertBefore(el, version.nextSibling);
+            else actions.appendChild(el);
+          }
+        }
+      }
+
+      function hubAuditAdd(action) {
+        const list = hubReadJSON(HUB_SYNC.AUDIT_KEY, []);
+        list.push({ id:'a_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7), timestamp:Date.now(), actor:hubActor(), action:String(action), device:hubDeviceId });
+        hubWriteJSON(HUB_SYNC.AUDIT_KEY, list.slice(-HUB_SYNC.MAX_AUDIT));
+        return hubReadJSON(HUB_SYNC.AUDIT_KEY, []);
+      }
+
+      function hubMergeAudit(remote, local) {
+        const map = new Map();
+        [...(remote || []), ...(local || [])].forEach(item => { if (item && item.id) map.set(item.id, item); });
+        return [...map.values()].sort((x,y)=>Number(x.timestamp||0)-Number(y.timestamp||0)).slice(-HUB_SYNC.MAX_AUDIT);
+      }
+
+      function hubApplyRemote(source, remoteTime, manual=false) {
+        if (!source || !source.schedule || !source.requirements) return;
+        scheduleData = hubClone(source.schedule);
+        requirementsData = hubClone(source.requirements);
+        deadlinesData = hubClone(source.deadlines || []);
+        lecturesData = hubClone(source.lectures || []);
+        teachersData = hubClone(source.teachers || []);
+        seminarStore = hubClone(source.seminarStore || {});
+        if (source.appVersion) { appVersion = source.appVersion; localStorage.setItem('HUB_APP_VERSION', appVersion); updateVersionUI(); }
+        if (Array.isArray(source.auditLog)) hubWriteJSON(HUB_SYNC.AUDIT_KEY, source.auditLog.slice(-HUB_SYNC.MAX_AUDIT));
+        
+        const ts = Number(remoteTime) || Date.now();
+        localDataTimestamp = ts;
+        localStorage.setItem('HUB_LOCAL_TIMESTAMP', String(ts));
+        localStorage.setItem(HUB_SYNC.BASE_KEY, String(ts));
+        localStorage.setItem(HUB_SYNC.DIRTY_KEY, '0');
+        hubLastCommittedState = hubStateSnapshot();
+        
+        saveDB("HUB_25A_SCHEDULE_STABLE", scheduleData);
+        saveDB("HUB_25A_REQS_STABLE", requirementsData);
+        saveDB("HUB_25A_DEADLINES_STABLE", deadlinesData);
+        saveDB("HUB_25A_LECTURES_STABLE", lecturesData);
+        saveDB("HUB_25A_TEACHERS_STABLE", teachersData);
+        saveDB("HUB_25A_SEMINARS_STABLE", seminarStore);
+
+        rerenderAll();
+        hubStatus(`🟢 Синхронизировано • ${hubNowText(ts)}`, 'green');
+        if (manual) showToast('☁️ База обновлена из облака');
+      }
+
+      function hubFetchRemote() {
+        if (!cloudApiUrl) return Promise.resolve(null);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), HUB_SYNC.FETCH_TIMEOUT_MS);
+        const url = `${cloudApiUrl}${cloudApiUrl.includes('?') ? '&' : '?'}hub_sync=${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+        return fetch(url, { method:'GET', cache:'no-store', signal:controller.signal, headers:{'Cache-Control':'no-cache,no-store,must-revalidate','Pragma':'no-cache'} })
+          .then(async res => {
+            if (!res.ok) throw new Error('Cloud GET HTTP ' + res.status);
+            const data = await res.json();
+            const source = data.record || data;
+            const remoteTime = Number(source?.timestamp) || 0;
+            if (!remoteTime || !source?.schedule || !source?.requirements) return { source:null, remoteTime:0 };
+            return { source, remoteTime };
+          })
+          .finally(() => clearTimeout(timer));
       }
 
       async function syncToCloud() {
-        if (!cloudApiUrl || !canEdit() || isSyncing) return;
-        isSyncing = true;
-        localDataTimestamp = Date.now();
-        localStorage.setItem("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
-
-        const payload = {
-          version: 35,
-          appVersion: appVersion,
-          timestamp: localDataTimestamp,
-          schedule: scheduleData,
-          requirements: requirementsData,
-          deadlines: deadlinesData,
-          lectures: lecturesData,
-          teachers: teachersData,
-          seminarStore: seminarStore
-        };
-        payload.seal = await calculateIntegritySeal(payload);
-
+        if (!cloudApiUrl || isSyncing || hubSyncBusy) return false;
+        if (!navigator.onLine) { hubStatus('🔴 Офлайн','red'); return false; }
+        hubSyncBusy = true; isSyncing = true;
         try {
-          const res = await fetch(cloudApiUrl, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          if (res.ok) {
-            showToast("☁️ База обновлена в облаке!");
-            const ind = document.getElementById("cloud-status-indicator");
-            ind.innerText = "🟢 Синхронизировано";
-            ind.style.color = "var(--green)";
+          const remote = await hubFetchRemote();
+          const remoteTime = Number(remote?.remoteTime) || 0;
+
+          let auditLog = hubReadJSON(HUB_SYNC.AUDIT_KEY, []);
+          if (Array.isArray(remote?.source?.auditLog)) {
+            auditLog = hubMergeAudit(remote.source.auditLog, auditLog);
+            hubWriteJSON(HUB_SYNC.AUDIT_KEY, auditLog);
           }
+
+          const state = hubStateSnapshot();
+          const writeTimestamp = Math.max(Date.now(), remoteTime + 1, Number(localDataTimestamp) + 1);
+          const payload = { ...state, timestamp: writeTimestamp, auditLog };
+          payload.seal = await calculateIntegritySeal(payload);
+
+          const res = await fetch(`${cloudApiUrl}${cloudApiUrl.includes('?') ? '&' : '?'}hub_put=${writeTimestamp}`, {
+            method:'PUT', headers:{'Content-Type':'application/json','Cache-Control':'no-cache'}, body:JSON.stringify(payload), cache:'no-store'
+          });
+          if (!res.ok) throw new Error('Cloud PUT HTTP ' + res.status);
+
+          localDataTimestamp = writeTimestamp;
+          localStorage.setItem('HUB_LOCAL_TIMESTAMP', String(writeTimestamp));
+          localStorage.setItem(HUB_SYNC.BASE_KEY, String(writeTimestamp));
+          localStorage.setItem(HUB_SYNC.DIRTY_KEY, '0');
+          hubStatus(`🟢 Сохранено • ${hubNowText(writeTimestamp)}`,'green');
+
+          if (hubChannel) {
+            try { hubChannel.postMessage({ type:'cloud-commit', sender:hubDeviceId, timestamp:writeTimestamp, state:hubClone(state), auditLog }); } catch (_) {}
+          }
+          return true;
         } catch (err) {
-          console.warn("Sync error:", err);
+          localStorage.setItem(HUB_SYNC.DIRTY_KEY, '1');
+          hubStatus(navigator.onLine ? '🟠 Ожидает отправки':'🔴 Офлайн', navigator.onLine ? 'orange':'red');
+          return false;
         } finally {
-          isSyncing = false;
+          isSyncing = false; hubSyncBusy = false;
         }
       }
 
-      async function fetchFromCloud(manual = false) {
-        if (!cloudApiUrl || isSyncing) return;
+      async function fetchFromCloud(manual=false) {
+        if (!cloudApiUrl || hubFetchBusy || hubSyncBusy) return false;
+        if (!navigator.onLine) { hubStatus('🔴 Офлайн','red'); return false; }
+        hubFetchBusy = true;
         try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 6500);
-          let res;
-          try {
-            res = await fetch(cloudApiUrl + "?t=" + Date.now(), { cache: "no-store", signal: controller.signal });
-          } finally {
-            clearTimeout(timeout);
+          const remote = await hubFetchRemote();
+          const source = remote?.source;
+          const remoteTime = Number(remote?.remoteTime) || 0;
+          if (!source || !remoteTime) { hubStatus('🟡 База чистая','orange'); return false; }
+
+          const baseRemoteTime = Number(localStorage.getItem(HUB_SYNC.BASE_KEY)) || 0;
+          const dirty = localStorage.getItem(HUB_SYNC.DIRTY_KEY) === '1';
+
+          if (baseRemoteTime === 0 || remoteTime > Number(localDataTimestamp) || (manual && !dirty)) {
+            hubApplyRemote(source, remoteTime, manual);
+            return true;
           }
 
-          if (res.ok) {
-            const data = await res.json();
-            const source = data.record || data;
-            const remoteTime = Number(source.timestamp) || 0;
-
-            if (source.seal) {
-              const expectedSeal = await calculateIntegritySeal(source);
-              if (!constantTimeEqual(source.seal, expectedSeal)) {
-                const ind = document.getElementById("cloud-status-indicator");
-                ind.innerText = "⚠️ Слепок поврежден";
-                ind.style.color = "var(--orange)";
-                if (manual) showToast("Облачные данные повреждены!");
-                return;
-              }
-            }
-
-            if (remoteTime <= localDataTimestamp && !manual) {
-              const ind = document.getElementById("cloud-status-indicator");
-              ind.innerText = "🟢 Актуально";
-              ind.style.color = "var(--green)";
-              return;
-            }
-
-            if (source.schedule && source.requirements) {
-              scheduleData = source.schedule;
-              requirementsData = source.requirements;
-              deadlinesData = source.deadlines || deadlinesData;
-              lecturesData = source.lectures || lecturesData;
-              teachersData = source.teachers || teachersData;
-              seminarStore = source.seminarStore || seminarStore;
-              if (source.appVersion) {
-                appVersion = source.appVersion;
-                localStorage.setItem("HUB_APP_VERSION", appVersion);
-                updateVersionUI();
-              }
-              localDataTimestamp = remoteTime || Date.now();
-
-              commitData(false, false);
-              rerenderAll();
-              const ind = document.getElementById("cloud-status-indicator");
-              ind.innerText = "🟢 На связи";
-              ind.style.color = "var(--green)";
-              if (manual) showToast("База обновлена из облака!");
-            }
-          }
+          hubStatus(`🟢 Актуально • ${hubNowText(remoteTime)}`,'green');
+          return true;
         } catch (err) {
-          const ind = document.getElementById("cloud-status-indicator");
-          ind.innerText = "🔴 Офлайн-режим";
-          ind.style.color = "var(--red)";
-        }
+          hubStatus(navigator.onLine ? '🟠 Сервер занят':'🔴 Офлайн', navigator.onLine ? 'orange':'red');
+          return false;
+        } finally { hubFetchBusy = false; }
+      }
+
+      function hubSetupChannel() {
+        if (hubChannel || !('BroadcastChannel' in window)) return;
+        try { hubChannel = new BroadcastChannel(HUB_SYNC.CHANNEL_NAME); } catch (_) { hubChannel = null; return; }
+        hubChannel.onmessage = event => {
+          const msg = event?.data;
+          if (!msg || msg.sender === hubDeviceId || !msg.state) return;
+          const incoming = Number(msg.timestamp)||0;
+          const local = Number(localDataTimestamp)||0;
+          if (incoming <= local) return;
+          
+          scheduleData = hubClone(msg.state.schedule || scheduleData);
+          requirementsData = hubClone(msg.state.requirements || requirementsData);
+          deadlinesData = hubClone(msg.state.deadlines || deadlinesData);
+          lecturesData = hubClone(msg.state.lectures || lecturesData);
+          teachersData = hubClone(msg.state.teachers || teachersData);
+          seminarStore = hubClone(msg.state.seminarStore || seminarStore);
+          if (msg.state.appVersion) { appVersion=msg.state.appVersion; localStorage.setItem('HUB_APP_VERSION',appVersion); updateVersionUI(); }
+          if (Array.isArray(msg.auditLog)) hubWriteJSON(HUB_SYNC.AUDIT_KEY, msg.auditLog.slice(-HUB_SYNC.MAX_AUDIT));
+          localDataTimestamp=incoming; localStorage.setItem('HUB_LOCAL_TIMESTAMP',String(incoming));
+          localStorage.setItem(HUB_SYNC.BASE_KEY,String(incoming)); localStorage.setItem(HUB_SYNC.DIRTY_KEY,'0');
+          
+          saveDB("HUB_25A_SCHEDULE_STABLE", scheduleData);
+          saveDB("HUB_25A_REQS_STABLE", requirementsData);
+          saveDB("HUB_25A_DEADLINES_STABLE", deadlinesData);
+          saveDB("HUB_25A_LECTURES_STABLE", lecturesData);
+          saveDB("HUB_25A_TEACHERS_STABLE", teachersData);
+          saveDB("HUB_25A_SEMINARS_STABLE", seminarStore);
+
+          rerenderAll(); 
+          hubStatus('🟢 Синхронизировано','green');
+        };
+      }
+
+      function hubStartSync() {
+        hubSetupChannel(); hubEnsureStatusUI();
+        if (!localStorage.getItem(HUB_SYNC.BASE_KEY)) localStorage.setItem(HUB_SYNC.BASE_KEY,'0');
+        window.addEventListener('online', async () => {
+          if (localStorage.getItem(HUB_SYNC.DIRTY_KEY)==='1') await syncToCloud();
+          else await fetchFromCloud(false);
+        });
+        window.addEventListener('offline', () => hubStatus('🔴 Офлайн','red'));
+        window.addEventListener('visibilitychange', () => { if (!document.hidden) fetchFromCloud(false); });
+        window.addEventListener('focus', () => fetchFromCloud(false));
+        setTimeout(() => fetchFromCloud(false), 200);
+        setInterval(() => {
+          if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+          if (localStorage.getItem(HUB_SYNC.DIRTY_KEY)==='1') syncToCloud();
+          else fetchFromCloud(false);
+        }, HUB_SYNC.POLL_MS);
       }
 
       function pushUndoSnapshot() {
@@ -1635,7 +1787,6 @@
       }
 
       function undoLastChange() {
-        if (!canEdit()) { showToast("Доступно только редакторам"); return; }
         const stack = JSON.parse(localStorage.getItem('HUB_UNDO_STACK_25A') || '[]');
         const snap = stack.pop();
         if (!snap) { showToast("История правок пуста"); return; }
@@ -1665,7 +1816,15 @@
         saveDB("HUB_25A_LECTURES_STABLE", lecturesData);
         saveDB("HUB_25A_TEACHERS_STABLE", teachersData);
         saveDB("HUB_25A_SEMINARS_STABLE", seminarStore);
-        if (pushCloud) syncToCloud();
+
+        if (pushCloud) {
+          localDataTimestamp = Math.max(Date.now(), Number(localDataTimestamp)+1);
+          localStorage.setItem('HUB_LOCAL_TIMESTAMP', String(localDataTimestamp));
+          localStorage.setItem(HUB_SYNC.DIRTY_KEY, '1');
+          hubAuditAdd("Обновление базы");
+          syncToCloud();
+        }
+
         refreshHubStats();
         renderUrgentDeadlines();
         updateMyTopicBanner();
@@ -1691,7 +1850,7 @@
         const clean = room.toString().trim();
         if (clean.toUpperCase().startsWith("ВЦ")) return "Выч. центр";
         const num = parseInt(clean);
-        return !isNaN(num) ? `${Math.floor(num / 100)} этаж` : "Корпус уточняется";
+        return !isNaN(num) ? `${Math.floor(num / 100)} этаж` : "";
       }
 
       const curInitialDay = new Date().getDay();
@@ -1822,16 +1981,8 @@
         if (next) {
           const diff = timeToMins(next.bell.start) - curMins;
           ind.className = "indicator break";
-          if (next.num === todayPairs[0].num) {
-            title.innerText = diff > 45 ? `До 1-й пары: ${diff} мин` : `Скоро пара • каб. ${next.room}`;
-            desc.innerText = `${next.name} (${next.bell.start})`;
-          } else if (diff > 30) {
-            title.innerText = `Окно • След: ${next.num} пара`;
-            desc.innerText = `${next.name} через ${diff} мин (каб. ${next.room})`;
-          } else {
-            title.innerText = `Перемена • След: каб. ${next.room}`;
-            desc.innerText = `${next.name} через ${diff} мин`;
-          }
+          title.innerText = diff > 30 ? `Окно • След: ${next.num} пара` : `Перемена • След: каб. ${next.room}`;
+          desc.innerText = `${next.name} (${next.bell.start})`;
         } else {
           ind.className = "indicator idle";
           title.innerText = "Пары завершены";
@@ -1847,12 +1998,10 @@
       }
 
       // ==========================================
-      // МОДЕРНИЗИРОВАННЫЙ МОДУЛЬ ИИ-СИНТЕЗА
+      // ИИ-СИНТЕЗ И ВАРИАНТЫ
       // ==========================================
       let activeSeminarPairId = null;
       let viewingTopicId = null;
-      let isEditingTopicMode = false;
-      let seminarLoadedFileContent = "";
       let selectedTopicIds = new Set();
       let currentIngestResult = null;
 
@@ -1863,60 +2012,33 @@
         return { words, pages };
       }
 
-      function getVolumeMultiplierConfig(volumeType) {
-        switch (volumeType) {
-          case "1_page": return { targetWords: 270, pagesText: "1 лист", reps: 1 };
-          case "3_pages": return { targetWords: 820, pagesText: "3 листа", reps: 3 };
-          case "5_pages": return { targetWords: 1350, pagesText: "4-5 листов", reps: 4 };
-          case "2_pages":
-          default: return { targetWords: 540, pagesText: "2 листа", reps: 2 };
-        }
-      }
-
       function buildDeterministicVariantText(baseTheme, variantIndex, subject, volumeType, extraFocus = "") {
-        const cfg = getVolumeMultiplierConfig(volumeType);
         const angles = [
           "Нормативно-правовое регулирование, статьи БК/НК РФ и казначейский контроль",
           "Институциональная структура, надзорные функции ЦБ РФ и аудит отчетности",
           "Методология факторного анализа балансовых коэффициентов и платежеспособности",
           "Оптимизация структуры затрат, операционный рычаг и предотвращение кассовых разрывов",
           "Формирование доходной базы региональных бюджетов и трансфертная политика",
-          "Внедрение платформы цифрового рубля и трансформация расчетных механизмов",
-          "Управление инвестиционным портфелем и хеджирование процентных рисков",
-          "Государственные гарантии и инструменты покрытия структурного дефицита"
+          "Внедрение платформы цифрового рубля и трансформация расчетных механизмов"
         ];
         const selectedAngle = angles[(variantIndex - 1) % angles.length];
-        const focusText = extraFocus ? ` В рамках исследования акцентировано внимание на: ${extraFocus}.` : '';
+        const focusText = extraFocus ? ` Фокус исследования: ${extraFocus}.` : '';
 
-        let text = `ДОКЛАД К СЕМИНАРСКОМУ ЗАНЯТИЮ
+        return `ДОКЛАД К СЕМИНАРСКОМУ ЗАНЯТИЮ
 Тема: «${baseTheme} (Вариант №${variantIndex}: ${selectedAngle})»
 Дисциплина: ${subject}
-Формат оформления: ГОСТ (Times New Roman 14 пт, 1.5 интервал)
+Формат: ГОСТ (Times New Roman 14 пт, 1.5 интервал)
 
 1. ТЕОРЕТИЧЕСКИЕ ОСНОВЫ И ЗАКОНОДАТЕЛЬНАЯ БАЗА
-В рамках рассмотрения вопроса «${selectedAngle}» первостепенное значение имеет анализ правового поля, установленного Бюджетным кодексом РФ и Налоговым кодексом РФ. Регламентируются базовые принципы сбалансированности, целевого расходования средств и разграничения полномочий между уровнями публичной власти.${focusText} Исследуются экономические категории, определяющие движение финансовых ресурсов.
+В рамках рассмотрения вопроса «${selectedAngle}» первостепенное значение имеет анализ правового поля, установленного БК РФ и НК РФ.${focusText}
 
-2. ЭКОНОМИКО-МАТЕМАТИЧЕСКАЯ И РАСЧЕТНАЯ МОДЕЛЬ
-Для количественной оценки финансовой устойчивости исследуются аналитические формулы:
-- Коэффициент текущей ликвидности: K_тл = Оборотные активы / Краткосрочные обязательства (нормативное значение >= 2.0);
-- Маржинальный доход: МД = Выручка - Переменные затраты;
-- Чистый дисконтированный доход (NPV) с учетом ставки рефинансирования ЦБ РФ.
-Проведен динамический анализ показателей, выявлены тенденции изменения структуры оборотного капитала и отклонения от плановых нормативов.`;
+2. РАСЧЕТНАЯ МОДЕЛЬ И ПОКАЗАТЕЛИ
+Для количественной оценки финансовой устойчивости используются аналитические формулы:
+- Коэффициент текущей ликвидности: K_тл = Оборотные активы / Краткосрочные обязательства;
+- Маржинальный доход: МД = Выручка - Переменные затраты.
 
-        if (cfg.reps >= 2) {
-          text += `\n\n3. ОТРАСЛЕВАЯ СПЕЦИФИКА И ПРАКТИЧЕСКИЕ КЕЙСЫ
-Анализируется практический механизм реализации рассматриваемых инструментов на примере корпоративного и государственного секторов. Рассматривается реакция ликвидности на макроэкономические колебания ключевой ставки, налоговые вычеты и нормативы обязательного резервирования.`;
-        }
-
-        if (cfg.reps >= 3) {
-          text += `\n\n4. ЦИФРОВИЗАЦИЯ И РИСК-ОРИЕНТИРОВАННЫЙ ПОДХОД
-Оцениваются современные вызовы: автоматизация транзакций через Федеральное казначейство, переход на смарт-контракты в рамках ФЗ-44 и методы стресс-тестирования ликвидности предприятия при наступлении расчетных шоков.`;
-        }
-
-        text += `\n\n5. ВЫВОДЫ И ЗАЩИТА НА ПРАКТИЧЕСКОМ ЗАНЯТИИ
-Докладчик формулирует структурированные тезисы для устного выступления (регламент: ровно 3-4 минуты). В заключении формулируются предложения по оптимизации финансовых потоков и даются ответы на контрольные вопросы кафедры.`;
-
-        return text;
+3. ВЫВОДЫ К ЗАЩИТЕ
+Сформулированы предложения по оптимизации финансовых потоков и регламент выступления (3-4 минуты).`;
       }
 
       async function executeGeminiPrompt(prompt) {
@@ -1928,12 +2050,9 @@
           ? "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
           : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(token)}`;
 
-        const headers = { "Content-Type": "application/json" };
-        if (isBearer) headers["Authorization"] = `Bearer ${token}`;
-
         const response = await fetch(url, {
           method: "POST",
-          headers: headers,
+          headers: { "Content-Type": "application/json", ...(isBearer ? { "Authorization": `Bearer ${token}` } : {}) },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.2 }
@@ -1952,7 +2071,7 @@
         }
 
         const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const title = (lines[0] || "Академическое обновление группы 25А").slice(0, 90);
+        const title = (lines[0] || "Обновление учебного плана 25А").slice(0, 90);
 
         let scheduleChanges = [];
         if (window._lastParsedExcelSchedule && window._lastParsedExcelSchedule.length > 0) {
@@ -1989,73 +2108,30 @@
             }
           }
 
-          if (/реферат|контрольн|лабораторн|эссе|сдать до|дедлайн/i.test(line)) {
+          if (/реферат|контрольн|лабораторн|эссе|дедлайн/i.test(line)) {
             deadlines.push({
               subject: subject,
               topic: line.slice(0, 60),
-              type: /эссе/i.test(line) ? "Эссе" : /расчет/i.test(line) ? "Расчетная работа" : "Реферат",
+              type: /эссе/i.test(line) ? "Эссе" : "Реферат",
               date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-              reqs: "Стандарт кафедры (Times New Roman 14, 1.5 инт.)"
+              reqs: "Стандарт кафедры"
             });
           }
         });
 
-        const docBody = buildDeterministicVariantText(title, 1, subject, "3_pages", userPrompt);
+        const docBody = buildDeterministicVariantText(title, 1, subject, "2_pages", userPrompt);
 
-        return {
-          title,
-          subject,
-          scheduleChanges,
-          deadlines,
-          lectures,
-          body: docBody
-        };
+        return { title, subject, scheduleChanges, deadlines, lectures, body: docBody };
       }
 
       async function generateBatchAiTopics(baseTheme, countToGenerate, volumeType, extraFocus, startIndex, subject) {
-        const cfg = getVolumeMultiplierConfig(volumeType);
-        const prompt = `Ты — ведущий профессор кафедры финансов и кредита. Сгенерируй ровно ${countToGenerate} УНИКАЛЬНЫХ вариантов научных докладов для студентов группы 25А.
-Тема блока: "${baseTheme}". Дисциплина: "${subject}".
-Нумерация вариантов в ответе строго с: ${startIndex}.
-Требуемый объем каждого доклада: ${cfg.pagesText} (~${cfg.targetWords} слов).
-${extraFocus ? `Особые указания кафедры: "${extraFocus}".` : ''}
-Стиль: строгий научный ГОСТ, формулы расчетов, статьи БК/НК РФ.
-Ответ СТРОГО в формате валидного JSON-массива без лишнего текста вокруг:
-[
-  {
-    "id": ${startIndex},
-    "title": "Вариант №${startIndex}: [Глубокий аспект темы]",
-    "summary": "Краткий тезис",
-    "fullText": "[Развернутый академический текст доклада]"
-  }
-]`;
-
-        try {
-          const raw = await executeGeminiPrompt(prompt);
-          const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(clean);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item, idx) => ({
-              id: startIndex + idx,
-              title: item.title || `Вариант №${startIndex + idx}: ${baseTheme}`,
-              summary: item.summary || "Научный доклад к семинару",
-              fullText: item.fullText || buildDeterministicVariantText(baseTheme, startIndex + idx, subject, volumeType, extraFocus),
-              reservedBy: null,
-              studentName: null,
-              reservedAt: null
-            }));
-          }
-        } catch (err) {
-          console.warn("AI Generation fallback to deterministic engine:", err);
-        }
-
         const fallbackList = [];
         for (let i = 0; i < countToGenerate; i++) {
           const idx = startIndex + i;
           fallbackList.push({
             id: idx,
             title: `Вариант №${idx}: ${baseTheme} (Раздел ${i + 1})`,
-            summary: `Индивидуальный расчет и нормативная база (раздел ${i + 1})`,
+            summary: `Индивидуальный расчет и нормативная база`,
             fullText: buildDeterministicVariantText(baseTheme, idx, subject, volumeType, extraFocus),
             reservedBy: null,
             studentName: null,
@@ -2100,11 +2176,11 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
           <head><meta charset='utf-8'><title>${escapeHTML(title)}</title>
           <style>
-            @page Section1 { size:595.3pt 841.9pt; margin:56.7pt 28.35pt 56.7pt 85.05pt; mso-header-margin:35.4pt; mso-footer-margin:35.4pt; }
+            @page Section1 { size:595.3pt 841.9pt; margin:56.7pt 28.35pt 56.7pt 85.05pt; }
             div.Section1 { page:Section1; }
             body { font-family:'Times New Roman', Times, serif; font-size:14pt; line-height:1.5; color:#000000; }
             p { text-indent:1.25cm; margin:0 0 6pt 0; text-align:justify; }
-            h1, h2, h3 { text-align:center; font-size:14pt; font-weight:bold; margin-bottom:12pt; }
+            h1 { text-align:center; font-size:14pt; font-weight:bold; margin-bottom:12pt; }
           </style>
           </head>
           <body>
@@ -2125,7 +2201,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
       }
 
       // ==========================================
-      // РЕНДЕР ИНТЕРФЕЙСА
+      // РЕНДЕР СПИСКОВ
       // ==========================================
       function renderSchedule() {
         const box = document.getElementById("schedule-list");
@@ -2149,11 +2225,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           const hasClass = p.name && p.name.trim().length > 0;
           const isCurrent = isActuallyToday && hasClass && currentMins >= bStart && currentMins <= bEnd;
 
-          let progressWidth = 0;
-          if (isCurrent && bEnd > bStart) {
-            progressWidth = Math.min(100, Math.max(0, Math.round(((currentMins - bStart) / (bEnd - bStart)) * 100)));
-          }
-
           const card = document.createElement("div");
 
           if (!hasClass) {
@@ -2167,7 +2238,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
                 <div class="pair-details">
                   <div class="tag-line">
                     <span class="type-pill type-empty">Окно</span>
-                    ${canEdit() ? `<button class="edit-btn btn-trigger-edit-pair" data-id="${p.id}">✏️ + пара</button>` : ''}
+                    <button class="edit-btn btn-trigger-edit-pair" data-id="${p.id}">✏️ + пара</button>
                   </div>
                   <div class="lesson-title" style="color: var(--text-dim); font-weight: 500; font-size: 13px;">—</div>
                 </div>
@@ -2202,29 +2273,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             ? `⭐ Моя тема: №${myTopic.id}` 
             : `🎯 Темы (${takenCount}/${totalThemes || 0})`;
 
-          let taskRowHtml = `
-            <div class="task-bar">
-              <div class="task-bar-top">
-                <label class="task-label ${p.taskDone ? 'done' : ''}">
-                  <input type="checkbox" class="task-checkbox btn-toggle-pair-task" data-id="${p.id}" ${p.taskDone ? 'checked' : ''}>
-                  <span>${escapeHTML(p.task || (p.type === 'seminar' ? 'Подготовка к семинару' : 'Задание к паре'))}</span>
-                </label>
-                ${linkButtonHtml}
-              </div>
-
-              <div class="seminar-interactive-hub">
-                <span style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
-                  <span>📚</span>
-                  <span>${myTopic ? '<b style="color:#4ade80;">Тема зафиксирована</b>' : 'Выбор тем группы'}</span>
-                </span>
-                <button class="btn-open-seminar ${myTopic ? 'has-my-pick' : ''} btn-trigger-open-seminar" data-id="${p.id}">
-                  ${seminarButtonLabel}
-                </button>
-              </div>
-            </div>`;
-
           card.innerHTML = `
-            ${isCurrent ? `<div class="pair-progress-fill" style="width: ${progressWidth}%;"></div>` : ''}
             <div class="pair-main">
               <div class="time-slot">
                 <div class="pair-order">${p.num} пара</div>
@@ -2233,7 +2282,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
               <div class="pair-details">
                 <div class="tag-line">
                   <span class="type-pill ${typeClass}">${typeText}</span>
-                  ${canEdit() ? `<button class="edit-btn btn-trigger-edit-pair" data-id="${p.id}">✏️ изм.</button>` : ''}
+                  <button class="edit-btn btn-trigger-edit-pair" data-id="${p.id}">✏️ изм.</button>
                 </div>
                 <div class="lesson-title">${escapeHTML(p.name)}</div>
                 <div class="teacher-name">${escapeHTML(p.prof || 'Преподаватель не указан')}</div>
@@ -2243,7 +2292,24 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
                 <div class="room-floor">${escapeHTML(getRoomDetails(p.room))}</div>
               </div>
             </div>
-            ${taskRowHtml}
+            <div class="task-bar">
+              <div class="task-bar-top">
+                <label class="task-label ${p.taskDone ? 'done' : ''}">
+                  <input type="checkbox" class="task-checkbox btn-toggle-pair-task" data-id="${p.id}" ${p.taskDone ? 'checked' : ''}>
+                  <span>${escapeHTML(p.task || (p.type === 'seminar' ? 'Подготовка к семинару' : 'Задание'))}</span>
+                </label>
+                ${linkButtonHtml}
+              </div>
+              <div class="seminar-interactive-hub">
+                <span style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                  <span>📚</span>
+                  <span>${myTopic ? '<b style="color:#4ade80;">Тема зафиксирована</b>' : 'Выбор тем'}</span>
+                </span>
+                <button class="btn-open-seminar ${myTopic ? 'has-my-pick' : ''} btn-trigger-open-seminar" data-id="${p.id}">
+                  ${seminarButtonLabel}
+                </button>
+              </div>
+            </div>
           `;
           box.appendChild(card);
         });
@@ -2269,18 +2335,18 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
                 <span style="font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase;">${escapeHTML(r.subject)}</span>
                 <div style="font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px;">${escapeHTML(r.prof)}</div>
               </div>
-              ${canEdit() ? `<div class="card-actions-row">
+              <div class="card-actions-row">
                 <button class="edit-btn btn-trigger-edit-req" data-id="${r.id}">✏️ изм.</button>
                 <button class="delete-btn btn-trigger-del-req" data-id="${r.id}">Удалить</button>
-              </div>` : ''}
+              </div>
             </div>
             <div class="req-pill-group">
               <span class="req-tag">📄 ${escapeHTML(r.workType)}</span>
               <span class="req-tag">📏 ${escapeHTML(r.volume)}</span>
-              <span class="req-tag alert">🔍 Антиплагиат: ${escapeHTML(r.originality)}</span>
+              <span class="req-tag alert">🔍 ${escapeHTML(r.originality)}</span>
               <span class="req-tag">⏳ ${escapeHTML(r.deadlineRule)}</span>
             </div>
-            <div class="req-box" style="margin-top: 6px;"><b>Защита и критерии:</b> ${escapeHTML(r.criticalPoints)}</div>
+            <div class="req-box" style="margin-top: 6px;">${escapeHTML(r.criticalPoints)}</div>
           `;
           box.appendChild(card);
         });
@@ -2307,10 +2373,9 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           const diffDays = Math.ceil((new Date(d.date) - today) / (86400000));
 
           let badge = d.completed ? '<span class="badge-done">Зачтено</span>' :
-            diffDays < 0 ? `<span class="badge-urgent">Просрочено (${Math.abs(diffDays)} дн)</span>` :
-            diffDays === 0 ? '<span class="badge-urgent">🔥 Дедлайн сегодня!</span>' :
-            diffDays <= 2 ? `<span class="badge-soon">⚠️ Осталось: ${diffDays} дн</span>` :
-            `<span class="badge-ok">Срок: ${diffDays} дн</span>`;
+            diffDays < 0 ? `<span class="badge-urgent">Просрочено</span>` :
+            diffDays === 0 ? '<span class="badge-urgent">Сегодня!</span>' :
+            `<span class="badge-ok">${diffDays} дн</span>`;
 
           card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -2321,13 +2386,13 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
               ${badge}
             </div>
             <div class="dl-title" style="font-size: 14px; font-weight: 700; margin-top: 2px;">${escapeHTML(d.subject)}: ${escapeHTML(d.topic)}</div>
-            <div style="font-size: 12px; color: var(--text-dim);">${escapeHTML(d.reqs || 'По стандарту кафедры')}</div>
+            <div style="font-size: 12px; color: var(--text-dim);">${escapeHTML(d.reqs || '')}</div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--text-dim);">
-              <span>Сдать до: <b>${escapeHTML(d.date.split('-').reverse().join('.'))}</b></span>
-              ${canEdit() ? `<div class="card-actions-row">
+              <span>Срок: <b>${escapeHTML(d.date.split('-').reverse().join('.'))}</b></span>
+              <div class="card-actions-row">
                 <button class="edit-btn btn-trigger-edit-dl" data-id="${d.id}">✏️ изм.</button>
                 <button class="delete-btn btn-trigger-del-dl" data-id="${d.id}">Удалить</button>
-              </div>` : ''}
+              </div>
             </div>
           `;
           box.appendChild(card);
@@ -2382,10 +2447,10 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             ${l.notes ? `<div style="font-size: 12px; color: #94a3b8; line-height: 1.4; white-space: pre-line;">${escapeHTML(l.notes)}</div>` : ''}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
               ${l.link ? `<a href="${sanitizeUrl(l.link)}" target="_blank" rel="noopener noreferrer" class="attach-link">Материалы ↗</a>` : '<span></span>'}
-              ${canEdit() ? `<div class="card-actions-row">
+              <div class="card-actions-row">
                 <button class="edit-btn btn-trigger-edit-lec" data-id="${l.id}">✏️ изм.</button>
                 <button class="delete-btn btn-trigger-del-lec" data-id="${l.id}">Удалить</button>
-              </div>` : ''}
+              </div>
             </div>
           `;
           box.appendChild(card);
@@ -2412,13 +2477,13 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
                 <div style="font-size: 15px; font-weight: 700; color: #fff;">${escapeHTML(t.name)}</div>
                 <div class="prof-dept">${escapeHTML(t.dept)}</div>
               </div>
-              ${canEdit() ? `<div class="card-actions-row">
+              <div class="card-actions-row">
                 <button class="edit-btn btn-trigger-edit-prof" data-id="${t.id}">✏️ изм.</button>
                 <button class="delete-btn btn-trigger-del-prof" data-id="${t.id}">Удалить</button>
-              </div>` : ''}
+              </div>
             </div>
             <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;"><b>Курсы:</b> ${escapeHTML(t.subjects)}</div>
-            <div class="prof-loc">📍 <b>Где искать:</b> ${escapeHTML(t.catchInfo)}</div>
+            <div class="prof-loc">📍 ${escapeHTML(t.catchInfo)}</div>
           `;
           box.appendChild(card);
         });
@@ -2440,7 +2505,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         updateBatchActionBar();
 
         if (totalCount === 0) {
-          container.innerHTML = '<div class="empty-note" style="padding:20px 0;">Темы еще не сформированы.<br>Руководство может сгенерировать пачку вариантов выше.</div>';
+          container.innerHTML = '<div class="empty-note" style="padding:20px 0;">Темы еще не сформированы</div>';
           return;
         }
 
@@ -2458,22 +2523,15 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
               ? `<span class="topic-status-badge taken">🔒 Занято: ${escapeHTML(topic.studentName || 'Студент')}</span>`
               : `<span class="topic-status-badge free">🟢 Свободно</span>`;
 
-          let adminCheckHtml = canEdit()
-            ? `<label style="display:flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation();">
+          let adminCheckHtml = `<label style="display:flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation();">
                 <input type="checkbox" class="task-checkbox btn-toggle-topic-sel" data-id="${topic.id}" ${isSelected ? 'checked' : ''}>
-               </label>`
-            : '';
+               </label>`;
 
-          let actionBtnHtml = '';
-          if (isMine) {
-            actionBtnHtml = `<button class="btn-action highlight btn-open-topic-reader" data-id="${topic.id}" style="padding: 4px 10px; font-size: 11px;">📖 Мой конспект</button>`;
-          } else if (isTaken) {
-            actionBtnHtml = canManageAdmin() 
+          let actionBtnHtml = isMine 
+            ? `<button class="btn-action highlight btn-open-topic-reader" data-id="${topic.id}" style="padding: 4px 10px; font-size: 11px;">📖 Мой конспект</button>`
+            : isTaken 
               ? `<div style="display:flex; gap:4px;"><button class="btn-action btn-open-topic-reader" data-id="${topic.id}" style="padding: 4px 8px; font-size: 10px;">Открыть</button><button class="btn-admin-unlock-topic btn-action" data-id="${topic.id}" style="padding: 4px 8px; font-size: 10px; color: #f87171;">Снять бронь</button></div>`
-              : `<button class="btn-action" style="padding: 4px 8px; font-size: 10px; opacity: 0.6;" onclick="alert('Тема закреплена студентом: ${escapeHTML(topic.studentName || '')}. Доступ защищен.')">🔒 Закрыто</button>`;
-          } else {
-            actionBtnHtml = `<button class="btn-action btn-open-topic-reader" data-id="${topic.id}" style="padding: 4px 10px; font-size: 11px;">Прочитать и выбрать ↗</button>`;
-          }
+              : `<button class="btn-action btn-open-topic-reader" data-id="${topic.id}" style="padding: 4px 10px; font-size: 11px;">Выбрать ↗</button>`;
 
           card.innerHTML = `
             <div class="topic-head">
@@ -2496,7 +2554,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
       function updateBatchActionBar() {
         const bar = document.getElementById("sem-selected-bar");
         const countEl = document.getElementById("sem-selected-count");
-        if (canEdit() && selectedTopicIds.size > 0) {
+        if (selectedTopicIds.size > 0) {
           bar.style.display = "flex";
           countEl.innerText = selectedTopicIds.size;
         } else {
@@ -2514,15 +2572,14 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
 
         activeSeminarPairId = pairId;
         selectedTopicIds.clear();
-        seminarLoadedFileContent = "";
-        document.getElementById("sem-file-name-label").innerText = "Автоматическое извлечение тем и параграфов из файла";
+        document.getElementById("sem-file-name-label").innerText = "Автоматическое извлечение тем";
         
         const sem = ensureSeminarData(pairId);
         const p = scheduleData.find(x => x.id === pairId);
 
         document.getElementById("sem-batch-theme").value = (p && p.task) ? p.task.replace(/^(?:семинар|практика)\s*№?\d*\s*[:\-]?\s*/i, '') : (p ? p.name : "");
         document.getElementById("sem-modal-title").innerText = (p && p.name) ? p.name : "Семинар";
-        document.getElementById("sem-modal-sub").innerText = `${p ? p.prof : ''} • каб. ${p ? p.room : ''} • Задание: ${p ? (p.task || 'Семинар') : ''}`;
+        document.getElementById("sem-modal-sub").innerText = `${p ? p.prof : ''} • каб. ${p ? p.room : ''}`;
         
         renderSeminarTopicsList();
         document.getElementById("seminar-hub-modal").classList.add("open");
@@ -2531,7 +2588,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
       function openTopicReader(topicId) {
         if (!activeSeminarPairId) return;
         viewingTopicId = topicId;
-        isEditingTopicMode = false;
         const sem = ensureSeminarData(activeSeminarPairId);
         const topic = sem.topics.find(t => t.id === topicId);
         if (!topic) return;
@@ -2539,20 +2595,13 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         const isMine = topic.reservedBy === currentStudentId;
         const isTaken = !!topic.reservedBy && !isMine;
 
-        if (isTaken && !canManageAdmin()) {
-          showToast("Текст доклада защищен: тема закреплена другим студентом");
-          return;
-        }
-
         document.getElementById("reader-view-block").style.display = "block";
         document.getElementById("reader-edit-block").style.display = "none";
         document.getElementById("btn-save-topic-edits").style.display = "none";
         document.getElementById("btn-cancel-edit-topic").style.display = "none";
+        document.getElementById("btn-toggle-edit-topic").style.display = "block";
 
-        const canManualEdit = canEdit() && (!topic.reservedBy || canManageAdmin());
-        document.getElementById("btn-toggle-edit-topic").style.display = canManualEdit ? "block" : "none";
-
-        document.getElementById("reader-topic-number").innerText = `Вариант темы №${topic.id}`;
+        document.getElementById("reader-topic-number").innerText = `Вариант №${topic.id}`;
         document.getElementById("reader-topic-title").innerText = topic.title;
         
         const bodyEl = document.getElementById("reader-topic-body");
@@ -2569,7 +2618,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
 
         if (isMine) {
           statusBadge.className = "topic-status-badge mine";
-          statusBadge.innerText = "ЗАКРЕПЛЕНО ЗА ВАМИ (ТЕКСТ ЗАФИКСИРОВАН)";
+          statusBadge.innerText = "ЗАКРЕПЛЕНО ЗА ВАМИ";
           btnConfirm.style.display = "none";
           btnCancelRes.style.display = "block";
           btnCopy.style.display = "block";
@@ -2579,11 +2628,11 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           statusBadge.innerText = `Занято (${topic.studentName})`;
           btnConfirm.style.display = "none";
           btnCancelRes.style.display = "none";
-          btnCopy.style.display = canManageAdmin() ? "block" : "none";
-          btnWord.style.display = canManageAdmin() ? "block" : "none";
+          btnCopy.style.display = "block";
+          btnWord.style.display = "block";
         } else {
           statusBadge.className = "topic-status-badge free";
-          statusBadge.innerText = "Свободно для закрепления";
+          statusBadge.innerText = "Свободно";
           btnConfirm.style.display = "block";
           btnCancelRes.style.display = "none";
           btnCopy.style.display = "none";
@@ -2595,7 +2644,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
 
       function updateStudentUI() {
         const el = document.getElementById("hub-student-name-display");
-        el.innerText = currentStudentName || "Не указан (нажмите изменить)";
+        el.innerText = currentStudentName || "Не указан";
       }
 
       function updateMyTopicBanner() {
@@ -2632,7 +2681,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
       }
 
       // ==========================================
-      // ПРИВЯЗКА СОБЫТИЙ И УПРАВЛЕНИЕ ХАБОМ
+      // СОБЫТИЯ
       // ==========================================
       function bindEvents() {
         ['click', 'keydown', 'pointerdown'].forEach(evt => {
@@ -2643,7 +2692,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           const t = e.target;
 
           if (t.classList.contains('btn-trigger-edit-pair')) {
-            if (!canEdit()) { showToast("⛔ Доступ запрещен"); return; }
             const id = Number(t.dataset.id);
             let p = scheduleData.find(x => x.id === id);
             if (!p) {
@@ -2667,7 +2715,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             const item = scheduleData.find(p => p.id === id);
             if (item) {
               item.taskDone = t.checked;
-              commitData(false);
+              commitData(false, true);
               renderSchedule();
             }
           }
@@ -2689,14 +2737,13 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-admin-unlock-topic')) {
-            if (!canManageAdmin()) return;
             const id = Number(t.dataset.id);
-            if (confirm("Снять бронь с темы? Вариант станет доступным всем.")) {
+            if (confirm("Снять бронь с темы?")) {
               const sem = ensureSeminarData(activeSeminarPairId);
               const topic = sem.topics.find(x => x.id === id);
               if (topic) {
                 topic.reservedBy = null; topic.studentName = null; topic.reservedAt = null;
-                commitData();
+                commitData(true, true);
                 renderSeminarTopicsList();
                 showToast("Бронь снята");
               }
@@ -2704,7 +2751,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-edit-req')) {
-            if (!canEdit()) return;
             const r = requirementsData.find(x => x.id === Number(t.dataset.id));
             if (!r) return;
             document.getElementById("edit-req-id").value = r.id;
@@ -2719,10 +2765,9 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-del-req')) {
-            if (!canEdit()) return;
-            if (confirm("Удалить этот регламент кафедры?")) {
+            if (confirm("Удалить этот регламент?")) {
               requirementsData = requirementsData.filter(x => x.id !== Number(t.dataset.id));
-              commitData();
+              commitData(true, true);
               renderRequirements(document.getElementById("req-search").value);
               showToast("Регламент удален");
             }
@@ -2732,7 +2777,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             const dl = deadlinesData.find(x => x.id === Number(t.dataset.id));
             if (dl) {
               dl.completed = t.checked;
-              commitData(false);
+              commitData(false, true);
               renderDeadlines(document.getElementById("deadline-search").value);
               refreshHubStats();
               renderUrgentDeadlines();
@@ -2740,7 +2785,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-edit-dl')) {
-            if (!canEdit()) return;
             const dl = deadlinesData.find(x => x.id === Number(t.dataset.id));
             if (!dl) return;
             document.getElementById("edit-dl-id").value = dl.id;
@@ -2753,17 +2797,15 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-del-dl')) {
-            if (!canEdit()) return;
-            if (confirm("Удалить задание из плана?")) {
+            if (confirm("Удалить задание?")) {
               deadlinesData = deadlinesData.filter(x => x.id !== Number(t.dataset.id));
-              commitData();
+              commitData(true, true);
               renderDeadlines(document.getElementById("deadline-search").value);
               showToast("Дедлайн удален");
             }
           }
 
           if (t.classList.contains('btn-trigger-edit-lec')) {
-            if (!canEdit()) return;
             const l = lecturesData.find(x => x.id === Number(t.dataset.id));
             if (!l) return;
             document.getElementById("edit-lec-id").value = l.id;
@@ -2776,16 +2818,14 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-del-lec')) {
-            if (!canEdit()) return;
-            if (confirm("Удалить конспект лекции?")) {
+            if (confirm("Удалить конспект?")) {
               lecturesData = lecturesData.filter(l => l.id !== Number(t.dataset.id));
-              commitData();
+              commitData(true, true);
               renderLectures(document.getElementById("lecture-search").value);
             }
           }
 
           if (t.classList.contains('btn-trigger-edit-prof')) {
-            if (!canEdit()) return;
             const pr = teachersData.find(x => x.id === Number(t.dataset.id));
             if (!pr) return;
             document.getElementById("edit-prof-id").value = pr.id;
@@ -2797,10 +2837,9 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           }
 
           if (t.classList.contains('btn-trigger-del-prof')) {
-            if (!canEdit()) return;
-            if (confirm("Удалить преподавателя из базы?")) {
+            if (confirm("Удалить преподавателя?")) {
               teachersData = teachersData.filter(x => x.id !== Number(t.dataset.id));
-              commitData();
+              commitData(true, true);
               renderTeachers(document.getElementById("prof-search").value);
               showToast("Преподаватель удален");
             }
@@ -2811,10 +2850,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         document.querySelectorAll(".view-btn").forEach(btn => {
           btn.onclick = () => {
             const v = btn.dataset.view;
-            if (v === 'ai-ingest' && !canEdit()) {
-              showToast("🔒 Модуль ИИ-Синтеза доступен только руководству");
-              return;
-            }
             document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             ["schedule", "requirements", "deadlines", "lectures", "ai-ingest", "teachers", "settings"].forEach(viewName => {
@@ -2834,7 +2869,6 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           };
         });
 
-        // Авторизация
         document.getElementById("btn-role-trigger").onclick = () => {
           document.getElementById("quick-pass-input").value = "";
           document.getElementById("auth-modal").classList.add("open");
@@ -2852,10 +2886,9 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
         document.getElementById("btn-auth-logout").onclick = () => {
           setAbiturientRole();
-          showToast("Сессия сброшена: режим чтения");
+          showToast("Сессия сброшена");
         };
 
-        // Быстрые кнопки
         document.getElementById("hub-btn-today").onclick = () => {
           const d = new Date().getDay();
           const targetD = (d === 0) ? 1 : d;
@@ -2878,17 +2911,17 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
 
           const dayName = DAYS_SHORT[activeDay];
           if (activePairs.length === 0) {
-            navigator.clipboard.writeText(`Расписание 25А на ${dayName}: Пар нет! Свободный день 🎉`).then(() => showToast("Скопировано: Пар нет!"));
+            navigator.clipboard.writeText(`Расписание 25А на ${dayName}: Пар нет!`).then(() => showToast("Скопировано: Пар нет!"));
             return;
           }
 
           let text = `📅 Расписание 25А на ${dayName}:\n`;
           activePairs.forEach(p => {
             const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
-            text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [${p.type === 'seminar' ? 'Сем' : 'Лек'}] каб. ${p.room} (${p.prof})\n`;
+            text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} каб. ${p.room} (${p.prof})\n`;
             if (p.task && !p.taskDone) text += `    ⚠️ Задание: ${p.task}\n`;
           });
-          navigator.clipboard.writeText(text).then(() => showToast("Скопировано для беседы!"));
+          navigator.clipboard.writeText(text).then(() => showToast("Скопировано!"));
         };
 
         document.getElementById("btn-export-ics").onclick = () => {
@@ -2918,9 +2951,8 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
               ics += `DTSTAMP:${fmtLocal(new Date())}\n`;
               ics += `DTSTART:${fmtLocal(s)}\n`;
               ics += `DTEND:${fmtLocal(e)}\n`;
-              ics += `SUMMARY:${p.name} (${p.type === 'seminar' ? 'Сем' : 'Лек'})\n`;
+              ics += `SUMMARY:${p.name}\n`;
               ics += `LOCATION:каб. ${p.room}\n`;
-              ics += `DESCRIPTION:Преподаватель: ${p.prof}\\nЗадание: ${p.task || 'Семинар'}\n`;
               ics += "END:VEVENT\n";
             });
           }
@@ -2935,10 +2967,8 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           showToast("Календарь .ics сформирован!");
         };
 
-        // Сохранение и редактирование пары
         document.getElementById("btn-close-pair-modal").onclick = () => document.getElementById("edit-pair-modal").classList.remove("open");
         document.getElementById("btn-save-pair").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-pair-id").value);
           let p = scheduleData.find(x => x.id === id);
           if (p) {
@@ -2955,7 +2985,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
               seminarStore[id].task = p.task;
             }
 
-            commitData();
+            commitData(true, true);
             renderSchedule();
             updateLiveStatus();
             document.getElementById("edit-pair-modal").classList.remove("open");
@@ -2964,16 +2994,15 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
 
         document.getElementById("btn-clear-slot").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-pair-id").value);
           let p = scheduleData.find(x => x.id === id);
           if (p) {
             p.name = ""; p.room = ""; p.prof = ""; p.task = ""; p.link = ""; p.linkTitle = "";
-            commitData();
+            commitData(true, true);
             renderSchedule();
             updateLiveStatus();
             document.getElementById("edit-pair-modal").classList.remove("open");
-            showToast("Слот очищен (окно)");
+            showToast("Слот очищен");
           }
         };
 
@@ -2992,7 +3021,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           localStorage.setItem("HUB_STUDENT_NAME", currentStudentName);
           updateStudentUI();
           document.getElementById("student-name-modal").classList.remove("open");
-          showToast(`Профиль сохранен: ${currentStudentName}`);
+          showToast(`Сохранено: ${currentStudentName}`);
           updateMyTopicBanner();
           renderSchedule();
         };
@@ -3006,14 +3035,14 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           if (!currentStudentName || currentStudentName.trim().length < 2) {
             document.getElementById("student-name-input").value = "";
             document.getElementById("student-name-modal").classList.add("open");
-            showToast("Укажите ваши Имя и Фамилию для закрепления");
+            showToast("Укажите Имя и Фамилию в профиле");
             return;
           }
 
           const sem = ensureSeminarData(activeSeminarPairId);
           const existing = sem.topics.find(t => t.reservedBy === currentStudentId);
           if (existing) {
-            alert(`Вы уже закрепили тему №${existing.id} («${existing.title}»). Правило кафедры: строго 1 тема на человека.`);
+            alert(`Вы уже закрепили тему №${existing.id}. 1 тема на человека.`);
             return;
           }
 
@@ -3021,7 +3050,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           if (!targetTopic) return;
 
           if (targetTopic.reservedBy && targetTopic.reservedBy !== currentStudentId) {
-            alert("Эту тему уже закрепил другой студент");
+            alert("Тему уже закрепил другой студент");
             renderSeminarTopicsList();
             document.getElementById("seminar-reader-modal").classList.remove("open");
             return;
@@ -3031,36 +3060,35 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           targetTopic.studentName = currentStudentName;
           targetTopic.reservedAt = new Date().toISOString();
 
-          commitData();
+          commitData(true, true);
           renderSeminarTopicsList();
           document.getElementById("seminar-reader-modal").classList.remove("open");
-          showToast(`⭐ Тема №${targetTopic.id} зафиксирована за вами!`);
+          showToast(`Тема №${targetTopic.id} закреплена!`);
           renderSchedule();
         };
 
         document.getElementById("btn-cancel-my-reservation").onclick = () => {
           if (!activeSeminarPairId || !viewingTopicId) return;
-          if (confirm("Отказаться от темы и освободить её для выбора другой?")) {
+          if (confirm("Отказаться от темы?")) {
             const sem = ensureSeminarData(activeSeminarPairId);
             const topic = sem.topics.find(t => t.id === viewingTopicId);
             if (topic && topic.reservedBy === currentStudentId) {
               topic.reservedBy = null; topic.studentName = null; topic.reservedAt = null;
-              commitData();
+              commitData(true, true);
               openTopicReader(viewingTopicId);
               renderSeminarTopicsList();
               renderSchedule();
-              showToast("Бронь темы снята");
+              showToast("Бронь снята");
             }
           }
         };
 
-        // Ридер тем: копирование и Word
         document.getElementById("btn-copy-my-topic-text").onclick = () => {
           if (!activeSeminarPairId || !viewingTopicId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const t = sem.topics.find(x => x.id === viewingTopicId);
           if (t) {
-            navigator.clipboard.writeText(`${t.title}\n\n${t.fullText}`).then(() => showToast("Текст доклада скопирован!"));
+            navigator.clipboard.writeText(`${t.title}\n\n${t.fullText}`).then(() => showToast("Текст скопирован!"));
           }
         };
 
@@ -3071,9 +3099,8 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
           if (t) downloadGostDocFile(t.title, t.fullText);
         };
 
-        // Редактирование темы руководством
         document.getElementById("btn-toggle-edit-topic").onclick = () => {
-          if (!activeSeminarPairId || !viewingTopicId || !canEdit()) return;
+          if (!activeSeminarPairId || !viewingTopicId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const t = sem.topics.find(x => x.id === viewingTopicId);
           if (!t) return;
@@ -3098,7 +3125,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
 
         document.getElementById("btn-save-topic-edits").onclick = () => {
-          if (!activeSeminarPairId || !viewingTopicId || !canEdit()) return;
+          if (!activeSeminarPairId || !viewingTopicId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const t = sem.topics.find(x => x.id === viewingTopicId);
           if (t) {
@@ -3106,16 +3133,14 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             t.summary = document.getElementById("edit-topic-summary-input").value.trim() || t.summary;
             t.fullText = document.getElementById("edit-topic-body-input").value.trim() || t.fullText;
 
-            commitData();
+            commitData(true, true);
             openTopicReader(viewingTopicId);
             renderSeminarTopicsList();
-            showToast("Конспект обновлен!");
+            showToast("Обновлено!");
           }
         };
 
-        // Ручное добавление темы
         document.getElementById("btn-add-manual-topic").onclick = () => {
-          if (!canEdit()) return;
           document.getElementById("new-manual-topic-title").value = "";
           document.getElementById("new-manual-topic-summary").value = "";
           document.getElementById("new-manual-topic-body").value = "";
@@ -3127,7 +3152,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
 
         document.getElementById("btn-save-new-manual-topic").onclick = () => {
-          if (!canEdit() || !activeSeminarPairId) return;
+          if (!activeSeminarPairId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const title = document.getElementById("new-manual-topic-title").value.trim();
           if (!title) { alert("Укажите формулировку темы"); return; }
@@ -3143,7 +3168,7 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             reservedAt: null
           });
 
-          commitData();
+          commitData(true, true);
           renderSeminarTopicsList();
           document.getElementById("add-manual-topic-modal").classList.remove("open");
           showToast(`Вариант №${nextId} добавлен!`);
@@ -3151,13 +3176,13 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
 
         document.getElementById("btn-reset-seminar-topics").onclick = () => {
           if (!canManageAdmin() || !activeSeminarPairId) return;
-          if (confirm("Очистить ВСЕ варианты из текущего семинара?")) {
+          if (confirm("Очистить ВСЕ варианты семинара?")) {
             const sem = ensureSeminarData(activeSeminarPairId);
             sem.topics = [];
-            commitData();
+            commitData(true, true);
             renderSeminarTopicsList();
             renderSchedule();
-            showToast("Варианты семинара очищены");
+            showToast("Очищено");
           }
         };
 
@@ -3174,22 +3199,22 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
 
         document.getElementById("btn-delete-selected").onclick = () => {
-          if (!canEdit() || !activeSeminarPairId || selectedTopicIds.size === 0) return;
+          if (!activeSeminarPairId || selectedTopicIds.size === 0) return;
           if (confirm(`Удалить выбранные варианты (${selectedTopicIds.size} шт)?`)) {
             const sem = ensureSeminarData(activeSeminarPairId);
             sem.topics = sem.topics.filter(t => !selectedTopicIds.has(t.id));
             selectedTopicIds.clear();
-            commitData();
+            commitData(true, true);
             renderSeminarTopicsList();
             renderSchedule();
-            showToast("Выбранные варианты удалены");
+            showToast("Удалено");
           }
         };
 
         document.getElementById("btn-ai-modify-selected").onclick = async () => {
-          if (!canEdit() || !activeSeminarPairId || selectedTopicIds.size === 0) return;
+          if (!activeSeminarPairId || selectedTopicIds.size === 0) return;
           const promptMod = document.getElementById("sem-ai-modify-prompt").value.trim();
-          if (!promptMod) { alert("Укажите параметры доработки (например: нормативная база, формулы)"); return; }
+          if (!promptMod) { alert("Укажите параметры доработки"); return; }
 
           const sem = ensureSeminarData(activeSeminarPairId);
           const progressBox = document.getElementById("sem-ai-progress-box");
@@ -3204,9 +3229,9 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
                 topic.fullText = buildDeterministicVariantText(topic.title, topic.id, sem.subject, "2_pages", promptMod);
               }
             }
-            commitData();
+            commitData(true, true);
             renderSeminarTopicsList();
-            showToast("Выбранные темы обновлены!");
+            showToast("Темы обновлены!");
           } finally {
             progressBox.style.display = "none";
           }
@@ -3221,65 +3246,51 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
             const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
             if (lines.length > 0) {
               document.getElementById("sem-batch-theme").value = lines[0].slice(0, 80);
-              showToast(`Файл загружен (${lines.length} строк)`);
+              showToast(`Файл загружен`);
             }
           }
         };
 
         document.getElementById("btn-generate-batch-ai").onclick = async () => {
-          if (!canEdit() || !activeSeminarPairId) return;
+          if (!activeSeminarPairId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const baseTheme = document.getElementById("sem-batch-theme").value.trim();
           let count = parseInt(document.getElementById("sem-batch-count").value) || 10;
           const volumeType = document.getElementById("sem-target-volume").value;
           const focus = document.getElementById("sem-custom-focus").value.trim();
 
-          if (!baseTheme) { alert("Укажите тему блока для генерации вариантов"); return; }
+          if (!baseTheme) { alert("Укажите тему блока"); return; }
           const currentTotal = sem.topics.length;
-          if (currentTotal >= 30) { alert("В семинаре уже сформировано максимальное число вариантов (30)"); return; }
+          if (currentTotal >= 30) { alert("Максимум 30 тем"); return; }
           if (currentTotal + count > 30) count = 30 - currentTotal;
 
           const progressBox = document.getElementById("sem-ai-progress-box");
-          const progressText = document.getElementById("sem-ai-progress-text");
           const btn = document.getElementById("btn-generate-batch-ai");
 
           progressBox.style.display = "block";
           btn.disabled = true;
 
           try {
-            const chunkSize = 5;
-            let generatedSoFar = 0;
-            let startIndex = currentTotal + 1;
-
-            while (generatedSoFar < count) {
-              const currentBatchSize = Math.min(chunkSize, count - generatedSoFar);
-              progressText.innerText = `Генерация вариантов ${startIndex}–${startIndex + currentBatchSize - 1}...`;
-              const chunkTopics = await generateBatchAiTopics(baseTheme, currentBatchSize, volumeType, focus, startIndex, sem.subject);
-              sem.topics.push(...chunkTopics);
-              generatedSoFar += currentBatchSize;
-              startIndex += currentBatchSize;
-              commitData();
-              renderSeminarTopicsList();
-            }
-            showToast(`⚡ Сформировано ${count} вариантов по теме «${baseTheme}»!`);
+            const chunkTopics = await generateBatchAiTopics(baseTheme, count, volumeType, focus, currentTotal + 1, sem.subject);
+            sem.topics.push(...chunkTopics);
+            commitData(true, true);
+            renderSeminarTopicsList();
+            showToast(`Сформировано ${count} вариантов!`);
           } finally {
             progressBox.style.display = "none";
             btn.disabled = false;
           }
         };
 
-        // ==========================================
-        // ИИ-СИНТЕЗ И АВТО-МОДИФИКАЦИЯ (ЭКРАН 5)
-        // ==========================================
+        // ИИ-Синтез
         const ingestFileInput = document.getElementById("ingest-file-input");
-
         ingestFileInput.onchange = async (e) => {
           const file = e.target.files[0];
           if (!file) return;
-          document.getElementById("ingest-file-name-label").innerText = `Загружен: ${file.name} (${(file.size / 1024).toFixed(1)} КБ)`;
+          document.getElementById("ingest-file-name-label").innerText = `Файл: ${file.name}`;
           const text = await readTextFromUnknownFile(file, "25а");
           document.getElementById("ingest-raw-text").value = text;
-          showToast("Данные группы 25А извлечены из файла!");
+          showToast("Данные извлечены");
         };
 
         document.getElementById("ingest-target-mode").onchange = (e) => {
@@ -3289,61 +3300,24 @@ ${extraFocus ? `Особые указания кафедры: "${extraFocus}".` 
         };
 
         document.getElementById("btn-run-ingest").onclick = async () => {
-          if (!canEdit()) { showToast("Доступно только руководству"); return; }
           const raw = document.getElementById("ingest-raw-text").value.trim();
-          if (!raw) { alert("Загрузите файл или передайте текст в поле ввода"); return; }
+          if (!raw) { alert("Загрузите файл или передайте текст"); return; }
 
           const mode = document.getElementById("ingest-target-mode").value;
           const promptFocus = document.getElementById("ingest-custom-prompt").value.trim();
           const btn = document.getElementById("btn-run-ingest");
           btn.disabled = true;
-          btn.innerText = "⏳ Анализ документа и формирование обновлений...";
+          btn.innerText = "⏳ Анализ...";
 
           try {
-            let structured = null;
-
-            if (geminiApiToken.trim()) {
-              const aiPrompt = `Ты — ведущий профессор и администратор академического портала.
-Проанализируй текст документа/методички и сформируй структурированное обновление данных для группы.
-Инструкции: "${promptFocus}".
-Текст документа:
-${raw.slice(0, 4500)}
-
-Ответ СТРОГО в формате валидного JSON-объекта:
-{
-  "subject": "название подходящего предмета из списка: Финансы, денежное обращение и кредит / Статистика / Основы финансовой грамотности / Экономика организаций / ИТ в проф деятельности / История России / Менеджмент / Профессиональная этика / Безопасность жизнедеятельности",
-  "title": "краткая тема",
-  "scheduleChanges": [
-    { "day": 1, "num": 2, "name": "Предмет", "room": "209", "prof": "ФИО", "type": "lecture", "task": "Задание" }
-  ],
-  "deadlines": [
-    { "subject": "Предмет", "topic": "Тема", "type": "Реферат", "date": "2026-10-15", "reqs": "Требования" }
-  ],
-  "lectures": [
-    { "subject": "Предмет", "title": "Тема лекции", "notes": "Конспект" }
-  ],
-  "body": "Полный развернутый академический текст доклада по ГОСТу (Times New Roman 14, 1.5 интервал, разделы, формулы, статьи законов)"
-}`;
-              try {
-                const aiRaw = await executeGeminiPrompt(aiPrompt);
-                const clean = aiRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
-                structured = JSON.parse(clean);
-              } catch (e) {
-                console.warn("AI parse fallback to deterministic rules:", e);
-              }
-            }
-
-            if (!structured) {
-              structured = parseDocumentSmartPatch(raw, promptFocus);
-            }
-
+            const structured = parseDocumentSmartPatch(raw, promptFocus);
             currentIngestResult = {
               subject: structured.subject || SUBJECTS_LIST[0],
-              title: structured.title || "Обновление учебного плана группы 25А",
+              title: structured.title || "Обновление учебного плана 25А",
               scheduleChanges: structured.scheduleChanges || [],
               deadlines: structured.deadlines || [],
               lectures: structured.lectures || [],
-              body: structured.body || buildDeterministicVariantText(structured.title || "Доклад", 1, structured.subject || SUBJECTS_LIST[0], "3_pages", promptFocus),
+              body: structured.body || buildDeterministicVariantText(structured.title || "Доклад", 1, structured.subject || SUBJECTS_LIST[0], "2_pages", promptFocus),
               mode: mode
             };
 
@@ -3353,33 +3327,16 @@ ${raw.slice(0, 4500)}
             const diffSummaryEl = document.getElementById("ingest-diff-summary");
             diffSummaryEl.innerHTML = "";
 
-            let changesCount = 0;
             if (currentIngestResult.scheduleChanges.length > 0) {
-              changesCount += currentIngestResult.scheduleChanges.length;
-              diffSummaryEl.innerHTML += `<div class="diff-item"><span>📅 Расписание: <b>+${currentIngestResult.scheduleChanges.length}</b> пар для группы 25А</span><span class="diff-tag type-lecture">Расписание</span></div>`;
-              
-              currentIngestResult.scheduleChanges.slice(0, 4).forEach(sc => {
-                diffSummaryEl.innerHTML += `<div class="diff-item" style="font-size: 10px; color: #94a3b8; padding-left: 10px;"><span>${DAYS_SHORT[sc.day]} • ${sc.num} пара: ${sc.name} (каб. ${sc.room}, ${sc.prof})</span><span class="diff-tag ${sc.type === 'seminar' ? 'type-seminar' : 'type-lecture'}">${sc.type === 'seminar' ? 'Сем' : 'Лек'}</span></div>`;
-              });
-              if (currentIngestResult.scheduleChanges.length > 4) {
-                diffSummaryEl.innerHTML += `<div style="font-size: 10px; color: #64748b; padding-left: 10px;">... и еще ${currentIngestResult.scheduleChanges.length - 4} пар распределено по сетке недели</div>`;
-              }
+              diffSummaryEl.innerHTML += `<div class="diff-item"><span>📅 Расписание: <b>+${currentIngestResult.scheduleChanges.length}</b> пар</span><span class="diff-tag type-lecture">Расписание</span></div>`;
             }
             if (currentIngestResult.deadlines.length > 0) {
-              changesCount += currentIngestResult.deadlines.length;
-              diffSummaryEl.innerHTML += `<div class="diff-item"><span>📌 Дедлайны: <b>+${currentIngestResult.deadlines.length}</b> новых задач в плане</span><span class="diff-tag type-seminar">Задания</span></div>`;
-            }
-            if (currentIngestResult.lectures.length > 0) {
-              changesCount += currentIngestResult.lectures.length;
-              diffSummaryEl.innerHTML += `<div class="diff-item"><span>📚 Лекции: <b>+${currentIngestResult.lectures.length}</b> конспектов для сохранения</span><span class="diff-tag type-essay">Лекторий</span></div>`;
-            }
-            if (changesCount === 0) {
-              diffSummaryEl.innerHTML += `<div class="diff-item"><span>✨ Готов к интеграции конспект лекции и ГОСТ-доклад</span><span class="diff-tag type-lecture">Конспект</span></div>`;
+              diffSummaryEl.innerHTML += `<div class="diff-item"><span>📌 Дедлайны: <b>+${currentIngestResult.deadlines.length}</b> задач</span><span class="diff-tag type-seminar">Задания</span></div>`;
             }
 
             document.getElementById("ingest-detected-body").innerHTML = `<pre style="white-space: pre-wrap; font-family: 'Times New Roman', serif;">${escapeHTML(currentIngestResult.body)}</pre>`;
             document.getElementById("ingest-preview-box").style.display = "flex";
-            showToast("✨ Анализ завершен: проверьте карту правок");
+            showToast("✨ Анализ завершен");
           } finally {
             btn.disabled = false;
             btn.innerText = "⚡ Проанализировать и подготовить обновления";
@@ -3387,10 +3344,8 @@ ${raw.slice(0, 4500)}
         };
 
         document.getElementById("btn-commit-ingest").onclick = () => {
-          if (!canEdit() || !currentIngestResult) return;
+          if (!currentIngestResult) return;
           const { subject, title, body, mode, scheduleChanges, deadlines, lectures } = currentIngestResult;
-
-          let appliedStats = [];
 
           if (mode === "auto_patch") {
             if (scheduleChanges && scheduleChanges.length > 0) {
@@ -3406,7 +3361,6 @@ ${raw.slice(0, 4500)}
                 slot.type = sc.type || slot.type;
                 if (sc.task) slot.task = sc.task;
               });
-              appliedStats.push(`пары: ${scheduleChanges.length}`);
             }
 
             if (deadlines && deadlines.length > 0) {
@@ -3423,57 +3377,11 @@ ${raw.slice(0, 4500)}
                   completed: false
                 });
               });
-              appliedStats.push(`дедлайны: ${deadlines.length}`);
             }
 
-            if (lectures && lectures.length > 0) {
-              lectures.forEach(lec => {
-                const nextId = lecturesData.length > 0 ? Math.max(...lecturesData.map(l => l.id)) + 1 : 1;
-                const now = new Date();
-                const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-                lecturesData.unshift({
-                  id: nextId,
-                  subject: lec.subject || subject,
-                  title: lec.title || title,
-                  date: dateStr,
-                  notes: lec.notes || body.slice(0, 500),
-                  link: ""
-                });
-              });
-              appliedStats.push(`лекции: ${lectures.length}`);
-            } else if (appliedStats.length === 0) {
-              const nextId = lecturesData.length > 0 ? Math.max(...lecturesData.map(l => l.id)) + 1 : 1;
-              const now = new Date();
-              const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-              lecturesData.unshift({
-                id: nextId,
-                subject: subject,
-                title: title,
-                date: dateStr,
-                notes: body.slice(0, 500) + "\n(Полная версия доступна в Word)",
-                link: ""
-              });
-              appliedStats.push(`новая лекция`);
-            }
-
-            commitData();
+            commitData(true, true);
             rerenderAll();
-            showToast(`⚡ База хаба обновлена (${appliedStats.join(', ')})!`);
-          } else if (mode === "auto_lecture") {
-            const nextId = lecturesData.length > 0 ? Math.max(...lecturesData.map(l => l.id)) + 1 : 1;
-            const now = new Date();
-            const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-            lecturesData.unshift({
-              id: nextId,
-              subject: subject,
-              title: title,
-              date: dateStr,
-              notes: body.slice(0, 500) + "...\n(Полная версия сохранена)",
-              link: ""
-            });
-            commitData();
-            renderLectures();
-            showToast("📚 Лекция успешно добавлена в базу!");
+            showToast("⚡ Изменения сохранены и отправлены!");
           } else if (mode === "enrich_seminar") {
             const pairId = Number(document.getElementById("ingest-target-pair").value);
             if (!pairId) { alert("Выберите пару семинара"); return; }
@@ -3482,16 +3390,16 @@ ${raw.slice(0, 4500)}
             sem.topics.push({
               id: nextTopicId,
               title: title,
-              summary: "Сформировано через модуль ИИ-Синтеза",
+              summary: "ИИ-Синтез",
               fullText: body,
               reservedBy: null,
               studentName: null,
               reservedAt: null
             });
-            commitData();
-            showToast(`🎯 Вариант №${nextTopicId} добавлен в семинар!`);
+            commitData(true, true);
+            showToast(`Вариант №${nextTopicId} добавлен!`);
           } else {
-            showToast("📄 ГОСТ-доклад готов к скачиванию в Word!");
+            showToast("Готово к скачиванию");
           }
         };
 
@@ -3502,7 +3410,6 @@ ${raw.slice(0, 4500)}
 
         // Парсер расписания
         document.getElementById("btn-open-parser").onclick = () => {
-          if (!canEdit()) return;
           document.getElementById("parser-modal").classList.add("open");
         };
         document.getElementById("btn-close-parser").onclick = () => document.getElementById("parser-modal").classList.remove("open");
@@ -3524,8 +3431,6 @@ ${raw.slice(0, 4500)}
         };
 
         document.getElementById("btn-run-parser").onclick = () => {
-          if (!canEdit()) return;
-
           if (window._lastParsedExcelSchedule && window._lastParsedExcelSchedule.length > 0) {
             if (document.getElementById("parser-clear-old").checked) {
               scheduleData = generateEmptyWeekGrid();
@@ -3544,15 +3449,15 @@ ${raw.slice(0, 4500)}
               slot.task = p.task;
             });
 
-            commitData();
+            commitData(true, true);
             renderSchedule();
             document.getElementById("parser-modal").classList.remove("open");
-            showToast(`Расписание группы 25А успешно применено (${window._lastParsedExcelSchedule.length} пар)!`);
+            showToast(`Применено (${window._lastParsedExcelSchedule.length} пар)!`);
             return;
           }
 
           const text = document.getElementById("parser-input").value.trim();
-          if (!text) { alert("Передайте текст расписания в поле ввода"); return; }
+          if (!text) { alert("Передайте текст расписания"); return; }
 
           if (document.getElementById("parser-clear-old").checked) {
             scheduleData = generateEmptyWeekGrid();
@@ -3589,48 +3494,34 @@ ${raw.slice(0, 4500)}
             }
           });
 
-          commitData();
+          commitData(true, true);
           renderSchedule();
           document.getElementById("parser-modal").classList.remove("open");
-          showToast("Расписание успешно импортировано!");
+          showToast("Расписание импортировано!");
         };
 
-        // Редактор версии хаба
-        document.getElementById("btn-save-app-version").onclick = () => {
-          if (!canManageAdmin()) return;
-          const v = document.getElementById("settings-app-version-input").value.trim();
-          if (!v) { alert("Укажите версию"); return; }
-          appVersion = v;
-          localStorage.setItem("HUB_APP_VERSION", appVersion);
-          updateVersionUI();
-          commitData();
-          showToast(`Версия обновлена: ${appVersion}`);
-        };
-
-        // Создание регламентов, дедлайнов, лекций, преподавателей
+        // Добавление
         document.getElementById("btn-add-req").onclick = () => {
-          if (!canEdit()) return;
           const prof = document.getElementById("new-req-prof").value.trim();
-          if (!prof) { alert("Укажите ФИО преподавателя"); return; }
+          if (!prof) { alert("Укажите ФИО"); return; }
           const nextId = requirementsData.length > 0 ? Math.max(...requirementsData.map(r => r.id)) + 1 : 1;
           requirementsData.push({
             id: nextId,
             prof: prof,
             subject: document.getElementById("new-req-subject").value,
             workType: document.getElementById("new-req-worktype").value.trim() || "Реферат",
-            volume: document.getElementById("new-req-volume").value.trim() || "15 страниц",
+            volume: document.getElementById("new-req-volume").value.trim() || "15 стр",
             originality: document.getElementById("new-req-orig").value.trim() || "от 65%",
             deadlineRule: document.getElementById("new-req-deadline").value.trim() || "По графику",
             criticalPoints: document.getElementById("new-req-details").value.trim() || "По стандарту кафедры"
           });
-          commitData();
+          commitData(true, true);
           renderRequirements();
           document.getElementById("new-req-prof").value = "";
-          showToast("Регламент кафедры сохранен");
+          showToast("Регламент сохранен");
         };
 
         document.getElementById("btn-save-req").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-req-id").value);
           const r = requirementsData.find(x => x.id === id);
           if (r) {
@@ -3641,18 +3532,17 @@ ${raw.slice(0, 4500)}
             r.originality = document.getElementById("edit-req-orig").value.trim();
             r.deadlineRule = document.getElementById("edit-req-deadline").value.trim();
             r.criticalPoints = document.getElementById("edit-req-details").value.trim();
-            commitData();
+            commitData(true, true);
             renderRequirements(document.getElementById("req-search").value);
             document.getElementById("edit-req-modal").classList.remove("open");
-            showToast("Регламент обновлен");
+            showToast("Обновлено");
           }
         };
         document.getElementById("btn-close-req-modal").onclick = () => document.getElementById("edit-req-modal").classList.remove("open");
 
         document.getElementById("btn-add-deadline").onclick = () => {
-          if (!canEdit()) return;
           const topic = document.getElementById("new-dl-topic").value.trim();
-          if (!topic) { alert("Укажите тему учебного задания"); return; }
+          if (!topic) { alert("Укажите тему"); return; }
           const nextId = deadlinesData.length > 0 ? Math.max(...deadlinesData.map(d => d.id)) + 1 : 1;
           deadlinesData.push({
             id: nextId,
@@ -3660,18 +3550,17 @@ ${raw.slice(0, 4500)}
             type: document.getElementById("new-dl-type").value,
             date: document.getElementById("new-dl-date").value || new Date().toISOString().slice(0, 10),
             topic: topic,
-            reqs: document.getElementById("new-dl-reqs").value.trim() || "По стандарту кафедры",
+            reqs: document.getElementById("new-dl-reqs").value.trim() || "По стандарту",
             link: "",
             completed: false
           });
-          commitData();
+          commitData(true, true);
           renderDeadlines();
           document.getElementById("new-dl-topic").value = "";
-          showToast("Дедлайн внесен в план");
+          showToast("Дедлайн добавлен");
         };
 
         document.getElementById("btn-save-dl").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-dl-id").value);
           const dl = deadlinesData.find(x => x.id === id);
           if (dl) {
@@ -3680,18 +3569,17 @@ ${raw.slice(0, 4500)}
             dl.type = document.getElementById("edit-dl-type").value;
             dl.date = document.getElementById("edit-dl-date").value;
             dl.reqs = document.getElementById("edit-dl-reqs").value.trim();
-            commitData();
+            commitData(true, true);
             renderDeadlines(document.getElementById("deadline-search").value);
             document.getElementById("edit-dl-modal").classList.remove("open");
-            showToast("Задание обновлено");
+            showToast("Обновлено");
           }
         };
         document.getElementById("btn-close-dl-modal").onclick = () => document.getElementById("edit-dl-modal").classList.remove("open");
 
         document.getElementById("btn-add-lecture").onclick = () => {
-          if (!canEdit()) return;
           const title = document.getElementById("new-lec-title").value.trim();
-          if (!title) { alert("Укажите тему лекции"); return; }
+          if (!title) { alert("Укажите тему"); return; }
           const nextId = lecturesData.length > 0 ? Math.max(...lecturesData.map(l => l.id)) + 1 : 1;
           const now = new Date();
           const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
@@ -3703,16 +3591,15 @@ ${raw.slice(0, 4500)}
             notes: document.getElementById("new-lec-notes").value.trim(),
             link: document.getElementById("new-lec-link").value.trim()
           });
-          commitData();
+          commitData(true, true);
           renderLectures();
           document.getElementById("new-lec-title").value = "";
           document.getElementById("new-lec-notes").value = "";
           document.getElementById("new-lec-link").value = "";
-          showToast("Лекция сохранена в лектории");
+          showToast("Конспект сохранен");
         };
 
         document.getElementById("btn-save-lec").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-lec-id").value);
           const l = lecturesData.find(x => x.id === id);
           if (l) {
@@ -3721,34 +3608,32 @@ ${raw.slice(0, 4500)}
             l.date = document.getElementById("edit-lec-date").value.trim();
             l.notes = document.getElementById("edit-lec-notes").value.trim();
             l.link = document.getElementById("edit-lec-link").value.trim();
-            commitData();
+            commitData(true, true);
             renderLectures(document.getElementById("lecture-search").value);
             document.getElementById("edit-lec-modal").classList.remove("open");
-            showToast("Конспект обновлен");
+            showToast("Обновлено");
           }
         };
         document.getElementById("btn-close-lec-modal").onclick = () => document.getElementById("edit-lec-modal").classList.remove("open");
 
         document.getElementById("btn-add-prof").onclick = () => {
-          if (!canEdit()) return;
           const name = document.getElementById("new-prof-name").value.trim();
-          if (!name) { alert("Укажите ФИО преподавателя"); return; }
+          if (!name) { alert("Укажите ФИО"); return; }
           const nextId = teachersData.length > 0 ? Math.max(...teachersData.map(t => t.id)) + 1 : 1;
           teachersData.push({
             id: nextId,
             name: name,
             dept: document.getElementById("new-prof-dept").value.trim() || "Кафедра",
             subjects: document.getElementById("new-prof-subjects").value.trim() || "Дисциплина",
-            catchInfo: document.getElementById("new-prof-loc").value.trim() || "Кабинет уточняется"
+            catchInfo: document.getElementById("new-prof-loc").value.trim() || "Кабинет"
           });
-          commitData();
+          commitData(true, true);
           renderTeachers();
           document.getElementById("new-prof-name").value = "";
           showToast("Преподаватель добавлен");
         };
 
         document.getElementById("btn-save-prof").onclick = () => {
-          if (!canEdit()) return;
           const id = Number(document.getElementById("edit-prof-id").value);
           const pr = teachersData.find(x => x.id === id);
           if (pr) {
@@ -3756,22 +3641,21 @@ ${raw.slice(0, 4500)}
             pr.dept = document.getElementById("edit-prof-dept").value.trim();
             pr.subjects = document.getElementById("edit-prof-subjects").value.trim();
             pr.catchInfo = document.getElementById("edit-prof-loc").value.trim();
-            commitData();
+            commitData(true, true);
             renderTeachers(document.getElementById("prof-search").value);
             document.getElementById("edit-prof-modal").classList.remove("open");
-            showToast("Данные сохранены");
+            showToast("Обновлено");
           }
         };
         document.getElementById("btn-close-prof-modal").onclick = () => document.getElementById("edit-prof-modal").classList.remove("open");
 
-        // ГОСТ-шаблоны
         document.getElementById("btn-copy-title-page").onclick = () => {
-          const titleText = `МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ\nКАФЕДРА ФИНАНСОВ И КРЕДИТА\n\nДОКЛАД / РЕФЕРАТ\nпо дисциплине: Финансы, денежное обращение и кредит\n\nВыполнил студент группы 25А: ${currentStudentName || 'Иванов И.И.'}\nПроверил: преподаватель кафедры\n\n2026 год`;
-          navigator.clipboard.writeText(titleText).then(() => showToast("Шаблон титульного листа скопирован!"));
+          const titleText = `МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ\nКАФЕДРА ФИНАНСОВ И КРЕДИТА\n\nДОКЛАД\nпо дисциплине: Финансы, денежное обращение и кредит\n\nВыполнил студент группы 25А: ${currentStudentName || 'Иванов И.И.'}\n\n2026 год`;
+          navigator.clipboard.writeText(titleText).then(() => showToast("Скопировано!"));
         };
 
         document.getElementById("btn-download-gost-doc").onclick = () => {
-          downloadGostDocFile("Шаблон_ГОСТ_Группа25А", "ВВЕДЕНИЕ\n\nАктуальность темы обусловлена развитием финансовых рынков и нормами БК РФ...\n\nОСНОВНАЯ ЧАСТЬ\n\nАнализ статистических показателей и расчет балансовых коэффициентов...\n\nЗАКЛЮЧЕНИЕ\n\nСформулированы выводы к защите на семинаре.");
+          downloadGostDocFile("Шаблон_ГОСТ_Группа25А", "ВВЕДЕНИЕ\n\nАктуальность темы...\n\nОСНОВНАЯ ЧАСТЬ\n\nРасчет показателей...\n\nЗАКЛЮЧЕНИЕ\n\nВыводы.");
         };
 
         // Настройки и пароли
@@ -3784,11 +3668,10 @@ ${raw.slice(0, 4500)}
 
           const dirRec = await getStoredAuth("director");
           if (!(await verifyCredential(oldPass, dirRec))) {
-            alert("Действующий мастер-ключ Директора указан неверно");
+            alert("Мастер-ключ Директора не верен");
             return;
           }
-          if (newPass.length < 4) { alert("Минимум 4 символа для нового ключа"); return; }
-          if (newPass !== confPass) { alert("Новые ключи доступа не совпадают"); return; }
+          if (newPass.length < 4 || newPass !== confPass) { alert("Ошибка нового ключа"); return; }
 
           const salt = secureRandomHex(16);
           const newHash = await pbkdf2Hex(newPass, salt, AUTH_ITERATIONS);
@@ -3797,10 +3680,9 @@ ${raw.slice(0, 4500)}
           document.getElementById("settings-old-pass").value = "";
           document.getElementById("settings-new-pass").value = "";
           document.getElementById("settings-confirm-pass").value = "";
-          showToast("Ключ доступа обновлен и захеширован!");
+          showToast("Ключ обновлен");
         };
 
-        // Заводской сброс
         let resetTimerInterval = null;
         let resetSecs = 15;
         document.getElementById("btn-reset-data").onclick = () => {
@@ -3833,22 +3715,18 @@ ${raw.slice(0, 4500)}
         document.getElementById("btn-confirm-reset").onclick = () => {
           if (resetSecs > 0 || !canManageAdmin()) return;
           if (resetTimerInterval) clearInterval(resetTimerInterval);
-          appVersion = "v3.5 PRO";
-          localStorage.setItem("HUB_APP_VERSION", appVersion);
-          updateVersionUI();
           scheduleData = createDefaultSchedule25A();
           requirementsData = [...DEFAULT_REQUIREMENTS];
           deadlinesData = [];
           lecturesData = [];
           teachersData = [...DEFAULT_TEACHERS];
           seminarStore = {};
-          commitData();
+          commitData(true, true);
           rerenderAll();
           document.getElementById("reset-modal").classList.remove("open");
-          showToast("База сброшена к заводским настройкам!");
+          showToast("База сброшена!");
         };
 
-        // Поиск
         document.getElementById("req-search").oninput = (e) => renderRequirements(e.target.value);
         document.getElementById("lecture-search").oninput = (e) => renderLectures(e.target.value);
         document.getElementById("deadline-search").oninput = (e) => renderDeadlines(e.target.value);
@@ -3861,7 +3739,7 @@ ${raw.slice(0, 4500)}
         function openGlobalSearch() {
           searchModal.classList.add("open");
           searchInput.value = "";
-          searchResults.innerHTML = '<div class="empty-note">Введите предмет, преподавателя, дедлайн...</div>';
+          searchResults.innerHTML = '<div class="empty-note">Введите поисковый запрос...</div>';
           setTimeout(() => searchInput.focus(), 50);
         }
         function closeGlobalSearch() { searchModal.classList.remove("open"); }
@@ -3872,20 +3750,20 @@ ${raw.slice(0, 4500)}
 
         searchInput.oninput = () => {
           const s = searchInput.value.toLowerCase().trim();
-          if (!s) { searchResults.innerHTML = '<div class="empty-note">Введите поисковый запрос</div>'; return; }
+          if (!s) { searchResults.innerHTML = '<div class="empty-note">Введите запрос</div>'; return; }
           const results = [];
 
           teachersData.forEach(t => {
-            if (`${t.name} ${t.subjects} ${t.dept}`.toLowerCase().includes(s)) results.push({ kind: "Преподаватель", title: t.name, meta: t.subjects, view: "teachers" });
+            if (`${t.name} ${t.subjects}`.toLowerCase().includes(s)) results.push({ kind: "Преподаватель", title: t.name, meta: t.subjects, view: "teachers" });
           });
           deadlinesData.forEach(d => {
-            if (`${d.subject} ${d.topic} ${d.type}`.toLowerCase().includes(s)) results.push({ kind: "Дедлайн", title: d.topic, meta: `${d.subject} • ${d.date}`, view: "deadlines" });
+            if (`${d.subject} ${d.topic}`.toLowerCase().includes(s)) results.push({ kind: "Дедлайн", title: d.topic, meta: d.subject, view: "deadlines" });
           });
           lecturesData.forEach(l => {
-            if (`${l.subject} ${l.title} ${l.notes}`.toLowerCase().includes(s)) results.push({ kind: "Лекция", title: l.title, meta: l.subject, view: "lectures" });
+            if (`${l.subject} ${l.title}`.toLowerCase().includes(s)) results.push({ kind: "Лекция", title: l.title, meta: l.subject, view: "lectures" });
           });
           scheduleData.forEach(p => {
-            if (p.name && `${p.name} ${p.prof} ${p.room}`.toLowerCase().includes(s)) results.push({ kind: "Расписание", title: p.name, meta: `каб. ${p.room} • ${p.prof}`, view: "schedule" });
+            if (p.name && `${p.name} ${p.prof}`.toLowerCase().includes(s)) results.push({ kind: "Расписание", title: p.name, meta: `каб. ${p.room}`, view: "schedule" });
           });
 
           if (results.length === 0) { searchResults.innerHTML = '<div class="empty-note">Ничего не найдено</div>'; return; }
@@ -3910,7 +3788,6 @@ ${raw.slice(0, 4500)}
           });
         };
 
-        // Горячие клавиши
         document.addEventListener("keydown", e => {
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openGlobalSearch(); }
           if (e.key === 'Escape') {
@@ -3919,7 +3796,6 @@ ${raw.slice(0, 4500)}
           }
         });
 
-        // Конфиг шлюза и Gemini
         document.getElementById("btn-save-cloud-config").onclick = () => {
           if (!canManageAdmin()) return;
           cloudApiUrl = document.getElementById("cloud-api-url").value.trim();
@@ -3930,13 +3806,11 @@ ${raw.slice(0, 4500)}
 
         document.getElementById("btn-save-gemini-token").onclick = () => {
           if (!canManageAdmin()) return;
-          const val = document.getElementById("gemini-api-token-input").value.trim();
-          geminiApiToken = val;
+          geminiApiToken = document.getElementById("gemini-api-token-input").value.trim();
           localStorage.setItem("HUB_GEMINI_API_KEY", geminiApiToken);
-          showToast("Токен доступа к Gemini сохранен!");
+          showToast("Токен сохранен");
         };
 
-        // Экспорт/импорт JSON
         document.getElementById("btn-export-json").onclick = () => {
           const dump = { 
             version: 35, 
@@ -3952,11 +3826,11 @@ ${raw.slice(0, 4500)}
           const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
-          a.download = `backup_hub_25a_${new Date().toISOString().slice(0,10)}.json`;
+          a.download = `backup_25a_${new Date().toISOString().slice(0,10)}.json`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          showToast("Резервный файл базы скачан");
+          showToast("Файл скачан");
         };
 
         document.getElementById("import-file").onchange = (e) => {
@@ -3968,29 +3842,24 @@ ${raw.slice(0, 4500)}
             try {
               const parsed = JSON.parse(evt.target.result);
               if (parsed.schedule && parsed.requirements) {
-                if (parsed.appVersion) {
-                  appVersion = parsed.appVersion;
-                  localStorage.setItem("HUB_APP_VERSION", appVersion);
-                  updateVersionUI();
-                }
                 scheduleData = parsed.schedule;
                 requirementsData = parsed.requirements;
                 deadlinesData = parsed.deadlines || [];
                 lecturesData = parsed.lectures || [];
                 teachersData = parsed.teachers || [];
                 seminarStore = parsed.seminarStore || {};
-                commitData();
+                commitData(true, true);
                 rerenderAll();
-                showToast("База восстановлена из резервной копии");
+                showToast("Восстановлено");
               }
-            } catch (err) { alert("Ошибка структуры JSON-файла"); }
+            } catch (err) { alert("Ошибка JSON"); }
           };
           reader.readAsText(file);
         };
       }
 
       // ==========================================
-      // ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ
+      // СТАРТ
       // ==========================================
       async function init() {
         await initEphemeralCrypto();
@@ -4018,7 +3887,7 @@ ${raw.slice(0, 4500)}
           setTimeout(() => {
             document.getElementById("student-name-input").value = "";
             document.getElementById("student-name-modal").classList.add("open");
-          }, 500);
+          }, 300);
         }
 
         setInterval(() => {
@@ -4027,10 +3896,6 @@ ${raw.slice(0, 4500)}
           refreshHubStats();
           renderUrgentDeadlines();
           updateMyTopicBanner();
-          if (sessionState && Date.now() > sessionState.expiresAt) {
-            setAbiturientRole();
-            showToast("Время административной сессии истекло");
-          }
         }, 15000);
 
         setInterval(() => {
@@ -4041,1004 +3906,9 @@ ${raw.slice(0, 4500)}
           if (clk) clk.innerText = `${dateStr} • ${timeStr}`;
         }, 1000);
 
-        setTimeout(() => fetchFromCloud(), 500);
-        setInterval(() => fetchFromCloud(), 40000);
-      }
-
-
-      // Единый слой облачной синхронизации: реализован ниже без дублирующих переопределений.
-
-
-      // ============================================================
-      // ДОПОЛНИТЕЛЬНЫЙ УРОВЕНЬ НАДЁЖНОСТИ СИНХРОНИЗАЦИИ V2
-      // Реализует:
-      // 1) мягкую защиту от перезаписи через GET + timestamp;
-      // 2) офлайн-очередь и автоповтор;
-      // 3) журнал действий;
-      // 4) BroadcastChannel для мгновенной синхронизации вкладок;
-      // 5) автоматические локальные снапшоты/бэкапы.
-      // Существующий интерфейс и база данных не переписываются.
-      // ============================================================
-      (() => {
-        const HUB_BASE_REMOTE_KEY = "HUB_CLOUD_BASE_TIMESTAMP_V3";
-        const HUB_OFFLINE_QUEUE_KEY = "HUB_OFFLINE_QUEUE_V3";
-        const HUB_AUDIT_LOG_KEY = "HUB_AUDIT_LOG_V3";
-        const HUB_AUTO_BACKUPS_KEY = "HUB_AUTO_BACKUPS_V3";
-        const HUB_SYNC_DEVICE_KEY = "HUB_SYNC_DEVICE_V3";
-        const HUB_TAB_CHANNEL = "HUB_25A_SYNC_V3";
-        const HUB_MAX_QUEUE = 10;
-        const HUB_MAX_AUDIT = 50;
-        const HUB_MAX_BACKUPS = 5;
-        const HUB_POLL_INTERVAL_MS = 5000;
-        const HUB_VERIFY_RETRIES = 3;
-
-        let hubConflictPending = null;
-        let hubConflictIgnoredTimestamp = 0;
-        let hubLastCommittedState = null;
-        let hubSyncEnhancedBusy = false;
-        let hubFetchEnhancedBusy = false;
-
-        const hubDeviceId = (() => {
-          try {
-            const saved = localStorage.getItem(HUB_SYNC_DEVICE_KEY);
-            if (saved) return saved;
-            const id = "device_" + Math.random().toString(36).slice(2, 10) + "_" + Date.now().toString(36);
-            localStorage.setItem(HUB_SYNC_DEVICE_KEY, id);
-            return id;
-          } catch (_) {
-            return "device_unknown";
-          }
-        })();
-
-        let hubChannel = null;
-        try {
-          if ("BroadcastChannel" in window) {
-            hubChannel = new BroadcastChannel(HUB_TAB_CHANNEL);
-          }
-        } catch (_) {
-          hubChannel = null;
-        }
-
-        const hubJsonClone = value => {
-          try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
-        };
-
-        const hubReadJSON = (key, fallback) => {
-          try {
-            const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : fallback;
-          } catch (_) {
-            return fallback;
-          }
-        };
-
-        const hubWriteJSON = (key, value) => {
-          try {
-            localStorage.setItem(key, JSON.stringify(value));
-            return true;
-          } catch (_) {
-            return false;
-          }
-        };
-
-        const hubStateSnapshot = () => ({
-          version: 35,
-          appVersion,
-          schedule: hubJsonClone(scheduleData),
-          requirements: hubJsonClone(requirementsData),
-          deadlines: hubJsonClone(deadlinesData),
-          lectures: hubJsonClone(lecturesData),
-          teachers: hubJsonClone(teachersData),
-          seminarStore: hubJsonClone(seminarStore)
-        });
-
-        const hubRoleLabel = () => {
-          if (currentRole === "director") return "Директор";
-          if (currentRole === "deputy") return "Зам. директора";
-          return "Система";
-        };
-
-        const hubStampText = ts => {
-          try {
-            return new Date(Number(ts) || Date.now()).toLocaleString("ru-RU", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit"
-            });
-          } catch (_) {
-            return "";
-          }
-        };
-
-        const hubSetStatus = (text, tone = "dim") => {
-          const palette = {
-            green: "var(--green)",
-            orange: "var(--orange)",
-            red: "var(--red)",
-            accent: "var(--accent)",
-            dim: "var(--text-dim)"
-          };
-          const color = palette[tone] || palette.dim;
-
-          const ind = document.getElementById("cloud-status-indicator");
-          if (ind) {
-            ind.innerText = text;
-            ind.style.color = color;
-          }
-
-          const badge = document.getElementById("hub-sync-status");
-          if (badge) {
-            badge.innerText = text;
-            badge.style.color = color;
-          }
-        };
-
-        const hubEnsureSyncHeader = () => {
-          const actions = document.querySelector(".header-actions");
-          if (!actions || document.getElementById("hub-sync-status")) return;
-
-          const badge = document.createElement("span");
-          badge.id = "hub-sync-status";
-          badge.textContent = "☁️ Проверка";
-          badge.style.cssText = [
-            "background:rgba(255,255,255,.04)",
-            "border:1px solid var(--border)",
-            "color:var(--text-dim)",
-            "padding:3px 7px",
-            "border-radius:12px",
-            "font-size:9px",
-            "font-weight:800",
-            "white-space:nowrap"
-          ].join(";");
-
-          const version = actions.querySelector(".version-tag");
-          if (version && version.nextSibling) {
-            actions.insertBefore(badge, version.nextSibling);
-          } else {
-            actions.insertBefore(badge, actions.firstChild);
-          }
-        };
-
-        const hubInjectStyles = () => {
-          if (document.getElementById("hub-sync-v2-styles")) return;
-          const style = document.createElement("style");
-          style.id = "hub-sync-v2-styles";
-          style.textContent = `
-            .hub-conflict-banner {
-              position: fixed;
-              left: 10px;
-              right: 10px;
-              bottom: 78px;
-              z-index: 1200;
-              background: linear-gradient(145deg,#251b12,#17131a);
-              border: 1px solid var(--orange);
-              box-shadow: 0 16px 38px rgba(0,0,0,.62);
-              border-radius: 14px;
-              padding: 12px;
-            }
-            .hub-conflict-title { font-size: 13px; font-weight: 900; color: #fbbf24; }
-            .hub-conflict-text { font-size: 11px; line-height: 1.45; color: #cbd5e1; margin-top: 5px; }
-            .hub-conflict-actions { display:flex; gap:6px; margin-top:9px; }
-            .hub-sync-mini { margin-top: 6px; font-size: 10px; color: var(--text-dim); }
-            .hub-history-card, .hub-backup-card {
-              margin-top: 10px;
-              background: #0f131c;
-              border: 1px solid var(--border);
-              border-radius: 12px;
-              overflow: hidden;
-            }
-            .hub-history-head, .hub-backup-head {
-              display:flex;
-              justify-content:space-between;
-              align-items:center;
-              gap:8px;
-              padding:10px 12px;
-              cursor:pointer;
-            }
-            .hub-history-head h4, .hub-backup-head h4 { font-size:12px; }
-            .hub-history-list, .hub-backup-list { border-top:1px solid var(--border); display:none; max-height:290px; overflow:auto; }
-            .hub-history-card.open .hub-history-list,
-            .hub-backup-card.open .hub-backup-list { display:block; }
-            .hub-history-item, .hub-backup-item {
-              padding:9px 11px;
-              border-bottom:1px solid rgba(32,39,56,.8);
-            }
-            .hub-history-item:last-child, .hub-backup-item:last-child { border-bottom:none; }
-            .hub-history-meta, .hub-backup-meta {
-              font-size:9px;
-              color:var(--text-dim);
-              margin-bottom:3px;
-            }
-            .hub-history-action { font-size:11px; color:#e2e8f0; line-height:1.35; }
-            .hub-backup-row { display:flex; justify-content:space-between; gap:7px; align-items:center; }
-            .hub-backup-title { font-size:11px; color:#e2e8f0; font-weight:700; }
-            .hub-backup-button {
-              border:1px solid var(--border);
-              background:var(--card);
-              color:#cbd5e1;
-              border-radius:7px;
-              padding:5px 8px;
-              font-size:10px;
-              font-weight:800;
-              cursor:pointer;
-            }
-            .hub-backup-button:hover { border-color:var(--accent); color:#fff; }
-          `;
-          document.head.appendChild(style);
-        };
-
-        const hubRenderHistory = () => {
-          const list = document.getElementById("hub-history-list");
-          if (!list) return;
-          const history = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
-          if (!history.length) {
-            list.innerHTML = '<div class="empty-note">История пока пуста</div>';
-            return;
-          }
-
-          list.innerHTML = history.slice().reverse().map(item => `
-            <div class="hub-history-item">
-              <div class="hub-history-meta">${escapeHTML(item.actor || "Система")} • ${escapeHTML(hubStampText(item.timestamp))}</div>
-              <div class="hub-history-action">${escapeHTML(item.action || "Изменена база")}</div>
-            </div>
-          `).join("");
-        };
-
-        const hubEnsureAdminPanels = () => {
-          const settings = document.getElementById("view-settings");
-          if (!settings || document.getElementById("hub-history-card")) return;
-
-          const panel = document.createElement("div");
-          panel.className = "form-box admin-only";
-          panel.id = "hub-admin-tools-v2";
-          panel.innerHTML = `
-            <div id="hub-history-card" class="hub-history-card">
-              <div class="hub-history-head">
-                <h4>🕘 История правок</h4>
-                <span style="font-size:10px;color:var(--text-dim);">▾</span>
-              </div>
-              <div id="hub-history-list" class="hub-history-list"></div>
-            </div>
-
-            <div id="hub-backup-card" class="hub-backup-card">
-              <div class="hub-backup-head">
-                <h4>🛟 Автоматические снапшоты</h4>
-                <span id="hub-backup-count" style="font-size:10px;color:var(--text-dim);">0/5</span>
-              </div>
-              <div id="hub-backup-list" class="hub-backup-list"></div>
-            </div>
-          `;
-          settings.querySelector(".backup-panel")?.appendChild(panel);
-
-          const historyCard = panel.querySelector("#hub-history-card");
-          const backupCard = panel.querySelector("#hub-backup-card");
-
-          historyCard.querySelector(".hub-history-head").onclick = () => {
-            historyCard.classList.toggle("open");
-            hubRenderHistory();
-          };
-
-          backupCard.querySelector(".hub-backup-head").onclick = () => {
-            backupCard.classList.toggle("open");
-            hubRenderBackups();
-          };
-
-          hubRenderHistory();
-          hubRenderBackups();
-        };
-
-        const hubRenderBackups = () => {
-          const list = document.getElementById("hub-backup-list");
-          const count = document.getElementById("hub-backup-count");
-          if (!list || !count) return;
-
-          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
-          count.innerText = `${backups.length}/${HUB_MAX_BACKUPS}`;
-
-          if (!backups.length) {
-            list.innerHTML = '<div class="empty-note">Автобэкапов пока нет</div>';
-            return;
-          }
-
-          list.innerHTML = backups.slice().reverse().map((item, idx) => {
-            const realIndex = backups.length - 1 - idx;
-            return `
-              <div class="hub-backup-item">
-                <div class="hub-backup-row">
-                  <div>
-                    <div class="hub-backup-title">${escapeHTML(item.label || "Снимок базы")}</div>
-                    <div class="hub-backup-meta">${escapeHTML(hubStampText(item.timestamp))}</div>
-                  </div>
-                  <button class="hub-backup-button" data-backup-index="${realIndex}">Восстановить</button>
-                </div>
-              </div>
-            `;
-          }).join("");
-
-          list.querySelectorAll("[data-backup-index]").forEach(btn => {
-            btn.onclick = () => hubRestoreBackup(Number(btn.dataset.backupIndex));
-          });
-        };
-
-        const hubAddHistory = action => {
-          const history = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
-          history.push({
-            id: "audit_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8),
-            timestamp: Date.now(),
-            actor: hubRoleLabel(),
-            action: String(action || "Изменена база"),
-            device: hubDeviceId
-          });
-
-          while (history.length > HUB_MAX_AUDIT) history.shift();
-          hubWriteJSON(HUB_AUDIT_LOG_KEY, history);
-          hubRenderHistory();
-          return history;
-        };
-
-        const hubMergeAuditLogs = (remoteLog, localLog) => {
-          const map = new Map();
-          [...(remoteLog || []), ...(localLog || [])].forEach(item => {
-            if (!item || !item.id) return;
-            map.set(item.id, item);
-          });
-          return [...map.values()]
-            .sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0))
-            .slice(-HUB_MAX_AUDIT);
-        };
-
-        const hubDescribeChanges = (before, after) => {
-          if (!before || !after) return "Изменена база";
-
-          const parts = [];
-          const fieldNames = {
-            name: "название",
-            prof: "преподаватель",
-            room: "кабинет",
-            type: "тип",
-            task: "задание",
-            link: "ссылка",
-            linkTitle: "название ссылки"
-          };
-
-          const beforeSchedule = Array.isArray(before.schedule) ? before.schedule : [];
-          const afterSchedule = Array.isArray(after.schedule) ? after.schedule : [];
-          const beforeMap = new Map(beforeSchedule.map(x => [String(x.id), x]));
-          const afterMap = new Map(afterSchedule.map(x => [String(x.id), x]));
-
-          for (const [id, next] of afterMap.entries()) {
-            const prev = beforeMap.get(id);
-            if (!prev) {
-              parts.push(`Добавлена пара: ${next.name || "пустой слот"}`);
-            } else {
-              for (const key of Object.keys(fieldNames)) {
-                const a = prev[key] ?? "";
-                const b = next[key] ?? "";
-                if (String(a) !== String(b)) {
-                  const label = fieldNames[key];
-                  const extra = key === "room"
-                    ? `каб. ${a || "—"} → ${b || "—"}`
-                    : `${label}: ${a || "—"} → ${b || "—"}`;
-                  parts.push(`${next.name || "Пара"} — ${extra}`);
-                  break;
-                }
-              }
-            }
-            if (parts.length >= 3) break;
-          }
-
-          for (const keyInfo of [
-            ["requirements", "регламентов"],
-            ["deadlines", "заданий"],
-            ["lectures", "лекций"],
-            ["teachers", "преподавателей"]
-          ]) {
-            if (parts.length >= 3) break;
-            const beforeList = JSON.stringify(before[keyInfo[0]] || []);
-            const afterList = JSON.stringify(after[keyInfo[0]] || []);
-            if (beforeList !== afterList) {
-              parts.push(`Изменены ${keyInfo[1]}`);
-            }
-          }
-
-          if (JSON.stringify(before.seminarStore || {}) !== JSON.stringify(after.seminarStore || {})) {
-            parts.push("Изменены темы семинаров");
-          }
-
-          return parts.slice(0, 3).join(" • ") || "Изменена база";
-        };
-
-        const hubQueueLoad = () => hubReadJSON(HUB_OFFLINE_QUEUE_KEY, []);
-        const hubQueueSave = queue => {
-          const safe = Array.isArray(queue) ? queue.slice(-HUB_MAX_QUEUE) : [];
-          hubWriteJSON(HUB_OFFLINE_QUEUE_KEY, safe);
-        };
-
-        const hubQueuePush = baseState => {
-          const queue = hubQueueLoad();
-          queue.push({
-            timestamp: Date.now(),
-            baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
-            state: hubJsonClone(baseState)
-          });
-          hubQueueSave(queue);
-        };
-
-        const hubQueueClear = () => {
-          try { localStorage.removeItem(HUB_OFFLINE_QUEUE_KEY); } catch (_) {}
-        };
-
-        const hubCreateAutoBackup = (label = "Автоматический снимок") => {
-          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
-          backups.push({
-            id: "backup_" + Date.now().toString(36),
-            timestamp: Date.now(),
-            label,
-            actor: hubRoleLabel(),
-            state: hubStateSnapshot()
-          });
-
-          while (backups.length > HUB_MAX_BACKUPS) backups.shift();
-
-          // При переполнении localStorage уменьшаем число снимков до тех пор,
-          // пока запись не пройдёт. Самая новая копия сохраняется первой.
-          let current = backups;
-          while (current.length > 0 && !hubWriteJSON(HUB_AUTO_BACKUPS_KEY, current)) {
-            current = current.slice(1);
-          }
-          hubRenderBackups();
-        };
-
-        function hubRestoreBackup(index) {
-          if (!canManageAdmin()) {
-            showToast("🔒 Восстановление автобэкапа доступно только директору");
-            return;
-          }
-
-          const backups = hubReadJSON(HUB_AUTO_BACKUPS_KEY, []);
-          const item = backups[index];
-          if (!item || !item.state) {
-            showToast("Автобэкап не найден");
-            return;
-          }
-
-          if (!confirm(`Восстановить снимок от ${hubStampText(item.timestamp)}? Текущая база перед этим сохранится в Undo.`)) {
-            return;
-          }
-
-          const state = item.state;
-          scheduleData = hubJsonClone(state.schedule || scheduleData);
-          requirementsData = hubJsonClone(state.requirements || requirementsData);
-          deadlinesData = hubJsonClone(state.deadlines || deadlinesData);
-          lecturesData = hubJsonClone(state.lectures || lecturesData);
-          teachersData = hubJsonClone(state.teachers || teachersData);
-          seminarStore = hubJsonClone(state.seminarStore || seminarStore);
-          if (state.appVersion) {
-            appVersion = state.appVersion;
-            localStorage.setItem("HUB_APP_VERSION", appVersion);
-            updateVersionUI();
-          }
-
-          hubConflictIgnoredTimestamp = 0;
-          commitData(true, true);
-          rerenderAll();
-          hubAddHistory(`Восстановлен автобэкап от ${hubStampText(item.timestamp)}`);
-          showToast("🛟 Снимок восстановлен и отправляется в облако");
-        }
-
-        const hubShowConflict = (source, remoteTime, manual = false) => {
-          if (!source || !remoteTime) return;
-          if (!manual && hubConflictIgnoredTimestamp === remoteTime) return;
-
-          hubConflictPending = { source: hubJsonClone(source), remoteTime };
-          let box = document.getElementById("hub-conflict-banner");
-
-          if (!box) {
-            box = document.createElement("div");
-            box.id = "hub-conflict-banner";
-            box.className = "hub-conflict-banner";
-            document.body.appendChild(box);
-          }
-
-          box.innerHTML = `
-            <div class="hub-conflict-title">⚠️ База изменилась на другом устройстве</div>
-            <div class="hub-conflict-text">
-              Облако: <b>${escapeHTML(hubStampText(remoteTime))}</b>.
-              Твои локальные изменения ещё не были записаны поверх этой версии.
-            </div>
-            <div class="hub-conflict-actions">
-              <button id="hub-conflict-accept" class="btn-submit" style="flex:1;">🔄 Обновить данные</button>
-              <button id="hub-conflict-dismiss" class="btn-action" style="flex:1;">Оставить мои изменения</button>
-            </div>
-          `;
-
-          box.querySelector("#hub-conflict-accept").onclick = () => {
-            const pending = hubConflictPending;
-            if (pending) hubApplyRemote(pending.source, pending.remoteTime, true);
-            hubConflictPending = null;
-            box.remove();
-          };
-
-          box.querySelector("#hub-conflict-dismiss").onclick = () => {
-            if (hubConflictPending) hubConflictIgnoredTimestamp = hubConflictPending.remoteTime;
-            hubConflictPending = null;
-            box.remove();
-            hubSetStatus("🟠 Ожидает решения", "orange");
-          };
-        };
-
-        const hubHideConflict = () => {
-          hubConflictPending = null;
-          const box = document.getElementById("hub-conflict-banner");
-          if (box) box.remove();
-        };
-
-        const hubApplyRemote = (source, remoteTime, manual = false) => {
-          if (!source || !source.schedule || !source.requirements) return;
-
-          scheduleData = hubJsonClone(source.schedule);
-          requirementsData = hubJsonClone(source.requirements);
-          deadlinesData = hubJsonClone(source.deadlines || []);
-          lecturesData = hubJsonClone(source.lectures || []);
-          teachersData = hubJsonClone(source.teachers || []);
-          seminarStore = hubJsonClone(source.seminarStore || {});
-
-          if (source.appVersion) {
-            appVersion = source.appVersion;
-            localStorage.setItem("HUB_APP_VERSION", appVersion);
-            updateVersionUI();
-          }
-
-          if (Array.isArray(source.auditLog)) {
-            hubWriteJSON(HUB_AUDIT_LOG_KEY, source.auditLog.slice(-HUB_MAX_AUDIT));
-          }
-
-          localDataTimestamp = Number(remoteTime) || Date.now();
-          localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(localDataTimestamp));
-          localStorage.setItem(HUB_BASE_REMOTE_KEY, String(localDataTimestamp));
-
-          try { localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1"); } catch (_) {}
-          try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0"); } catch (_) {}
-          try { localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(localDataTimestamp)); } catch (_) {}
-
-          hubQueueClear();
-          hubLastCommittedState = hubStateSnapshot();
-
-          commitData(false, false);
-          rerenderAll();
-          hubRenderHistory();
-          hubRenderBackups();
-          hubHideConflict();
-          hubConflictIgnoredTimestamp = 0;
-          hubSetStatus("🟢 Синхронизировано", "green");
-
-          if (manual) showToast("☁️ База синхронизирована");
-        };
-
-        const hubFetchRemote = async () => {
-          if (!cloudApiUrl) return null;
-
-          let lastError = null;
-
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 9000);
-
-            try {
-              const cacheBust = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-              const res = await fetch(`${cloudApiUrl}?hub_sync_v3=${cacheBust}`, {
-                method: "GET",
-                cache: "no-store",
-                signal: controller.signal,
-                headers: {
-                  "Cache-Control": "no-cache, no-store, must-revalidate",
-                  "Pragma": "no-cache"
-                }
-              });
-
-              if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
-
-              const data = await res.json();
-              const source = data.record || data;
-              const remoteTime = Number(source && source.timestamp) || 0;
-
-              if (!source || !remoteTime || !source.schedule || !source.requirements) {
-                return { source: null, remoteTime: 0 };
-              }
-
-              if (source.seal) {
-                const expectedSeal = await calculateIntegritySeal(source);
-                if (!constantTimeEqual(source.seal, expectedSeal)) {
-                  throw new Error("integrity");
-                }
-              }
-
-              return { source, remoteTime };
-            } catch (err) {
-              lastError = err;
-              if (err && err.message === "integrity") throw err;
-              if (attempt < 3) await new Promise(r => setTimeout(r, 250 * attempt));
-            } finally {
-              clearTimeout(timeout);
-            }
-          }
-
-          throw lastError || new Error("Cloud GET failed");
-        };
-
-        const hubOfflineStatusFromError = () => {
-          hubSetStatus(navigator.onLine ? "🟠 Ожидает сети" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
-        };
-
-        // Сохраняем текущую версию базы как очередь, если изменение появилось
-        // без подтверждённой записи в облаке.
-        const hubMarkLocalPending = state => {
-          hubQueuePush(state);
-          try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "1"); } catch (_) {}
-          hubSetStatus(navigator.onLine ? "🟠 Ожидает отправки" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
-        };
-
-        // Перехватываем commitData после уже существующего слоя синхронизации.
-        const hubPreviousCommitDataV2 = commitData;
         hubLastCommittedState = hubStateSnapshot();
-
-        commitData = function(saveHistory = true, pushCloud = true) {
-          const before = hubJsonClone(hubLastCommittedState || hubStateSnapshot());
-
-          // Только директор/зам. директора являются источниками общей базы.
-          // Личные действия студента (например, отметка задания) не попадают
-          // в общую очередь и не создают административный журнал.
-          if (pushCloud && canEdit()) {
-            hubConflictIgnoredTimestamp = 0;
-            localDataTimestamp = Math.max(Date.now(), Number(localDataTimestamp) + 1);
-            try { localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(localDataTimestamp)); } catch (_) {}
-
-            const after = hubStateSnapshot();
-            hubMarkLocalPending(after);
-
-            const action = saveHistory
-              ? hubDescribeChanges(before, after)
-              : "↩️ Отмена/восстановление изменения";
-
-            hubAddHistory(action);
-
-            if (hubChannel) {
-              try {
-                hubChannel.postMessage({
-                  type: "state",
-                  sender: hubDeviceId,
-                  timestamp: localDataTimestamp,
-                  baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
-                  actor: hubRoleLabel(),
-                  action,
-                  state: after
-                });
-              } catch (_) {}
-            }
-
-            // Локальный снапшот делается до попытки облачной записи.
-            hubCreateAutoBackup(saveHistory ? action : "Локальное восстановление");
-          }
-
-          const result = hubPreviousCommitDataV2(saveHistory, pushCloud);
-
-          // Первый слой старой совместимости мог поставить DIRTY даже для
-          // пользовательского действия без права редактирования. Возвращаем
-          // правильное состояние для таких локальных изменений.
-          if (pushCloud && !canEdit()) {
-            try { localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0"); } catch (_) {}
-          }
-
-          hubLastCommittedState = hubStateSnapshot();
-          return result;
-        };
-
-        // Защищённая запись: сначала читаем актуальную облачную версию,
-        // затем сравниваем её с базовой версией, от которой были сделаны правки.
-        syncToCloud = async function() {
-          if (!cloudApiUrl || !canEdit() || isSyncing || hubSyncEnhancedBusy) return false;
-          if (!navigator.onLine) {
-            hubSetStatus("🔴 Офлайн", "red");
-            return false;
-          }
-
-          hubSyncEnhancedBusy = true;
-          isSyncing = true;
-
-          try {
-            const remote = await hubFetchRemote();
-            const remoteSource = remote && remote.source;
-            const remoteTime = Number(remote && remote.remoteTime) || 0;
-            const baseRemoteTime = Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0;
-
-            if (remoteTime > 0 && remoteTime !== baseRemoteTime) {
-              hubShowConflict(remoteSource, remoteTime, false);
-              hubSetStatus("⚠️ Конфликт", "orange");
-              return false;
-            }
-
-            const localState = hubStateSnapshot();
-            let auditLog = hubReadJSON(HUB_AUDIT_LOG_KEY, []);
-            if (remoteSource && Array.isArray(remoteSource.auditLog)) {
-              auditLog = hubMergeAuditLogs(remoteSource.auditLog, auditLog);
-              hubWriteJSON(HUB_AUDIT_LOG_KEY, auditLog);
-              hubRenderHistory();
-            }
-
-            const writeTimestamp = Math.max(Date.now(), remoteTime + 1, Number(localDataTimestamp) + 1);
-            const payload = { ...localState, timestamp: writeTimestamp, auditLog };
-            payload.seal = await calculateIntegritySeal(payload);
-
-            let saved = false;
-            let lastPutError = null;
-
-            for (let attempt = 1; attempt <= HUB_VERIFY_RETRIES && !saved; attempt++) {
-              try {
-                const res = await fetch(`${cloudApiUrl}?hub_put=${writeTimestamp}&r=${Math.random().toString(36).slice(2,7)}`, {
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
-                    "Pragma": "no-cache"
-                  },
-                  body: JSON.stringify(payload),
-                  cache: "no-store"
-                });
-
-                if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
-
-                // Важный момент: успешный HTTP 200 ещё не означает, что GET уже
-                // видит новую запись. Проверяем фактическое состояние сервера.
-                await new Promise(r => setTimeout(r, 200 * attempt));
-                const verify = await hubFetchRemote();
-                if (Number(verify && verify.remoteTime) === writeTimestamp) {
-                  saved = true;
-                  break;
-                }
-
-                lastPutError = new Error("Cloud PUT accepted, but GET still returns an older revision");
-              } catch (err) {
-                lastPutError = err;
-                if (err && err.message === "integrity") throw err;
-              }
-            }
-
-            if (!saved) throw lastPutError || new Error("Cloud write verification failed");
-
-            localDataTimestamp = writeTimestamp;
-            localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(writeTimestamp));
-            localStorage.setItem(HUB_BASE_REMOTE_KEY, String(writeTimestamp));
-            localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(writeTimestamp));
-            localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
-            localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1");
-
-            hubQueueClear();
-            hubConflictIgnoredTimestamp = 0;
-            hubHideConflict();
-            hubCreateAutoBackup("☁️ Успешно сохранено в облако");
-            hubSetStatus(`🟢 Сохранено • ${hubStampText(writeTimestamp)}`, "green");
-            hubRenderHistory();
-
-            if (hubChannel) {
-              try {
-                hubChannel.postMessage({
-                  type: "cloud-commit",
-                  sender: hubDeviceId,
-                  timestamp: writeTimestamp,
-                  baseRemoteTimestamp: writeTimestamp,
-                  actor: hubRoleLabel(),
-                  action: "☁️ База сохранена в облако",
-                  state: hubJsonClone(localState),
-                  auditLog
-                });
-              } catch (_) {}
-            }
-
-            showToast("☁️ База реально записана в облако и проверена");
-            return true;
-          } catch (err) {
-            if (err && err.message === "integrity") {
-              hubSetStatus("⚠️ Слепок поврежден", "orange");
-              showToast("Облачные данные не прошли проверку целостности");
-              return false;
-            }
-
-            hubOfflineStatusFromError();
-            console.warn("Enhanced cloud write failed:", err);
-            return false;
-          } finally {
-            isSyncing = false;
-            hubSyncEnhancedBusy = false;
-          }
-        };
-
-        // Чтение облака теперь учитывает базовую удалённую версию и локальную очередь.
-        fetchFromCloud = async function(manual = false) {
-          if (!cloudApiUrl || hubSyncEnhancedBusy || hubFetchEnhancedBusy) return false;
-
-          hubFetchEnhancedBusy = true;
-          try {
-            const remote = await hubFetchRemote();
-            const source = remote && remote.source;
-            const remoteTime = Number(remote && remote.remoteTime) || 0;
-
-            if (!source || !remoteTime) {
-              hubSetStatus(navigator.onLine ? "🟡 Облако пустое" : "🔴 Офлайн", navigator.onLine ? "orange" : "red");
-              return false;
-            }
-
-            const baseRemoteTime = Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0;
-            const dirty = localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1";
-
-            if (dirty && remoteTime !== baseRemoteTime) {
-              hubShowConflict(source, remoteTime, manual);
-              hubSetStatus("⚠️ Конфликт", "orange");
-              return false;
-            }
-
-            if (!dirty && (manual || baseRemoteTime === 0 || remoteTime > baseRemoteTime)) {
-              hubApplyRemote(source, remoteTime, manual);
-              return true;
-            }
-
-            hubSetStatus(`🟢 Актуально • ${hubStampText(remoteTime)}`, "green");
-            return true;
-          } catch (err) {
-            hubOfflineStatusFromError();
-
-            if (manual && err && err.message === "integrity") {
-              showToast("Облачные данные повреждены или не прошли проверку");
-            }
-
-            return false;
-          } finally {
-            hubFetchEnhancedBusy = false;
-          }
-        };
-
-        // Мгновенная синхронизация между вкладками одного браузера.
-        if (hubChannel) {
-          hubChannel.onmessage = event => {
-            const msg = event && event.data;
-            if (!msg || msg.sender === hubDeviceId) return;
-            if (msg.type !== "state" && msg.type !== "cloud-commit") return;
-            if (!msg.state || !msg.timestamp) return;
-
-            const incomingTs = Number(msg.timestamp) || 0;
-            const localTs = Number(localDataTimestamp) || 0;
-            const dirty = localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1";
-
-            if (incomingTs <= localTs) return;
-
-            if (dirty && msg.type === "state") {
-              hubSetStatus("⚠️ Конфликт вкладок", "orange");
-              return;
-            }
-
-            try {
-              scheduleData = hubJsonClone(msg.state.schedule || scheduleData);
-              requirementsData = hubJsonClone(msg.state.requirements || requirementsData);
-              deadlinesData = hubJsonClone(msg.state.deadlines || deadlinesData);
-              lecturesData = hubJsonClone(msg.state.lectures || lecturesData);
-              teachersData = hubJsonClone(msg.state.teachers || teachersData);
-              seminarStore = hubJsonClone(msg.state.seminarStore || seminarStore);
-
-              if (msg.state.appVersion) {
-                appVersion = msg.state.appVersion;
-                localStorage.setItem("HUB_APP_VERSION", appVersion);
-                updateVersionUI();
-              }
-
-              if (Array.isArray(msg.auditLog)) {
-                hubWriteJSON(HUB_AUDIT_LOG_KEY, msg.auditLog.slice(-HUB_MAX_AUDIT));
-              }
-
-              localDataTimestamp = incomingTs;
-              localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(incomingTs));
-
-              if (msg.type === "cloud-commit") {
-                localStorage.setItem(HUB_BASE_REMOTE_KEY, String(Number(msg.baseRemoteTimestamp) || incomingTs));
-                localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
-                hubQueueClear();
-              }
-
-              hubLastCommittedState = hubStateSnapshot();
-              commitData(false, false);
-              rerenderAll();
-              hubRenderHistory();
-              hubSetStatus(msg.type === "cloud-commit" ? "🟢 Сохранено" : "🟢 Вкладка синхронизирована", "green");
-            } catch (err) {
-              console.warn("Broadcast sync error:", err);
-            }
-          };
-        }
-
-        // Дополнительная синхронизация вкладок через storage event.
-        window.addEventListener("storage", event => {
-          if (!event || event.key !== HUB_BASE_REMOTE_KEY || !event.newValue) return;
-          const incoming = Number(event.newValue) || 0;
-          const current = Number(localDataTimestamp) || 0;
-          if (incoming > current && localStorage.getItem("HUB_CLOUD_DIRTY_V2") !== "1") {
-            fetchFromCloud(false);
-          }
-        });
-
-        // Состояние сети.
-        window.addEventListener("offline", () => {
-          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
-            hubSetStatus("🔴 Офлайн — изменения сохранены", "red");
-          } else {
-            hubSetStatus("🔴 Офлайн", "red");
-          }
-        });
-
-        window.addEventListener("online", async () => {
-          hubSetStatus("🟡 Сеть восстановлена", "orange");
-          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
-            await syncToCloud();
-          } else {
-            await fetchFromCloud(false);
-          }
-        });
-
-        // Автоповтор очереди + облачная проверка.
-        setInterval(() => {
-          if (document.visibilityState !== "visible") return;
-
-          if (!navigator.onLine) {
-            if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
-              hubSetStatus("🔴 Офлайн — изменения сохранены", "red");
-            }
-            return;
-          }
-
-          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
-            syncToCloud();
-          } else {
-            fetchFromCloud(false);
-          }
-        }, HUB_POLL_INTERVAL_MS);
-
-        // Предотвращаем потерю локальных изменений при закрытии/перезагрузке:
-        // актуальный снимок уже находится в localStorage/очереди.
-        window.addEventListener("beforeunload", () => {
-          if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
-            const current = hubStateSnapshot();
-            hubWriteJSON(HUB_OFFLINE_QUEUE_KEY, [{
-              timestamp: Date.now(),
-              baseRemoteTimestamp: Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0,
-              state: current
-            }]);
-          }
-        });
-
-        // UI готов к моменту вызова init().
-        hubInjectStyles();
-        hubEnsureSyncHeader();
-        try {
-          const u = new URL(cloudApiUrl);
-          console.info("[HUB CLOUD] endpoint:", u.origin + u.pathname);
-        } catch (_) {}
-        hubEnsureAdminPanels();
-        hubRenderHistory();
-        hubRenderBackups();
-
-        if (!localStorage.getItem(HUB_BASE_REMOTE_KEY)) {
-          try { localStorage.setItem(HUB_BASE_REMOTE_KEY, "0"); } catch (_) {}
-        }
-
-        // Стартовые проверки: сразу и повторно после полной загрузки страницы.
-        setTimeout(() => {
-          if (navigator.onLine) fetchFromCloud(false);
-          else hubSetStatus("🔴 Офлайн", "red");
-        }, 250);
-        setTimeout(() => {
-          if (navigator.onLine) fetchFromCloud(false);
-        }, 1500);
-      })();
+        hubStartSync();
+      }
 
       init();
     })();
