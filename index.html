@@ -4046,251 +4046,7 @@ ${raw.slice(0, 4500)}
       }
 
 
-      // ============================================================
-      // ДОБАВОЧНЫЙ СЛОЙ СИНХРОНИЗАЦИИ МЕЖДУ ВСЕМИ УСТРОЙСТВАМИ
-      // Ничего из существующей базы/интерфейса не заменяет.
-      // ============================================================
-      (() => {
-        const HUB_SYNC_INTERVAL_MS = 8000;
-        const HUB_CLOUD_BOOTSTRAP_KEY = "HUB_CLOUD_BOOTSTRAPPED_V2";
-        const HUB_CLOUD_DIRTY_KEY = "HUB_CLOUD_DIRTY_V2";
-        const HUB_CLOUD_LAST_REMOTE_KEY = "HUB_CLOUD_LAST_REMOTE_V2";
-
-        const hubSyncSet = (key, value) => {
-          try { localStorage.setItem(key, String(value)); } catch (_) {}
-        };
-
-        const hubSyncGet = (key, fallback = "") => {
-          try {
-            const v = localStorage.getItem(key);
-            return v === null ? fallback : v;
-          } catch (_) {
-            return fallback;
-          }
-        };
-
-        const hubSyncHasPendingChanges = () => hubSyncGet(HUB_CLOUD_DIRTY_KEY, "0") === "1";
-
-        // В исходной версии новое устройство получает Date.now() и из-за этого
-        // может решить, что его локальная база "новее" облачной. Для первого
-        // облачного чтения это отключаем: облако является источником истины.
-        if (!localStorage.getItem("HUB_LOCAL_TIMESTAMP")) {
-          localDataTimestamp = 0;
-          try { localStorage.removeItem(HUB_CLOUD_BOOTSTRAP_KEY); } catch (_) {}
-        }
-
-        const hubOriginalCommitData = commitData;
-
-        // Любое существующее изменение данных помечаем как ожидающее отправки.
-        // Саму существующую функцию commitData не переписываем.
-        commitData = function(saveHistory = true, pushCloud = true) {
-          if (pushCloud) hubSyncSet(HUB_CLOUD_DIRTY_KEY, "1");
-          return hubOriginalCommitData(saveHistory, pushCloud);
-        };
-
-        // Усиленная отправка: те же данные, тот же шлюз, тот же формат.
-        syncToCloud = async function() {
-          if (!cloudApiUrl || !canEdit() || isSyncing) return;
-
-          isSyncing = true;
-          const writeTimestamp = Math.max(Date.now(), Number(localDataTimestamp) + 1);
-          localDataTimestamp = writeTimestamp;
-          hubSyncSet("HUB_LOCAL_TIMESTAMP", writeTimestamp);
-          hubSyncSet(HUB_CLOUD_DIRTY_KEY, "1");
-
-          const payload = {
-            version: 35,
-            appVersion: appVersion,
-            timestamp: writeTimestamp,
-            schedule: scheduleData,
-            requirements: requirementsData,
-            deadlines: deadlinesData,
-            lectures: lecturesData,
-            teachers: teachersData,
-            seminarStore: seminarStore
-          };
-
-          payload.seal = await calculateIntegritySeal(payload);
-
-          try {
-            const res = await fetch(cloudApiUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "no-cache"
-              },
-              body: JSON.stringify(payload),
-              cache: "no-store"
-            });
-
-            if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
-
-            hubSyncSet(HUB_CLOUD_DIRTY_KEY, "0");
-            hubSyncSet(HUB_CLOUD_BOOTSTRAP_KEY, "1");
-            hubSyncSet(HUB_CLOUD_LAST_REMOTE_KEY, writeTimestamp);
-
-            const ind = document.getElementById("cloud-status-indicator");
-            if (ind) {
-              ind.innerText = "🟢 Синхронизировано";
-              ind.style.color = "var(--green)";
-            }
-
-            showToast("☁️ База обновлена для всех устройств");
-          } catch (err) {
-            // Не сбрасываем DIRTY: повторная отправка произойдет при следующем
-            // изменении/обновлении после восстановления соединения.
-            const ind = document.getElementById("cloud-status-indicator");
-            if (ind) {
-              ind.innerText = "🟠 Не отправлено";
-              ind.style.color = "var(--orange)";
-            }
-            console.warn("Cloud write error:", err);
-          } finally {
-            isSyncing = false;
-          }
-        };
-
-        const applyHubRemoteData = (source, remoteTime, manual) => {
-          scheduleData = source.schedule;
-          requirementsData = source.requirements;
-          deadlinesData = source.deadlines || [];
-          lecturesData = source.lectures || [];
-          teachersData = source.teachers || [];
-          seminarStore = source.seminarStore || {};
-
-          if (source.appVersion) {
-            appVersion = source.appVersion;
-            localStorage.setItem("HUB_APP_VERSION", appVersion);
-          }
-
-          localDataTimestamp = remoteTime || Date.now();
-          hubSyncSet("HUB_LOCAL_TIMESTAMP", localDataTimestamp);
-          hubSyncSet(HUB_CLOUD_BOOTSTRAPPED_KEY, "1");
-          hubSyncSet(HUB_CLOUD_DIRTY_KEY, "0");
-          hubSyncSet(HUB_CLOUD_LAST_REMOTE_KEY, localDataTimestamp);
-
-          commitData(false, false);
-          rerenderAll();
-
-          const ind = document.getElementById("cloud-status-indicator");
-          if (ind) {
-            ind.innerText = "🟢 На связи";
-            ind.style.color = "var(--green)";
-          }
-
-          if (manual) showToast("☁️ База синхронизирована");
-        };
-
-        // Усиленное чтение: новое устройство сразу получает общую базу.
-        fetchFromCloud = async function(manual = false) {
-          if (!cloudApiUrl || isSyncing) return;
-
-          try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 9000);
-
-            let res;
-            try {
-              res = await fetch(cloudApiUrl + "?hub_sync=" + Date.now(), {
-                cache: "no-store",
-                signal: controller.signal,
-                headers: { "Cache-Control": "no-cache" }
-              });
-            } finally {
-              clearTimeout(timeout);
-            }
-
-            if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
-
-            const data = await res.json();
-            const source = data.record || data;
-            const remoteTime = Number(source.timestamp) || 0;
-
-            if (!source || !source.schedule || !source.requirements || !remoteTime) {
-              const ind = document.getElementById("cloud-status-indicator");
-              if (ind) {
-                ind.innerText = "🟡 Облако пустое";
-                ind.style.color = "var(--orange)";
-              }
-              return;
-            }
-
-            if (source.seal) {
-              const expectedSeal = await calculateIntegritySeal(source);
-              if (!constantTimeEqual(source.seal, expectedSeal)) {
-                const ind = document.getElementById("cloud-status-indicator");
-                if (ind) {
-                  ind.innerText = "⚠️ Слепок поврежден";
-                  ind.style.color = "var(--orange)";
-                }
-                if (manual) showToast("Облачные данные повреждены!");
-                return;
-              }
-            }
-
-            const localStamp = Number(localDataTimestamp) || 0;
-            const bootstrapped = hubSyncGet(HUB_CLOUD_BOOTSTRAP_KEY, "0") === "1";
-            const dirty = hubSyncHasPendingChanges();
-
-            // Ручное "Обновить базу" и первое открытие нового устройства.
-            if (manual || !bootstrapped || localStamp === 0) {
-              if (dirty && bootstrapped && manual) {
-                showToast("⚠️ Есть неотправленные локальные изменения");
-                return;
-              }
-              applyHubRemoteData(source, remoteTime, manual);
-              return;
-            }
-
-            // Автообновление: забираем только действительно более свежую облачную версию.
-            if (remoteTime > localStamp) {
-              if (dirty) {
-                const ind = document.getElementById("cloud-status-indicator");
-                if (ind) {
-                  ind.innerText = "🟠 Есть локальные изменения";
-                  ind.style.color = "var(--orange)";
-                }
-                return;
-              }
-
-              applyHubRemoteData(source, remoteTime, false);
-              showToast("☁️ База обновилась с другого устройства");
-              return;
-            }
-
-            const ind = document.getElementById("cloud-status-indicator");
-            if (ind) {
-              ind.innerText = "🟢 Актуально";
-              ind.style.color = "var(--green)";
-            }
-          } catch (err) {
-            const ind = document.getElementById("cloud-status-indicator");
-            if (ind) {
-              ind.innerText = "🔴 Офлайн-режим";
-              ind.style.color = "var(--red)";
-            }
-            console.warn("Cloud read error:", err);
-          }
-        };
-
-        // Если страница была открыта до изменения другой стороной — проверяем облако
-        // каждые 8 секунд, а не только раз в 40 секунд.
-        setInterval(() => {
-          if (document.visibilityState === "visible") fetchFromCloud(false);
-        }, HUB_SYNC_INTERVAL_MS);
-
-        // Мгновенная проверка при возврате во вкладку/фокусе.
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "visible") fetchFromCloud(false);
-        });
-
-        window.addEventListener("focus", () => fetchFromCloud(false));
-        window.addEventListener("pageshow", () => fetchFromCloud(false));
-
-        // После успешной обычной синхронизации дополнительно проверяем облако:
-        // это ускоряет появление общей базы на других устройствах.
-        setTimeout(() => fetchFromCloud(false), 1200);
-      })();
+      // Единый слой облачной синхронизации: реализован ниже без дублирующих переопределений.
 
 
       // ============================================================
@@ -4313,6 +4069,8 @@ ${raw.slice(0, 4500)}
         const HUB_MAX_QUEUE = 10;
         const HUB_MAX_AUDIT = 50;
         const HUB_MAX_BACKUPS = 5;
+        const HUB_POLL_INTERVAL_MS = 5000;
+        const HUB_VERIFY_RETRIES = 3;
 
         let hubConflictPending = null;
         let hubConflictIgnoredTimestamp = 0;
@@ -4863,37 +4621,52 @@ ${raw.slice(0, 4500)}
         const hubFetchRemote = async () => {
           if (!cloudApiUrl) return null;
 
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 9000);
+          let lastError = null;
 
-          try {
-            const res = await fetch(cloudApiUrl + "?hub_sync_v3=" + Date.now(), {
-              cache: "no-store",
-              signal: controller.signal,
-              headers: { "Cache-Control": "no-cache" }
-            });
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 9000);
 
-            if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
+            try {
+              const cacheBust = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+              const res = await fetch(`${cloudApiUrl}?hub_sync_v3=${cacheBust}`, {
+                method: "GET",
+                cache: "no-store",
+                signal: controller.signal,
+                headers: {
+                  "Cache-Control": "no-cache, no-store, must-revalidate",
+                  "Pragma": "no-cache"
+                }
+              });
 
-            const data = await res.json();
-            const source = data.record || data;
-            const remoteTime = Number(source && source.timestamp) || 0;
+              if (!res.ok) throw new Error("Cloud GET HTTP " + res.status);
 
-            if (!source || !remoteTime || !source.schedule || !source.requirements) {
-              return { source: null, remoteTime: 0 };
-            }
+              const data = await res.json();
+              const source = data.record || data;
+              const remoteTime = Number(source && source.timestamp) || 0;
 
-            if (source.seal) {
-              const expectedSeal = await calculateIntegritySeal(source);
-              if (!constantTimeEqual(source.seal, expectedSeal)) {
-                throw new Error("integrity");
+              if (!source || !remoteTime || !source.schedule || !source.requirements) {
+                return { source: null, remoteTime: 0 };
               }
-            }
 
-            return { source, remoteTime };
-          } finally {
-            clearTimeout(timeout);
+              if (source.seal) {
+                const expectedSeal = await calculateIntegritySeal(source);
+                if (!constantTimeEqual(source.seal, expectedSeal)) {
+                  throw new Error("integrity");
+                }
+              }
+
+              return { source, remoteTime };
+            } catch (err) {
+              lastError = err;
+              if (err && err.message === "integrity") throw err;
+              if (attempt < 3) await new Promise(r => setTimeout(r, 250 * attempt));
+            } finally {
+              clearTimeout(timeout);
+            }
           }
+
+          throw lastError || new Error("Cloud GET failed");
         };
 
         const hubOfflineStatusFromError = () => {
@@ -4981,8 +4754,6 @@ ${raw.slice(0, 4500)}
             const remoteTime = Number(remote && remote.remoteTime) || 0;
             const baseRemoteTime = Number(localStorage.getItem(HUB_BASE_REMOTE_KEY)) || 0;
 
-            // Если облако уже изменилось относительно той версии, на которой
-            // пользователь начал редактирование — не затираем изменения вслепую.
             if (remoteTime > 0 && remoteTime !== baseRemoteTime) {
               hubShowConflict(remoteSource, remoteTime, false);
               hubSetStatus("⚠️ Конфликт", "orange");
@@ -4997,45 +4768,58 @@ ${raw.slice(0, 4500)}
               hubRenderHistory();
             }
 
-            const writeTimestamp = Math.max(
-              Date.now(),
-              remoteTime + 1,
-              Number(localDataTimestamp) + 1
-            );
-
-            const payload = {
-              ...localState,
-              timestamp: writeTimestamp,
-              auditLog
-            };
+            const writeTimestamp = Math.max(Date.now(), remoteTime + 1, Number(localDataTimestamp) + 1);
+            const payload = { ...localState, timestamp: writeTimestamp, auditLog };
             payload.seal = await calculateIntegritySeal(payload);
 
-            const res = await fetch(cloudApiUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "no-cache"
-              },
-              body: JSON.stringify(payload),
-              cache: "no-store"
-            });
+            let saved = false;
+            let lastPutError = null;
 
-            if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
+            for (let attempt = 1; attempt <= HUB_VERIFY_RETRIES && !saved; attempt++) {
+              try {
+                const res = await fetch(`${cloudApiUrl}?hub_put=${writeTimestamp}&r=${Math.random().toString(36).slice(2,7)}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache"
+                  },
+                  body: JSON.stringify(payload),
+                  cache: "no-store"
+                });
+
+                if (!res.ok) throw new Error("Cloud PUT HTTP " + res.status);
+
+                // Важный момент: успешный HTTP 200 ещё не означает, что GET уже
+                // видит новую запись. Проверяем фактическое состояние сервера.
+                await new Promise(r => setTimeout(r, 200 * attempt));
+                const verify = await hubFetchRemote();
+                if (Number(verify && verify.remoteTime) === writeTimestamp) {
+                  saved = true;
+                  break;
+                }
+
+                lastPutError = new Error("Cloud PUT accepted, but GET still returns an older revision");
+              } catch (err) {
+                lastPutError = err;
+                if (err && err.message === "integrity") throw err;
+              }
+            }
+
+            if (!saved) throw lastPutError || new Error("Cloud write verification failed");
 
             localDataTimestamp = writeTimestamp;
-            try {
-              localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(writeTimestamp));
-              localStorage.setItem(HUB_BASE_REMOTE_KEY, String(writeTimestamp));
-              localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(writeTimestamp));
-              localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
-              localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1");
-            } catch (_) {}
+            localStorage.setItem("HUB_LOCAL_TIMESTAMP", String(writeTimestamp));
+            localStorage.setItem(HUB_BASE_REMOTE_KEY, String(writeTimestamp));
+            localStorage.setItem("HUB_CLOUD_LAST_REMOTE_V2", String(writeTimestamp));
+            localStorage.setItem("HUB_CLOUD_DIRTY_V2", "0");
+            localStorage.setItem("HUB_CLOUD_BOOTSTRAPPED_V2", "1");
 
             hubQueueClear();
             hubConflictIgnoredTimestamp = 0;
             hubHideConflict();
             hubCreateAutoBackup("☁️ Успешно сохранено в облако");
-            hubSetStatus("🟢 Сохранено", "green");
+            hubSetStatus(`🟢 Сохранено • ${hubStampText(writeTimestamp)}`, "green");
             hubRenderHistory();
 
             if (hubChannel) {
@@ -5053,7 +4837,7 @@ ${raw.slice(0, 4500)}
               } catch (_) {}
             }
 
-            showToast("☁️ База сохранена для всех устройств");
+            showToast("☁️ База реально записана в облако и проверена");
             return true;
           } catch (err) {
             if (err && err.message === "integrity") {
@@ -5063,6 +4847,7 @@ ${raw.slice(0, 4500)}
             }
 
             hubOfflineStatusFromError();
+            console.warn("Enhanced cloud write failed:", err);
             return false;
           } finally {
             isSyncing = false;
@@ -5099,7 +4884,7 @@ ${raw.slice(0, 4500)}
               return true;
             }
 
-            hubSetStatus("🟢 Актуально", "green");
+            hubSetStatus(`🟢 Актуально • ${hubStampText(remoteTime)}`, "green");
             return true;
           } catch (err) {
             hubOfflineStatusFromError();
@@ -5171,6 +4956,16 @@ ${raw.slice(0, 4500)}
           };
         }
 
+        // Дополнительная синхронизация вкладок через storage event.
+        window.addEventListener("storage", event => {
+          if (!event || event.key !== HUB_BASE_REMOTE_KEY || !event.newValue) return;
+          const incoming = Number(event.newValue) || 0;
+          const current = Number(localDataTimestamp) || 0;
+          if (incoming > current && localStorage.getItem("HUB_CLOUD_DIRTY_V2") !== "1") {
+            fetchFromCloud(false);
+          }
+        });
+
         // Состояние сети.
         window.addEventListener("offline", () => {
           if (localStorage.getItem("HUB_CLOUD_DIRTY_V2") === "1") {
@@ -5205,7 +5000,7 @@ ${raw.slice(0, 4500)}
           } else {
             fetchFromCloud(false);
           }
-        }, 8000);
+        }, HUB_POLL_INTERVAL_MS);
 
         // Предотвращаем потерю локальных изменений при закрытии/перезагрузке:
         // актуальный снимок уже находится в localStorage/очереди.
@@ -5223,6 +5018,10 @@ ${raw.slice(0, 4500)}
         // UI готов к моменту вызова init().
         hubInjectStyles();
         hubEnsureSyncHeader();
+        try {
+          const u = new URL(cloudApiUrl);
+          console.info("[HUB CLOUD] endpoint:", u.origin + u.pathname);
+        } catch (_) {}
         hubEnsureAdminPanels();
         hubRenderHistory();
         hubRenderBackups();
@@ -5231,11 +5030,14 @@ ${raw.slice(0, 4500)}
           try { localStorage.setItem(HUB_BASE_REMOTE_KEY, "0"); } catch (_) {}
         }
 
-        // Одна стартовая проверка чуть позже отрисовки.
+        // Стартовые проверки: сразу и повторно после полной загрузки страницы.
         setTimeout(() => {
           if (navigator.onLine) fetchFromCloud(false);
           else hubSetStatus("🔴 Офлайн", "red");
         }, 250);
+        setTimeout(() => {
+          if (navigator.onLine) fetchFromCloud(false);
+        }, 1500);
       })();
 
       init();
