@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Учебный Хаб • Группа 25А</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- Встроенный OCR-движок для мгновенного чтения фоток и сканов методичек -->
+  <!-- Встроенный OCR-движок для чтения фоток и сканов методичек -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
@@ -61,7 +61,6 @@
       opacity: 0.6;
     }
 
-    /* Ограничения для тех, кто не Директор */
     body:not(.is-director) .director-only {
       display: none !important;
     }
@@ -199,7 +198,6 @@
     .parsed-pairs-table th, .parsed-pairs-table td { border: 1px solid var(--border); padding: 5px 6px; text-align: left; }
     .parsed-pairs-table th { background: #0f131c; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
 
-    /* Превью прикрепленного изображения в карточке семинара */
     .seminar-img-thumb { width: 100%; max-height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s ease; margin-top: 4px; }
     .seminar-img-thumb:hover { filter: brightness(1.1); }
     .ocr-loader-bar { display: none; background: rgba(59,130,246,0.15); border: 1px solid var(--accent); border-radius: 8px; padding: 8px; font-size: 11px; color: #93c5fd; text-align: center; margin-top: 6px; }
@@ -409,24 +407,23 @@
     <div id="lectures-list"></div>
   </div>
 
-  <!-- ЭКРАН 5: ИИ-СИНТЕЗ (С ИСПРАВЛЕННЫМИ ФИЛЬТРАМИ «ДО» И «ПОСЛЕ») -->
+  <!-- ЭКРАН 5: ИИ-СИНТЕЗ (С КОЛОНОЧНЫМ РАЗБОРОМ 25А И ФИЛЬТРАМИ «ДО» И «ПОСЛЕ») -->
   <div id="view-ai-ingest" style="display: none;">
     <div class="gost-banner" style="background: linear-gradient(145deg, #18192a, #101221); border-color: rgba(139,92,246,0.4);">
-      🧠 <b>ИИ-Синтез и сканер любых учебных материалов:</b> Загрузите <b>фото листа с семинаром</b>, методичку, скан, PDF, Word или Excel. Двухконтурный фильтр очистит входящий текст от OCR-мусора и шапок кафедры (фильтр ДО), а при разборе нормализует темы и формулировки вопросов (фильтр ПОСЛЕ).
+      🧠 <b>ИИ-Синтез расписания и материалов (Колоночный парсер 25А):</b> Загрузите файл расписания колледжа (.xls, .xlsx) — система автоматически найдет колонку <b>25А</b> и прочитает пары <b>сверху вниз от понедельника до пятницы</b>, разделив семинары, лекции и практики. Также поддерживаются фото с телефона и PDF.
     </div>
 
     <div class="form-box" style="border-color: var(--purple);">
       <label class="file-drop-zone" for="ingest-file-input" id="ingest-file-dropzone" style="padding: 16px 10px; margin-bottom: 8px;">
-        <div class="file-drop-title" style="font-size: 13px; color: #c4b5fd;">📂 Выберите ЛЮБОЙ файл (Фото, Скан, PDF, Word, Excel, TXT)</div>
-        <div class="file-drop-sub" id="ingest-file-name-label">Поддерживаются любые фото с телефона и документы</div>
+        <div class="file-drop-title" style="font-size: 13px; color: #c4b5fd;">📂 Выберите файл расписания Excel (.xls, .xlsx) или фото задания</div>
+        <div class="file-drop-sub" id="ingest-file-name-label">Автоматический отбор столбца группы 25А</div>
         <input type="file" id="ingest-file-input" accept="*/*" style="display: none;">
       </label>
 
       <div class="ocr-loader-bar" id="ocr-loader-bar">
-        <span>🔍 Распознавание текста через встроенный OCR... <b id="ocr-progress-pct">0%</b></span>
+        <span>🔍 Распознавание текста через OCR... <b id="ocr-progress-pct">0%</b></span>
       </div>
 
-      <!-- Превью фото если загружено -->
       <div id="ingest-img-preview-wrap" style="display: none; margin-bottom: 8px; text-align: center;">
         <img id="ingest-img-preview" src="" style="max-height: 180px; border-radius: 8px; border: 1px solid var(--border);">
       </div>
@@ -434,16 +431,16 @@
       <div class="form-grid">
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1.1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Целевая дисциплина / группа:</label>
-            <input type="text" class="form-input" id="ingest-target-group-name" value="Финансы, денежное обращение и кредит">
+            <label style="font-size: 11px; color: var(--text-dim);">Целевая группа в файле:</label>
+            <input type="text" class="form-input" id="ingest-target-group-name" value="25А">
           </div>
           <div style="flex: 1.9;">
             <label style="font-size: 11px; color: var(--text-dim);">Сценарий обработки:</label>
             <select class="form-select" id="ingest-target-mode">
-              <option value="extract_to_seminars">🎯 Разобрать структуру семинара в карточки</option>
-              <option value="enrich_seminar">📑 Добавить темы к выбранной паре в расписании</option>
-              <option value="auto_patch">⚡ Импорт расписания (полная перезапись)</option>
+              <option value="auto_patch">⚡ Импорт расписания (полная замена)</option>
               <option value="merge_schedule">🔄 Умное слияние расписания</option>
+              <option value="extract_to_seminars">🎯 Разобрать структуру семинара в карточки</option>
+              <option value="enrich_seminar">📑 Добавить темы к выбранной паре</option>
               <option value="academic_extract">📄 Сформировать ГОСТ-доклад Word</option>
             </select>
           </div>
@@ -456,10 +453,10 @@
 
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-            <label style="font-size: 11px; color: var(--text-dim);">Текст задания или распознанные со скана данные:</label>
-            <button class="btn-action" id="btn-quick-clean-prefilter" style="padding: 2px 7px; font-size: 10px; border-color: rgba(139,92,246,0.4); color: #c4b5fd;">🧹 Фильтр ДО (очистить от мусора)</button>
+            <label style="font-size: 11px; color: var(--text-dim);">Текст расписания (ПН-ПТ) или задания:</label>
+            <button class="btn-action" id="btn-quick-clean-prefilter" style="padding: 2px 7px; font-size: 10px; border-color: rgba(139,92,246,0.4); color: #c4b5fd;">🧹 Фильтр ДО (очистить)</button>
           </div>
-          <textarea class="form-input" id="ingest-raw-text" rows="7" placeholder="Здесь появится распознанный текст с фото или вставьте текст вручную..."></textarea>
+          <textarea class="form-input" id="ingest-raw-text" rows="7" placeholder="Здесь появится структурированное расписание по дням или текст задания..."></textarea>
         </div>
 
         <button class="btn-submit" id="btn-run-ingest" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 11px; font-weight: 800;">
@@ -478,15 +475,12 @@
       <div style="font-size: 14px; font-weight: 800; color: #fff;" id="ingest-detected-title">Результаты анализа материала</div>
       <div class="diff-summary-box" id="ingest-diff-summary"></div>
       
-      <!-- Контейнер таблицы пар или тем -->
       <div id="ingest-preview-pairs-container" style="max-height: 35vh; overflow-y: auto;"></div>
-      
-      <!-- Контейнер для текстовых конспектов -->
       <div class="academic-paper-sheet" id="ingest-detected-body" style="display: none; max-height: 35vh;"></div>
 
       <div style="display: flex; gap: 8px; margin-top: 6px;">
         <button class="btn-submit editor-only" id="btn-commit-ingest" style="flex: 1; background: var(--green); padding: 11px; font-weight: 800;">
-          💾 Зафиксировать во вкладке «Семинары» / Сети
+          💾 Зафиксировать в расписание группы 25А
         </button>
         <button class="btn-action highlight" id="btn-download-ingest-doc" style="flex: 0.8;">
           📄 Скачать Word (.doc)
@@ -518,7 +512,6 @@
   <div id="view-settings" style="display: none;">
     <div class="backup-panel">
       
-      <!-- Ролевой статус и авторизация -->
       <div class="form-box" style="border-style: solid; border-color: var(--accent);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>🔐 Режим работы и доступ</span>
@@ -538,7 +531,6 @@
         </div>
       </div>
 
-      <!-- Облако -->
       <div class="form-box" style="border-style: solid; border-color: var(--border);">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           <span>☁️ Облачная синхронизация 25А</span>
@@ -557,7 +549,6 @@
         <button class="btn-action success" style="width: 100%; margin-top: 4px;" id="btn-test-cloud">🔄 Запросить свежие данные из облака</button>
       </div>
 
-      <!-- Управление версией (Директор) -->
       <div class="form-box director-only" style="border-color: var(--green);">
         <h4>🏷️ Метка версии системы (Директор)</h4>
         <div class="form-grid">
@@ -566,7 +557,6 @@
         </div>
       </div>
 
-      <!-- Смена паролей (Директор) -->
       <div class="form-box director-only" style="border-color: var(--orange);">
         <h4>🔑 Обновление паролей доступа (Директор)</h4>
         <div class="form-grid">
@@ -639,7 +629,6 @@
     </div>
   </div>
 
-  <!-- Модалка просмотра прикрепленного фото в полном размере -->
   <div class="modal-overlay" id="img-viewer-modal" style="z-index: 350;">
     <div class="modal-card" style="max-width: 95vw; max-height: 95vh; padding: 10px; text-align: center;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -852,13 +841,14 @@
     </div>
   </div>
 
+  <!-- МОДАЛКА БЫСТРОГО ИМПОРТА EXCEL -->
   <div class="modal-overlay" id="parser-modal">
     <div class="modal-card">
-      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Быстрый импорт расписания Excel</h3>
+      <h3 style="font-size: 15px; margin-bottom: 6px; color: #fff;">⚡ Импорт расписания Excel (25А)</h3>
       <div class="form-grid">
         <div style="display: flex; gap: 6px;">
           <div style="flex: 1;">
-            <label style="font-size: 11px; color: var(--text-dim);">Имя группы в файле:</label>
+            <label style="font-size: 11px; color: var(--text-dim);">Целевая группа:</label>
             <input type="text" class="form-input" id="parser-target-group" value="25А">
           </div>
           <div style="flex: 1; display: flex; align-items: center; height: 38px; margin-top: 18px;">
@@ -871,13 +861,13 @@
 
         <label class="file-drop-zone" for="parser-file-input">
           <div class="file-drop-title">📂 Загрузить файл расписания (.xls, .xlsx)</div>
-          <div class="file-drop-sub" id="parser-file-name-label">Авто-разбор столбца группы 25А</div>
-          <input type="file" id="parser-file-input" accept=".xls,.xlsx,.txt,.doc,.docx" style="display: none;">
+          <div class="file-drop-sub" id="parser-file-name-label">Считывание столбца 25А сверху вниз</div>
+          <input type="file" id="parser-file-input" accept=".xls,.xlsx" style="display: none;">
         </label>
 
         <textarea class="form-input" id="parser-input" rows="5" placeholder="Или вставьте текст расписания..."></textarea>
         
-        <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px; font-weight: 800;">🚀 Распознать и применить в хаб</button>
+        <button class="btn-submit" id="btn-run-parser" style="background: var(--green); padding: 11px; font-weight: 800;">🚀 Применить в расписание хаба</button>
         <button class="btn-action" id="btn-close-parser">Закрыть</button>
       </div>
     </div>
@@ -946,25 +936,33 @@
       ];
 
       function normalizeSubjectTitle(rawTitle) {
-        const t = String(rawTitle || '').toLowerCase();
+        const t = String(rawTitle || '').toLowerCase().trim();
         if (t.includes("статистик")) return "Статистика";
-        if (t.includes("финанс") || t.includes("денежн") || t.includes("кредит") || t.includes("фдоик")) return "Финансы, денежное обращение и кредит";
-        if (t.includes("эконом") && (t.includes("орг") || t.includes("предприят"))) return "Экономика организаций";
-        if (t.includes("информацион") || t.includes("ит в проф") || t.includes("информ. тех")) return "ИТ в проф деятельности";
+        if (t.includes("финанс") || t.includes("денежн") || t.includes("кредит") || t.includes("фдоик") || t.includes("ден.обращ")) {
+          return "Финансы, денежное обращение и кредит";
+        }
+        if (t.includes("эконом") || t.includes("эк-ка") || t.includes("экка") || t.includes("эк. орг")) {
+          return "Экономика организаций";
+        }
+        if (t.includes("информацион") || t.includes("ит в проф") || t.includes("информ. тех") || t.includes("ит в проф. деят")) {
+          return "ИТ в проф деятельности";
+        }
         if (t.includes("менеджм")) return "Менеджмент";
         if (t.includes("этик")) return "Профессиональная этика";
         if (t.includes("бжд") || t.includes("безопасн")) return "Безопасность жизнедеятельности";
         if (t.includes("истор")) return "История России";
-        if (t.includes("ин. яз") || t.includes("иностран") || t.includes("английск")) return "Ин. яз. в проф. деятельности";
-        if (t.includes("финансовой грамот") || t.includes("фин. грамот")) return "Основы финансовой грамотности";
-        return rawTitle.replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, '');
+        if (t.includes("ин. яз") || t.includes("ин.яз") || t.includes("иностран") || t.includes("английск")) {
+          return "Ин. яз. в проф. деятельности";
+        }
+        if (t.includes("финансовой грамот") || t.includes("фин. грамот") || t.includes("фин.грам")) {
+          return "Основы финансовой грамотности";
+        }
+        return rawTitle.replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, '').trim();
       }
 
       // =========================================================================
       // МОДУЛЬ ФИЛЬТРАЦИИ СЛОВ ДО И ПОСЛЕ ИИ-СИНТЕЗА
       // =========================================================================
-
-      // Список служебных стоп-паттернов университетских методичек (удаляются "ДО" синтеза)
       const PRE_FILTER_JUNK_PATTERNS = [
         /министерство\s+(?:науки|образования|просвещения)[^\n]*/i,
         /федеральное\s+государственное[^\n]*/i,
@@ -985,32 +983,22 @@
         /^\s*[\-_=~#*]{3,}\s*$/m
       ];
 
-      // 1. ФИЛЬТР «ДО» СИНТЕЗА: очистка сырого OCR-текста, сканов и копипаста
       function cleanTextBeforeIngest(rawText) {
         if (!rawText) return "";
         let text = String(rawText);
-
-        // Унификация переводов строк и пробелов
         text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         text = text.replace(/[\u00A0\u200B\u200E\uFEFF\t]+/g, ' ');
-
-        // Склейка разорванных переносов слов на концах строк: "инфля-\nционное" -> "инфляционное"
         text = text.replace(/([а-яёА-ЯЁa-zA-Z])-[\n\s]+([а-яёА-ЯЁa-zA-Z])/g, '$1$2');
-
-        // Нормализация кавычек и длинных тире
         text = text.replace(/[«»“”„“]/g, '"').replace(/[–—]/g, '-');
 
-        // Очистка от служебных университетских штампов и колонтитулов
         for (const pattern of PRE_FILTER_JUNK_PATTERNS) {
           text = text.replace(pattern, '');
         }
 
-        // Построчная фильтрация OCR-мусора
         const cleanedLines = text.split('\n')
           .map(l => l.trim())
           .filter(l => {
             if (!l) return false;
-            // Пропуск строк из 1-2 случайных символов/палочек сканера
             if (l.length <= 2 && !/^\d+[\.\)]?$/.test(l)) return false;
             if (/^[|~_=<>\-\*\+]{1,5}$/.test(l)) return false;
             return true;
@@ -1019,14 +1007,11 @@
         return cleanedLines.join('\n');
       }
 
-      // Капитализация первой буквы с сохранением устойчивых экономических аббревиатур
       function capitalizeClean(str) {
         if (!str) return "";
         let s = str.trim();
-        // Если вся строка в ВЕРХНЕМ РЕГИСТРЕ (типично для заголовков методичек)
         if (s === s.toUpperCase() && s.length > 5 && /[А-ЯЁ]/.test(s)) {
           s = s.charAt(0) + s.slice(1).toLowerCase();
-          // Восстанавливаем ключевые аббревиатуры
           const abbrs = ["РФ", "БК", "НК", "ЦБ", "ВВП", "ИПЦ", "ФОС", "СРС", "МВФ", "ВТО"];
           abbrs.forEach(ab => {
             const rx = new RegExp(`\\b${ab.toLowerCase()}\\b`, 'gi');
@@ -1038,11 +1023,9 @@
         return s;
       }
 
-      // Проверка строки на стоп-фразы рубрикации (чтобы заголовки не становились вопросами)
       function isJunkOrStopLine(line) {
         if (!line || line.length < 3) return true;
         const low = line.toLowerCase().trim();
-
         const stopWords = [
           "основные вопросы", "вопросы к семинару", "вопросы для обсуждения",
           "план семинара", "план занятия", "структура семинара",
@@ -1052,32 +1035,21 @@
           "литература:", "нормативно-правовые акты", "интернет-ресурсы",
           "методические указания", "контрольные вопросы", "вопросы для самопроверки"
         ];
-
         return stopWords.some(sw => low === sw || low === sw + ":" || low.startsWith(sw + ":"));
       }
 
-      // 2. ФИЛЬТР «ПОСЛЕ» СИНТЕЗА: очистка темы, вопроса, задания
       function cleanItemAfterIngest(rawItem) {
         if (!rawItem) return "";
         let s = String(rawItem).trim();
-
-        // 1. Срезание ведущей нумерации (5.1, 5.2), 1., 2), •, -, *, №3 и т.п.)
         s = s.replace(/^[\s\-\*•–—]*(?:(?:вопрос|тема|задание|пункт|раздел|вариант|сем\.?)\s*)?(?:\d+[\.\)\-:]*)+\s*/i, '');
-
-        // 2. Срезание префиксов рубрикации
         s = s.replace(/^(?:тема|тема семинара|основной вопрос|вопрос к семинару|вопрос|задание для срс|задание|реферат на тему|реферат|доклад на тему|доклад|сообщение)[:\-\s]+/i, '');
-
-        // 3. Срезание замыкающих служебных знаков препинания (; : , . -), но СОХРАНЕНИЕ знака вопроса
         s = s.replace(/[\s:;,\.\-]+$/, '');
-
-        // 4. Очистка случайных внешних кавычек
         s = s.replace(/^["'«](.*)["'»]$/, '$1').trim();
-
         return capitalizeClean(s);
       }
 
       // =========================================================================
-      // ИНТЕЛЛЕКТУАЛЬНЫЙ ПАРСЕР СТРОКИ ЗАНЯТИЯ
+      // ИНТЕЛЛЕКТУАЛЬНЫЙ ПАРСЕР СТРОКИ ЗАНЯТИЯ (С РАСПОЗНАВАНИЕМ С.5, Л.11, П.6)
       // =========================================================================
       function parseLessonCellString(rawText) {
         let raw = String(rawText || '').replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
@@ -1108,21 +1080,45 @@
         let ltype = "lecture";
         let task = "Конспект лекции";
 
-        const typePatterns = [
-          { rx: /\b(лаб(?:\.|ораторная)?|л\/р|л\.р\.)\b/i, type: "lab", task: "Лабораторная работа" },
-          { rx: /\b(практ(?:\.|ика|\. занятие)?|пр\.?|п\/з|п\.з\.)\b/i, type: "practice", task: "Практическое задание" },
-          { rx: /\b(семин(?:\.|ар)?|сем\.?|с\/з)\b/i, type: "seminar", task: "Подготовка к семинару" },
-          { rx: /\b(лекц(?:\.|ия)?|лек\.?|лк\.?|лк)\b/i, type: "lecture", task: "Конспект лекции" },
-          { rx: /\b(зач(?:ет|ёт)?|экз(?:амен)?|к\/р|к\.р\.|контр(?:\.|ольная)?)\b/i, type: "essay", task: "Подготовка к контролю/зачету" }
-        ];
+        // Проверяем сокращения с номерами тем (с.5, л.11, п.6, лаб.2)
+        const semNumMatch = raw.match(/\b(?:с|сем|семин)\.?\s*(\d+)\b/i);
+        const lecNumMatch = raw.match(/\b(?:л|лек|лекц)\.?\s*(\d+)\b/i);
+        const pracNumMatch = raw.match(/\b(?:п|пр|практ|п\/з|п\.з\.)\.?\s*(\d+)\b/i);
+        const labNumMatch = raw.match(/\b(?:лаб|л\/р|л\.р\.)\.?\s*(\d+)\b/i);
 
-        for (const tp of typePatterns) {
-          const m = raw.match(tp.rx);
-          if (m) {
-            ltype = tp.type;
-            task = tp.task;
-            raw = (raw.slice(0, m.index) + " " + raw.slice(m.index + m[0].length)).trim();
-            break;
+        if (semNumMatch) {
+          ltype = "seminar";
+          task = `Семинар №${semNumMatch[1]}`;
+          raw = (raw.slice(0, semNumMatch.index) + " " + raw.slice(semNumMatch.index + semNumMatch[0].length)).trim();
+        } else if (lecNumMatch) {
+          ltype = "lecture";
+          task = `Конспект лекции №${lecNumMatch[1]}`;
+          raw = (raw.slice(0, lecNumMatch.index) + " " + raw.slice(lecNumMatch.index + lecNumMatch[0].length)).trim();
+        } else if (pracNumMatch) {
+          ltype = "practice";
+          task = `Практическая работа №${pracNumMatch[1]}`;
+          raw = (raw.slice(0, pracNumMatch.index) + " " + raw.slice(pracNumMatch.index + pracNumMatch[0].length)).trim();
+        } else if (labNumMatch) {
+          ltype = "lab";
+          task = `Лабораторная работа №${labNumMatch[1]}`;
+          raw = (raw.slice(0, labNumMatch.index) + " " + raw.slice(labNumMatch.index + labNumMatch[0].length)).trim();
+        } else {
+          // Общие типы без номера
+          if (/\b(?:семин(?:\.|ар)?|сем\.?|с\/з)\b/i.test(raw)) {
+            ltype = "seminar"; task = "Подготовка к семинару";
+            raw = raw.replace(/\b(?:семин(?:\.|ар)?|сем\.?|с\/з)\b/gi, '').trim();
+          } else if (/\b(?:практ(?:\.|ика|\. занятие)?|пр\.?|п\/з|п\.з\.)\b/i.test(raw)) {
+            ltype = "practice"; task = "Практическое задание";
+            raw = raw.replace(/\b(?:практ(?:\.|ика|\. занятие)?|пр\.?|п\/з|п\.з\.)\b/gi, '').trim();
+          } else if (/\b(?:лаб(?:\.|ораторная)?|л\/р|л\.р\.)\b/i.test(raw)) {
+            ltype = "lab"; task = "Лабораторная работа";
+            raw = raw.replace(/\b(?:лаб(?:\.|ораторная)?|л\/р|л\.р\.)\b/gi, '').trim();
+          } else if (/\b(?:зач(?:ет|ёт)?|экз(?:амен)?|к\/р|к\.р\.|контр(?:\.|ольная)?)\b/i.test(raw)) {
+            ltype = "essay"; task = "Подготовка к контролю/зачету";
+            raw = raw.replace(/\b(?:зач(?:ет|ёт)?|экз(?:амен)?|к\/р|к\.р\.|контр(?:\.|ольная)?)\b/gi, '').trim();
+          } else if (/\b(?:лекц(?:\.|ия)?|лек\.?|лк\.?|лк)\b/i.test(raw)) {
+            ltype = "lecture"; task = "Конспект лекции";
+            raw = raw.replace(/\b(?:лекц(?:\.|ия)?|лек\.?|лк\.?|лк)\b/gi, '').trim();
           }
         }
 
@@ -1130,12 +1126,112 @@
         cleanName = cleanName.replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, '');
         const finalName = normalizeSubjectTitle(cleanName) || "Учебная дисциплина";
 
-        return { name: finalName, prof: prof || "Преподаватель кафедры", room: room || "209", type: ltype, task };
+        return {
+          name: finalName,
+          prof: prof || "Преподаватель кафедры",
+          room: room || "209",
+          type: ltype,
+          task: task
+        };
       }
 
       // =========================================================================
-      // ИМПОРТ РАСПИСАНИЯ ИЗ ТЕКСТА (ВОССТАНОВЛЕННАЯ ФУНКЦИЯ)
+      // КОЛОНОЧНЫЙ ПАРСЕР ТАБЛИЦЫ EXCEL (СКАНИРОВАНИЕ СВЕРХУ ВНИЗ СТОЛБЦА 25А)
       // =========================================================================
+      function parseExcelWorksheetByGroup(sheet, targetGroupName = "25А") {
+        if (typeof XLSX === 'undefined') return { pairs: [], text: "" };
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+        if (!rows || rows.length === 0) return { pairs: [], text: "" };
+
+        // Нормализация целевого названия группы для точного поиска
+        const cleanTarget = String(targetGroupName || "25А").toLowerCase().replace(/\s+/g, '').replace(/a/g, 'а');
+
+        let targetCol = -1;
+        let headerRowIdx = -1;
+
+        // Ищем строку с группами (обычно первые 10 строк таблицы)
+        for (let r = 0; r < Math.min(15, rows.length); r++) {
+          const row = rows[r];
+          for (let c = 0; c < row.length; c++) {
+            const cellVal = String(row[c] || '').toLowerCase().replace(/\s+/g, '').replace(/a/g, 'а');
+            if (cellVal === cleanTarget || cellVal === `${cleanTarget}(1пг)` || cellVal === `${cleanTarget}(2пг)` || cellVal.includes(cleanTarget)) {
+              targetCol = c;
+              headerRowIdx = r;
+              break;
+            }
+          }
+          if (targetCol !== -1) break;
+        }
+
+        if (targetCol === -1) {
+          // Если группа 25А не найдена по имени, пробуем взять 28 столбец
+          if (rows[5] && rows[5].length > 28) targetCol = 28;
+          else return { pairs: [], text: "Группа 25А не найдена в таблице Excel" };
+        }
+
+        const dayKeywords = [
+          { rx: /понедельник|пн/i, day: 1, name: "Понедельник" },
+          { rx: /вторник|вт/i, day: 2, name: "Вторник" },
+          { rx: /среда|ср/i, day: 3, name: "Среда" },
+          { rx: /четверг|чт/i, day: 4, name: "Четверг" },
+          { rx: /пятница|пт/i, day: 5, name: "Пятница" },
+          { rx: /суббота|сб/i, day: 6, name: "Суббота" }
+        ];
+
+        let curDay = 1;
+        let curDayName = "Понедельник";
+        const pairs = [];
+        const textLines = [];
+        let lastReportedDay = -1;
+
+        for (let r = (headerRowIdx !== -1 ? headerRowIdx + 1 : 0); r < rows.length; r++) {
+          const row = rows[r];
+          const col0 = String(row[0] || '').trim();
+          const col1 = String(row[1] || '').trim();
+          const val = String(row[targetCol] || '').trim();
+
+          // Определение дня недели по 0-й колонке
+          for (const dk of dayKeywords) {
+            if (dk.rx.test(col0)) {
+              curDay = dk.day;
+              curDayName = dk.name;
+              break;
+            }
+          }
+
+          // Определение номера пары (1, 2, 3...) по 1-й колонке
+          let pairNum = null;
+          const numMatch = col1.match(/^(\d+)/);
+          if (numMatch) {
+            pairNum = parseInt(numMatch[1], 10);
+          }
+
+          if (val && pairNum && pairNum >= 1 && pairNum <= 7) {
+            const parsed = parseLessonCellString(val);
+            if (parsed) {
+              pairs.push({
+                day: curDay,
+                num: pairNum,
+                name: parsed.name,
+                prof: parsed.prof,
+                room: parsed.room,
+                type: parsed.type,
+                task: parsed.task
+              });
+
+              if (curDay !== lastReportedDay) {
+                textLines.push(`\n📅 ${curDayName}:`);
+                lastReportedDay = curDay;
+              }
+              textLines.push(`${pairNum} пара: ${parsed.name} [${parsed.type.toUpperCase()}] • ${parsed.prof} (каб. ${parsed.room}) • ${parsed.task}`);
+            }
+          }
+        }
+
+        return { pairs, text: textLines.join('\n').trim() };
+      }
+
+      // Текстовый парсер расписания (для ручной вставки или фоток OCR)
       function processIngestScheduleData(rawText) {
         const text = cleanTextBeforeIngest(rawText);
         if (!text) return [];
@@ -1156,7 +1252,6 @@
         let autoNum = 1;
 
         for (const line of lines) {
-          // Проверяем день недели
           let dayMatched = false;
           for (const dk of dayKeywords) {
             if (dk.rx.test(line)) {
@@ -1168,7 +1263,6 @@
           }
           if (dayMatched) continue;
 
-          // Ищем номер пары: "1 пара", "1)", "1 08:30"
           let num = autoNum;
           const numMatch = line.match(/^(\d)[\s\)\.\-:]*(?:пара|п)?\s+/i);
           let content = line;
@@ -1219,15 +1313,21 @@
       const DEFAULT_REQUIREMENTS = [
         { id: 1, prof: "Инжиева Д. М.", subject: "Менеджмент", workType: "Реферат + Доклад", volume: "15-20 страниц", originality: "от 65%", deadlineRule: "До 28 сентября / защита на паре", criticalPoints: "Презентация 5-7 слайдов. Доклад ровно на 4-5 минут." },
         { id: 2, prof: "Фурин А. Д.", subject: "Статистика", workType: "РГР", volume: "10-15 страниц", originality: "Индивидуальный расчет", deadlineRule: "Практики (каб. 806)", criticalPoints: "Строго свой вариант. Сводные таблицы, расчет медианы, моды и дисперсии." },
-        { id: 3, prof: "Моторина Д. В.", subject: "Финансы, денежное обращение и кредит", workType: "Семинарский опрос", volume: "Тетрадь конспектов", originality: "Термины БК/НК РФ", deadlineRule: "Каждый семинар (каб. 211)", criticalPoints: "Структура бюджетной системы РФ. Статьи БК РФ и НК РФ." },
-        { id: 4, prof: "Мазниченко В. Л.", subject: "Экономика организаций", workType: "Типовой расчет", volume: "12-18 страниц", originality: "от 60%", deadlineRule: "Защита лично (каб. 1107)", criticalPoints: "Показатели основных средств, амортизация, себестоимость." }
+        { id: 3, prof: "Моторина Д. В.", subject: "Финансы, денежное обращение и кредит", workType: "Семинарский опрос", volume: "Тетрадь конспектов", originality: "Термины БК/НК РФ", deadlineRule: "Каждый семинар (каб. 810)", criticalPoints: "Структура бюджетной системы РФ. Статьи БК РФ и НК РФ." },
+        { id: 4, prof: "Мазниченко В. Л.", subject: "Экономика организаций", workType: "Типовой расчет", volume: "12-18 страниц", originality: "от 60%", deadlineRule: "Защита лично (каб. 1005)", criticalPoints: "Показатели основных средств, амортизация, себестоимость." }
       ];
 
+      // Полный актуальный список преподавателей группы 25А
       const DEFAULT_TEACHERS = [
-        { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 209, 211. До или после лекций." },
-        { id: 2, name: "Фурин А. Д.", dept: "Кафедра Статистики", subjects: "Статистика", catchInfo: "каб. 209, 806. Защита расчетов." },
-        { id: 3, name: "Мазниченко В. Л.", dept: "Кафедра Экономики", subjects: "Экономика организаций", catchInfo: "каб. 1107. Личная сдача." },
-        { id: 4, name: "Бридель Т. В.", dept: "Кафедра Информационных технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 606 / ВЦ." }
+        { id: 1, name: "Моторина Д. В.", dept: "Кафедра Финансов и кредита", subjects: "Финансы, денежное обращение и кредит", catchInfo: "каб. 810, 802, 1005. До или после пар." },
+        { id: 2, name: "Страхова И. В.", dept: "Кафедра Социально-гуманитарных дисциплин", subjects: "История России", catchInfo: "каб. 1005, 805. Семинары." },
+        { id: 3, name: "Конкова А. М.", dept: "Кафедра Иностранных языков", subjects: "Ин. яз. в проф. деятельности", catchInfo: "каб. 1005, 1108. Защита переводов." },
+        { id: 4, name: "Мазниченко В. Л.", dept: "Кафедра Экономики", subjects: "Экономика организаций", catchInfo: "каб. 1005, 1107. Личная сдача расчетов." },
+        { id: 5, name: "Войнов С. В.", dept: "Кафедра БЖД", subjects: "Безопасность жизнедеятельности", catchInfo: "каб. 1005, 504. Опрос по нормативам." },
+        { id: 6, name: "Бридель Т. В.", dept: "Кафедра Информационных технологий", subjects: "ИТ в проф деятельности", catchInfo: "каб. 606 / ВЦ." },
+        { id: 7, name: "Фурин А. Д.", dept: "Кафедра Статистики и ИТ", subjects: "Статистика", catchInfo: "каб. 504, 806. Защита расчетов." },
+        { id: 8, name: "Инжиева Д. М.", dept: "Кафедра Менеджмента", subjects: "Менеджмент", catchInfo: "каб. 504. Доклады и рефераты." },
+        { id: 9, name: "Григор О. Г.", dept: "Кафедра Философии и этики", subjects: "Профессиональная этика", catchInfo: "каб. 802." }
       ];
 
       function generateEmptyWeekGrid() {
@@ -1240,19 +1340,27 @@
         return list;
       }
 
+      // Базовое расписание группы 25А
       function createDefaultSchedule25A() {
         const grid = generateEmptyWeekGrid();
         const filled = {
-          "1-5": { name: "Статистика", prof: "Фурин А.Д.", room: "504", type: "lecture", task: "Конспект лекции №4" },
-          "1-6": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "practice", task: "Практическая работа №3" },
-          "2-2": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "907", type: "lecture", task: "Конспект лекции №5" },
-          "2-3": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "702", type: "lecture", task: "Конспект лекции №7" },
-          "3-1": { name: "Безопасность жизнедеятельности", prof: "Войнов С.В.", room: "504", type: "seminar", task: "Семинар №1" },
-          "3-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "504", type: "lecture", task: "Конспект лекции №8" },
-          "3-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "509", type: "practice", task: "Практическое задание №2" },
-          "4-3": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "1006", type: "seminar", task: "Семинар №3" },
-          "4-4": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Конспект лекции №4" },
-          "4-5": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "504", type: "lecture", task: "Конспект лекции №4" }
+          // Понедельник
+          "1-1": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "810", type: "seminar", task: "Семинар №5" },
+          "1-2": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "802", type: "lecture", task: "Конспект лекции №11" },
+          // Вторник
+          "2-1": { name: "История России", prof: "Страхова И.В.", room: "1005", type: "seminar", task: "Семинар №2" },
+          "2-2": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "1005", type: "practice", task: "Практическая работа №6" },
+          "2-3": { name: "Экономика организаций", prof: "Мазниченко В.Л.", room: "1005", type: "seminar", task: "Семинар №3" },
+          "2-4": { name: "Безопасность жизнедеятельности", prof: "Войнов С.В.", room: "1005", type: "seminar", task: "Семинар №2" },
+          // Среда
+          "3-4": { name: "ИТ в проф деятельности", prof: "Бридель Т.В.", room: "606", type: "practice", task: "Практическая работа №4" },
+          "3-5": { name: "Ин. яз. в проф. деятельности", prof: "Конкова А.М.", room: "1108", type: "practice", task: "Практическая работа №7" },
+          // Четверг
+          "4-2": { name: "Статистика", prof: "Фурин А.Д.", room: "504", type: "lecture", task: "Конспект лекции №5" },
+          "4-3": { name: "Менеджмент", prof: "Инжиева Д.М.", room: "504", type: "lecture", task: "Конспект лекции №6" },
+          // Пятница
+          "5-2": { name: "Профессиональная этика", prof: "Григор О.Г.", room: "802", type: "lecture", task: "Конспект лекции №6" },
+          "5-3": { name: "Финансы, денежное обращение и кредит", prof: "Моторина Д.В.", room: "1005", type: "lecture", task: "Конспект лекции №12" }
         };
         return grid.map(item => {
           const key = `${item.day}-${item.num}`;
@@ -1280,9 +1388,9 @@
           id: 1, 
           subject: "Финансы, денежное обращение и кредит", 
           type: "Семинар", 
-          date: "2026-10-01", 
-          topic: "Семинар 7: Инфляция и антиинфляционное регулирование", 
-          reqs: "Основные вопросы:\n5.1. Инфляция как социально-экономическое явление.\n5.2. Факторы развития инфляции, формы и виды.\n5.3. Основные методы антиинфляционной политики.\nСамостоятельно: Денежная реформа как способ борьбы с инфляцией.", 
+          date: "2026-10-12", 
+          topic: "Семинар 5: Инфляция и методы регулирования", 
+          reqs: "Основные вопросы:\n1. Инфляция как социально-экономическое явление.\n2. Факторы развития инфляции, формы и виды.\n3. Методы антиинфляционной политики ЦБ РФ.", 
           imgBase64: "", 
           completed: false 
         },
@@ -1290,7 +1398,7 @@
           id: 2, 
           subject: "Менеджмент", 
           type: "Реферат", 
-          date: "2026-09-28", 
+          date: "2026-10-15", 
           topic: "Эволюция школ менеджмента и методы мотивации", 
           reqs: "15-20 страниц, оригинальность от 65%", 
           imgBase64: "", 
@@ -1299,7 +1407,7 @@
       ]);
 
       let lecturesData = loadLocal("HUB_25A_LECTURES_STABLE", [
-        { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов", date: "14.09.2026", notes: "Распределительная, контрольная, стабилизирующая функции.", link: "" }
+        { id: 1, subject: "Финансы, денежное обращение и кредит", title: "Сущность и функции финансов (Лекция 11)", date: "05.10.2026", notes: "Распределительная, контрольная, стабилизирующая функции.", link: "" }
       ]);
       let teachersData = loadLocal("HUB_25A_TEACHERS_STABLE", DEFAULT_TEACHERS);
       let seminarStore = loadLocal("HUB_25A_SEMINARS_STABLE", {});
@@ -2177,14 +2285,13 @@
       }
 
       // =========================================================================
-      // ИИ-СИНТЕЗ: РАЗБОР СЕМИНАРА С ПОЛНОЙ ФИЛЬТРАЦИЕЙ «ДО» И «ПОСЛЕ»
+      // ИИ-СИНТЕЗ: РАЗБОР СЕМИНАРА И EXCEL
       // =========================================================================
       let parsedIngestSchedule = [];
       let parsedIngestSeminars = [];
       let lastIngestImageBase64 = "";
 
       function parseSeminarSheetText(rawText, defaultSubject = "Финансы, денежное обращение и кредит") {
-        // ШАГ 1: ФИЛЬТР ДО (очищаем сырой текст от шума, шапок ВУЗа и OCR-переносов)
         const cleanText = cleanTextBeforeIngest(rawText);
         const lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
 
@@ -2192,14 +2299,12 @@
         let questions = [];
         let independent = [];
         let refList = [];
-
         let currentSection = "header";
 
         for (let i = 0; i < lines.length; i++) {
           const l = lines[i];
           const lower = l.toLowerCase();
 
-          // Определение темы
           if (lower.includes("семинар") || lower.includes("тема:") || lower.startsWith("тема ")) {
             const nextL = lines[i+1] || "";
             if (l.length > 12) {
@@ -2211,7 +2316,6 @@
             continue;
           }
 
-          // Переключение секций
           if (lower.includes("основные вопросы") || lower.includes("вопросы к семинару") || lower.includes("вопросы для обсуждения")) {
             currentSection = "questions";
             continue;
@@ -2225,10 +2329,8 @@
             continue;
           }
 
-          // Пропускаем служебные заголовки
           if (isJunkOrStopLine(l)) continue;
 
-          // ШАГ 2: ФИЛЬТР ПОСЛЕ (очищаем найденные вопросы и задания от мусора и нумерации)
           if (currentSection === "questions") {
             const cleanQ = cleanItemAfterIngest(l);
             if (cleanQ.length >= 5 && !isJunkOrStopLine(cleanQ)) {
@@ -2242,14 +2344,12 @@
           } else if (currentSection === "literature") {
             refList.push(l);
           } else if (currentSection === "header" && !theme) {
-            // Если тема еще не найдена, и строка не является служебной
             if (l.length >= 8 && !isJunkOrStopLine(l)) {
               theme = cleanItemAfterIngest(l);
             }
           }
         }
 
-        // Если вопросов не выделилось по секциям, пробуем найти нумерованные строки
         if (questions.length === 0) {
           lines.forEach(l => {
             if (/^\d+[\.\)]/i.test(l) && !isJunkOrStopLine(l)) {
@@ -2268,8 +2368,8 @@
         };
       }
 
-      async function readAnyFileWithOCR(file) {
-        if (!file) return "";
+      async function readAnyFileWithOCR(file, targetGroup = "25А") {
+        if (!file) return { text: "", excelPairs: null };
         const name = file.name.toLowerCase();
 
         // 1. Картинка (JPG, PNG, WEBP, фото с телефона)
@@ -2290,33 +2390,32 @@
               try {
                 if (typeof Tesseract === 'undefined') {
                   loader.style.display = "none";
-                  resolve("OCR движок загружается... Попробуйте еще раз.");
+                  resolve({ text: "OCR движок загружается... Попробуйте еще раз.", excelPairs: null });
                   return;
                 }
                 const worker = await Tesseract.createWorker('rus');
                 const ret = await worker.recognize(base64);
                 await worker.terminate();
                 loader.style.display = "none";
-                
-                // Прогоняем сразу через фильтр ДО
-                resolve(cleanTextBeforeIngest(ret.data.text || ""));
+                resolve({ text: cleanTextBeforeIngest(ret.data.text || ""), excelPairs: null });
               } catch (err) {
                 console.error("OCR error:", err);
                 loader.style.display = "none";
-                resolve("Ошибка оптического распознавания фото. Введите текст вручную или выберите другой скан.");
+                resolve({ text: "Ошибка оптического распознавания фото. Введите текст вручную.", excelPairs: null });
               }
             };
             reader.readAsDataURL(file);
           });
         }
 
-        // 2. Excel
+        // 2. Excel (.xls, .xlsx) — сканирование столбца сверху вниз
         if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-          if (typeof XLSX === 'undefined') return "Библиотека XLSX загружается...";
+          if (typeof XLSX === 'undefined') return { text: "Библиотека XLSX загружается...", excelPairs: null };
           const data = await file.arrayBuffer();
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          return cleanTextBeforeIngest(XLSX.utils.sheet_to_txt(firstSheet));
+          const parsedRes = parseExcelWorksheetByGroup(firstSheet, targetGroup);
+          return { text: parsedRes.text, excelPairs: parsedRes.pairs };
         }
 
         // 3. Word (.docx)
@@ -2327,7 +2426,7 @@
             const matches = raw.match(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g);
             if (matches) {
               const docxText = matches.map(m => m.replace(/<[^>]+>/g, '')).join(' ');
-              return cleanTextBeforeIngest(docxText);
+              return { text: cleanTextBeforeIngest(docxText), excelPairs: null };
             }
           } catch (e) {}
         }
@@ -2335,8 +2434,8 @@
         // 4. Текстовые файлы и остальное
         return new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onload = (e) => resolve(cleanTextBeforeIngest(e.target.result || ""));
-          reader.onerror = () => resolve("");
+          reader.onload = (e) => resolve({ text: cleanTextBeforeIngest(e.target.result || ""), excelPairs: null });
+          reader.onerror = () => resolve({ text: "", excelPairs: null });
           reader.readAsText(file);
         });
       }
@@ -2378,7 +2477,6 @@
       // ПРИВЯЗКА СОБЫТИЙ И ИНТЕРФЕЙСА
       // ============================================================
       function bindEvents() {
-        // Навигация
         document.querySelectorAll(".view-btn").forEach(btn => {
           btn.onclick = () => {
             const view = btn.dataset.view;
@@ -2391,7 +2489,6 @@
           };
         });
 
-        // Дни недели
         document.querySelectorAll(".tab-btn").forEach(btn => {
           btn.onclick = () => {
             document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -2401,7 +2498,6 @@
           };
         });
 
-        // Кнопка дня "Сегодня"
         document.getElementById("hub-btn-today").onclick = () => {
           const d = new Date().getDay();
           activeDay = (d === 0) ? 1 : d;
@@ -2413,15 +2509,12 @@
           renderSchedule();
         };
 
-        // Быстрая ручная очистка фильтром «ДО»
         document.getElementById("btn-quick-clean-prefilter").onclick = () => {
           const txtArea = document.getElementById("ingest-raw-text");
-          const cleaned = cleanTextBeforeIngest(txtArea.value);
-          txtArea.value = cleaned;
+          txtArea.value = cleanTextBeforeIngest(txtArea.value);
           showToast("🧹 Фильтр ДО: OCR-шум и шапки удалены");
         };
 
-        // Ролевые модалки
         document.getElementById("btn-role-trigger").onclick = () => {
           document.getElementById("quick-pass-input").value = "";
           document.getElementById("auth-modal").classList.add("open");
@@ -2457,7 +2550,6 @@
         document.addEventListener('click', (e) => {
           const t = e.target;
 
-          // Просмотр полноразмерного фото
           if (t.classList.contains('btn-view-full-img')) {
             const imgSrc = decodeURIComponent(t.dataset.img);
             const title = t.dataset.title || "Материал задания";
@@ -2466,7 +2558,6 @@
             document.getElementById("img-viewer-modal").classList.add("open");
           }
 
-          // Редактирование пары
           if (t.classList.contains('btn-trigger-edit-pair')) {
             if (!canEdit()) { showToast("Доступно для Зам. директора и Директора 🔒"); return; }
             const id = Number(t.dataset.id);
@@ -2603,7 +2694,6 @@
           document.getElementById("img-viewer-modal").classList.remove("open");
         };
 
-        // Загрузка фото в ручном добавлении
         document.getElementById("new-dl-img-input").onchange = (e) => {
           const file = e.target.files[0];
           if (!file) return;
@@ -2616,7 +2706,6 @@
           reader.readAsDataURL(file);
         };
 
-        // Ручное добавление дедлайна с фильтрацией «ПОСЛЕ»
         document.getElementById("btn-add-deadline").onclick = () => {
           if (!canEdit()) return;
           const rawTopic = document.getElementById("new-dl-topic").value.trim();
@@ -2643,7 +2732,6 @@
           showToast("Семинар зафиксирован в хабе!");
         };
 
-        // Сохранение пары
         document.getElementById("btn-save-pair").onclick = () => {
           if (!canEdit()) return;
           const id = Number(document.getElementById("edit-pair-id").value);
@@ -2682,7 +2770,6 @@
           document.getElementById("edit-pair-modal").classList.remove("open");
         };
 
-        // Сохранение отредактированного семинара
         document.getElementById("btn-save-dl").onclick = () => {
           if (!canEdit()) return;
           const id = Number(document.getElementById("edit-dl-id").value);
@@ -2701,7 +2788,6 @@
         };
         document.getElementById("btn-close-dl-modal").onclick = () => document.getElementById("edit-dl-modal").classList.remove("open");
 
-        // Регламенты и лекции
         document.getElementById("btn-save-req").onclick = () => {
           if (!canEdit()) return;
           const id = Number(document.getElementById("edit-req-id").value);
@@ -2801,7 +2887,6 @@
           showToast("Преподаватель сохранен");
         };
 
-        // Профиль студента
         document.getElementById("btn-change-student-id").onclick = () => {
           document.getElementById("student-name-input").value = currentStudentName;
           document.getElementById("student-name-modal").classList.add("open");
@@ -2820,7 +2905,6 @@
           renderSchedule();
         };
 
-        // Семинар: запись на тему
         document.getElementById("btn-close-sem-modal").onclick = () => {
           document.getElementById("seminar-hub-modal").classList.remove("open");
         };
@@ -2829,7 +2913,7 @@
         };
 
         document.getElementById("btn-confirm-reserve-topic").onclick = () => {
-          if (!canEdit()) { showToast("Доступно для зарегистрированных редакторов и студентов 🔒"); return; }
+          if (!canEdit()) { showToast("Доступно для редакторов и студентов 🔒"); return; }
           if (!activeSeminarPairId || !viewingTopicId) return;
           const sem = ensureSeminarData(activeSeminarPairId);
           const topic = sem.topics.find(t => t.id === viewingTopicId);
@@ -2877,7 +2961,6 @@
           }
         };
 
-        // Генерация тем семинара
         document.getElementById("btn-generate-batch-ai").onclick = () => {
           if (!canEdit()) return;
           if (!activeSeminarPairId) return;
@@ -2964,7 +3047,7 @@
         };
 
         // =========================================================================
-        // ИИ-СИНТЕЗ: ОБРАБОТКА ДАННЫХ
+        // ИИ-СИНТЕЗ: ОБРАБОТКА ФАЙЛА И ПРЕДПРОСМОТР
         // =========================================================================
         document.getElementById("ingest-target-mode").onchange = (e) => {
           const isSeminar = e.target.value === 'enrich_seminar';
@@ -2972,32 +3055,39 @@
           if (isSeminar) updateIngestSeminarPairs();
         };
 
+        // Загрузка файла в ИИ-Синтез
         document.getElementById("ingest-file-input").onchange = async (e) => {
           const file = e.target.files[0];
           if (!file) return;
+          const targetGroup = document.getElementById("ingest-target-group-name").value.trim() || "25А";
           document.getElementById("ingest-file-name-label").innerText = `Файл: ${file.name} (${Math.round(file.size/1024)} Кб)`;
-          showToast("Чтение файла и оптическое распознавание...");
-          const text = await readAnyFileWithOCR(file);
-          document.getElementById("ingest-raw-text").value = text;
-          showToast("Текст распознан и очищен фильтром ДО!");
+          showToast("Чтение файла и сканирование столбца 25А...");
+
+          const res = await readAnyFileWithOCR(file, targetGroup);
+          document.getElementById("ingest-raw-text").value = res.text;
+
+          if (res.excelPairs && res.excelPairs.length > 0) {
+            parsedIngestSchedule = res.excelPairs;
+            showToast(`🚀 Найдено ${res.excelPairs.length} пар для группы ${targetGroup}!`);
+          } else {
+            showToast("Текст загружен и очищен фильтром ДО!");
+          }
         };
 
-        // Кнопка структурирования
+        // Нажатие кнопки «Обработать и структурировать»
         document.getElementById("btn-run-ingest").onclick = () => {
           const raw = document.getElementById("ingest-raw-text").value.trim();
           if (!raw) { alert("Загрузите файл или передайте текст задания"); return; }
 
           const mode = document.getElementById("ingest-target-mode").value;
-          const targetSub = document.getElementById("ingest-target-group-name").value.trim() || "Финансы, денежное обращение и кредит";
-
+          const targetGroup = document.getElementById("ingest-target-group-name").value.trim() || "25А";
           const previewBox = document.getElementById("ingest-preview-box");
           const diffBox = document.getElementById("ingest-diff-summary");
           const pairsContainer = document.getElementById("ingest-preview-pairs-container");
           const textSheet = document.getElementById("ingest-detected-body");
 
-          // Сценарий 1: Разбор структуры семинара в карточки
           if (mode === "extract_to_seminars") {
-            const semData = parseSeminarSheetText(raw, targetSub);
+            const semData = parseSeminarSheetText(raw, targetGroup);
             parsedIngestSeminars = [semData];
 
             diffBox.innerHTML = `
@@ -3030,23 +3120,21 @@
             `;
 
             previewBox.style.display = "flex";
-            showToast("✨ Семинар разобран и очищен! Нажмите «Зафиксировать»");
+            showToast("✨ Семинар разобран! Нажмите «Зафиксировать»");
             return;
           }
 
-          // Сценарий 2: Расписание
-          let pairs = [];
-          if (window._lastParsedExcelSchedule && window._lastParsedExcelSchedule.length > 0) {
-            pairs = window._lastParsedExcelSchedule;
-          } else {
+          // Режим расписания
+          let pairs = parsedIngestSchedule;
+          if (!pairs || pairs.length === 0) {
             pairs = processIngestScheduleData(raw);
+            parsedIngestSchedule = pairs;
           }
-          parsedIngestSchedule = pairs;
 
           diffBox.innerHTML = `
             <div class="diff-item">
-              <span>📅 Распознано занятий: <b>${pairs.length}</b></span>
-              <span class="diff-tag type-practice">Расписание</span>
+              <span>📅 Распознано занятий группы ${escapeHTML(targetGroup)}: <b>${pairs.length}</b></span>
+              <span class="diff-tag type-practice">Расписание ПН-ПТ</span>
             </div>
           `;
 
@@ -3061,7 +3149,7 @@
                     <td><b>${DAYS_SHORT[p.day]}</b></td>
                     <td>${p.num}</td>
                     <td><b>${escapeHTML(p.name)}</b></td>
-                    <td><span class="type-pill ${p.type === 'seminar' ? 'type-seminar' : 'type-lecture'}">${p.type}</span></td>
+                    <td><span class="type-pill ${p.type === 'seminar' ? 'type-seminar' : p.type === 'practice' ? 'type-practice' : 'type-lecture'}">${p.type}</span></td>
                     <td>каб. ${escapeHTML(p.room)}</td>
                     <td>${escapeHTML(p.prof)}</td>
                   </tr>`).join('')}
@@ -3075,25 +3163,22 @@
           }
 
           previewBox.style.display = "flex";
-          showToast("✨ Данные готовы к фиксации");
+          showToast("✨ Расписание готово к сохранению!");
         };
 
-        // Зафиксировать и отправить в общую сеть 25А
+        // Фиксация в расписание хаба
         document.getElementById("btn-commit-ingest").onclick = () => {
           if (!canEdit()) { showToast("Доступно для Зам. директора и Директора 🔒"); return; }
           const mode = document.getElementById("ingest-target-mode").value;
 
-          // Фиксация структуры семинара во вкладку «Семинары»
           if (mode === "extract_to_seminars" && parsedIngestSeminars.length > 0) {
             const semData = parsedIngestSeminars[0];
             const targetDate = new Date();
             targetDate.setDate(targetDate.getDate() + 4);
             const dateStr = targetDate.toISOString().slice(0, 10);
 
-            let addedCount = 0;
             const nextBaseId = deadlinesData.length > 0 ? Math.max(...deadlinesData.map(d => d.id)) + 1 : 1;
 
-            // Основная карточка темы
             deadlinesData.unshift({
               id: nextBaseId,
               subject: semData.subject,
@@ -3104,55 +3189,13 @@
               imgBase64: lastIngestImageBase64 || "",
               completed: false
             });
-            addedCount++;
-
-            // Карточки самостоятельных работ/рефератов
-            semData.independent.forEach((indTask, i) => {
-              deadlinesData.push({
-                id: nextBaseId + 1 + i,
-                subject: semData.subject,
-                topic: indTask,
-                type: indTask.toLowerCase().includes("реферат") ? "Реферат" : "Самостоятельная работа",
-                date: dateStr,
-                reqs: "Требование кафедры: развернутый доклад и защита на семинаре",
-                imgBase64: lastIngestImageBase64 || "",
-                completed: false
-              });
-              addedCount++;
-            });
 
             commitData(true);
             renderDeadlines();
             renderUrgentDeadlines();
-            showToast(`🚀 Семинар и ${addedCount - 1} подзаданий зафиксированы во вкладке «Семинары»!`);
-            
+            showToast("🚀 Семинар зафиксирован во вкладке «Семинары»!");
             const sTab = document.querySelector('.view-btn[data-view="deadlines"]');
             if (sTab) sTab.click();
-            return;
-          }
-
-          if (mode === "enrich_seminar") {
-            const pairId = Number(document.getElementById("ingest-target-pair").value);
-            if (!pairId) { alert("Выберите пару семинара"); return; }
-            const sem = ensureSeminarData(pairId);
-            const raw = document.getElementById("ingest-raw-text").value.trim();
-            const cleanText = cleanTextBeforeIngest(raw);
-            const lines = cleanText.split('\n').map(l => cleanItemAfterIngest(l)).filter(l => l.length > 5 && !isJunkOrStopLine(l));
-
-            lines.forEach((line) => {
-              const nextTopicId = sem.topics.length + 1;
-              sem.topics.push({
-                id: nextTopicId,
-                title: line,
-                summary: "ИИ-Синтез",
-                fullText: `ДОКЛАД\nТема: ${line}\nДисциплина: ${sem.subject}\nГруппа: 25А\n\n1. Теоретические основы вопроса.\n2. Практические примеры и расчеты.\n3. Выводы.`,
-                reservedBy: null,
-                studentName: null
-              });
-            });
-
-            commitData(true);
-            showToast(`Добавлено ${lines.length} чистых тем в семинар!`);
             return;
           }
 
@@ -3176,7 +3219,7 @@
 
             commitData(true);
             rerenderAll();
-            showToast("🚀 Расписание 25А обновлено!");
+            showToast(`🚀 Расписание 25А обновлено (${parsedIngestSchedule.length} пар)!`);
             const sTab = document.querySelector('.view-btn[data-view="schedule"]');
             if (sTab) sTab.click();
           } else {
@@ -3184,13 +3227,12 @@
           }
         };
 
-        // Скачать распознанный документ
         document.getElementById("btn-download-ingest-doc").onclick = () => {
           const raw = document.getElementById("ingest-raw-text").value.trim();
-          downloadGostDoc("Семинар_и_материалы_25А", cleanTextBeforeIngest(raw) || "Материалы семинара группы 25А");
+          downloadGostDoc("Расписание_25А", cleanTextBeforeIngest(raw) || "Материалы группы 25А");
         };
 
-        // Быстрый парсер из шапки
+        // Быстрый парсер из модалки Excel
         document.getElementById("btn-open-parser").onclick = () => {
           if (!canEdit()) return;
           document.getElementById("parser-modal").classList.add("open");
@@ -3202,14 +3244,19 @@
         document.getElementById("parser-file-input").onchange = async (e) => {
           const file = e.target.files[0];
           if (!file) return;
+          const targetGroup = document.getElementById("parser-target-group").value.trim() || "25А";
           document.getElementById("parser-file-name-label").innerText = `Файл: ${file.name}`;
-          const text = await readAnyFileWithOCR(file);
-          document.getElementById("parser-input").value = text;
+          const res = await readAnyFileWithOCR(file, targetGroup);
+          document.getElementById("parser-input").value = res.text;
+          if (res.excelPairs) {
+            window._tempParsedModalPairs = res.excelPairs;
+            showToast(`Распознано ${res.excelPairs.length} пар группы ${targetGroup}!`);
+          }
         };
 
         document.getElementById("btn-run-parser").onclick = () => {
           if (!canEdit()) return;
-          let pairs = window._lastParsedExcelSchedule || [];
+          let pairs = window._tempParsedModalPairs || [];
           if (pairs.length === 0) {
             pairs = processIngestScheduleData(document.getElementById("parser-input").value);
           }
@@ -3242,7 +3289,7 @@
           showToast(`Импортировано ${pairs.length} пар!`);
         };
 
-        // Кнопки облака и обмена
+        // Кнопки экспорта и синхронизации
         document.getElementById("btn-cloud-sync").onclick = () => fetchFromCloud(true);
         document.getElementById("btn-test-cloud").onclick = () => fetchFromCloud(true);
 
@@ -3253,7 +3300,7 @@
           else {
             todayPairs.forEach(p => {
               const bell = BELLS.find(b => b.num === p.num) || { start: "", end: "" };
-              text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [каб. ${p.room}] ${p.prof}\n`;
+              text += `${p.num} пара (${bell.start}-${bell.end}): ${p.name} [каб. ${p.room}] ${p.prof} • ${p.task}\n`;
             });
           }
           navigator.clipboard.writeText(text);
@@ -3311,7 +3358,6 @@
           downloadGostDoc("Титульный_лист_25А", "МИНИСТЕРСТВО ОБРАЗОВАНИЯ\n\nКАФЕДРА ФИНАНСОВ И КРЕДИТА\n\nРЕФЕРАТ\n\nГруппа 25А");
         };
 
-        // Функции Директора: смена паролей
         document.getElementById("btn-change-pass").onclick = () => {
           if (!isDirector()) return;
           const targetRole = document.getElementById("target-change-role").value;
@@ -3365,7 +3411,6 @@
           }
         };
 
-        // Сброс базы
         let resetSecs = 15;
         let resetInterval = null;
         document.getElementById("btn-reset-data").onclick = () => {
@@ -3411,7 +3456,6 @@
           showToast("База 25А сброшена");
         };
 
-        // Поиск
         const searchModal = document.getElementById("hub-search-modal");
         const searchInput = document.getElementById("hub-global-search-input");
         const searchResults = document.getElementById("hub-global-search-results");
@@ -3470,7 +3514,6 @@
           });
         };
 
-        // Загрузка / Выгрузка JSON
         document.getElementById("btn-export-json").onclick = () => {
           const dump = { version: 40, appVersion, schedule: scheduleData, requirements: requirementsData, deadlines: deadlinesData, lectures: lecturesData, teachers: teachersData, seminarStore };
           const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
@@ -3513,9 +3556,6 @@
         document.getElementById("prof-search").oninput = (e) => renderTeachers(e.target.value);
       }
 
-      // ============================================================
-      // ИНИЦИАЛИЗАЦИЯ
-      // ============================================================
       function init() {
         document.getElementById("cloud-api-url").value = cloudApiUrl;
         document.getElementById("settings-app-version-input").value = appVersion;
