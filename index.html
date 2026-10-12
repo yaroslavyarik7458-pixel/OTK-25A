@@ -304,7 +304,7 @@
       <button class="btn-action highlight editor-only" id="btn-open-parser">⚡ Импорт Excel</button>
       <button class="btn-action" id="btn-cloud-sync">🔄 Синхронизировать</button>
       <button class="btn-action" id="btn-copy-today">📋 В беседу</button>
-      <button class="btn-action" id="btn-export-ics">📅 Календарь</button>
+      <button class="btn-export-ics btn-action" id="btn-export-ics">📅 Календарь</button>
     </div>
 
     <div class="hub-utility-bar">
@@ -627,11 +627,37 @@
     </div>
   </div>
 
-  <!-- ЭКРАН 9: ИГРЫ -->
+  <!-- ========================================== -->
+  <!-- ЭКРАН 9: ИГРЫ (ВСТРОЕННЫЕ ШАХМАТЫ CHESS TITANS) -->
+  <!-- ========================================== -->
   <div id="view-games" style="display: none;">
-    <div class="dashboard">
-      <div class="dash-title"><span>🎮 Игры</span></div>
-      <div class="dash-sub">Здесь появятся игры. Шахматы будут добавлены отдельно.</div>
+    <div class="dashboard" style="max-width: 1240px; margin: 0 auto; padding: 10px 14px 28px;">
+      
+      <!-- Шапка экрана игр с кнопками управления -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; background: rgba(15, 23, 42, 0.7); padding: 12px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);">
+        <div>
+          <div style="font-size: 17px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+            <span>♟️ Chess Titans Online</span>
+            <span style="font-size: 11px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); padding: 2px 8px; border-radius: 999px;">25А Hub</span>
+          </div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">PvP на одном экране, движок Stockfish и партии по сети</div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" onclick="const f=document.getElementById('chess-frame'); if(f) f.src=f.src;" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1; padding: 8px 12px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            🔄 Перезапуск
+          </button>
+          <a href="chess.html" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; text-decoration: none; padding: 8px 14px; border-radius: 9px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
+            ↗ Во весь экран
+          </a>
+        </div>
+      </div>
+
+      <!-- Бесшовное окно игры -->
+      <div style="position: relative; width: 100%; height: calc(100vh - 190px); min-height: 680px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #080a0f; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);">
+        <iframe id="chess-frame" src="chess.html" style="width: 100%; height: 100%; border: none; display: block;" allow="autoplay; fullscreen" loading="lazy"></iframe>
+      </div>
+
     </div>
   </div>
 
