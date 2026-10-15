@@ -1117,7 +1117,9 @@
             playTone('tick');
           }
           renderClocks();
-          if (modeSelect.value === 'online' && connection && connection.open && after !== before) {
+          // The host is the single clock authority. Without this guard both
+          // peers continuously overwrite each other's elapsed time over WebRTC.
+          if (modeSelect.value === 'online' && onlineHost && connection && connection.open && after !== before) {
             sendMessage({ type: 'clock', clocks: { ...clocks }, turn: chess.turn(), finished: gameFinished });
           }
         }, 45);
@@ -2044,7 +2046,9 @@
       }
 
       function sendState() {
-        if (modeSelect.value === 'online' && onlineReady) sendMessage(serializeState());
+        if (modeSelect.value === 'online' && onlineReady && connection && connection.open) {
+          sendMessage(serializeState());
+        }
       }
 
       function moveSignature(move) {
@@ -2057,12 +2061,25 @@
         if (!message || !chess) return false;
         const remoteGame = new window.Chess();
         try {
-          if (!message.pgn || !remoteGame.load_pgn(message.pgn)) return false;
+          // chess.js returns false for an empty PGN, although an empty PGN is
+          // the valid initial position sent when a room is first connected.
+          if (message.pgn) {
+            if (!remoteGame.load_pgn(message.pgn)) return false;
+          } else if (message.fen && message.fen !== remoteGame.fen()) {
+            if (!remoteGame.load(message.fen)) return false;
+          }
         } catch (_) { return false; }
         const localMoves = historySignature(chess);
         const remoteMoves = historySignature(remoteGame);
         if (allowInitial) return remoteMoves.length >= localMoves.length;
         if (remoteMoves.length !== localMoves.length + 1) return false;
+        // In an online game the peer may append only the opponent's move.
+        // This blocks stale/echoed states and prevents a peer from moving twice.
+        if (playerOnlineColor) {
+          const remoteHistory = remoteGame.history({ verbose: true });
+          const lastRemoteMove = remoteHistory[remoteHistory.length - 1];
+          if (!lastRemoteMove || lastRemoteMove.color === playerOnlineColor) return false;
+        }
         for (let i = 0; i < localMoves.length; i++) {
           if (localMoves[i] !== remoteMoves[i]) return false;
         }
@@ -2085,7 +2102,11 @@
         )) return;
         const remoteGame = new window.Chess();
         try {
-          if (!remoteGame.load_pgn(message.pgn)) throw new Error('invalid-pgn');
+          if (message.pgn) {
+            if (!remoteGame.load_pgn(message.pgn)) throw new Error('invalid-pgn');
+          } else if (message.fen && message.fen !== remoteGame.fen()) {
+            if (!remoteGame.load(message.fen)) throw new Error('invalid-fen');
+          }
           chess = remoteGame;
         } catch (_) { showToast('Ошибка разбора удалённого состояния.'); return; }
         lastAcceptedRemotePly = remotePly === null ? chess.history().length : remotePly;
