@@ -733,27 +733,9 @@
           }
         } catch (_) {}
 
-        const allowedHosts = [
-          'localhost',
-          '127.0.0.1',
-          'github.io',
-          ''
-        ];
-        const currentHost = window.location.hostname;
-        const isFile = window.location.protocol === 'file:';
-        const isAuthorized = isFile || allowedHosts.some(host => currentHost === host || currentHost.endsWith('.' + host));
-
-        if (!isAuthorized) {
-          document.documentElement.innerHTML = `
-            <body style="background:#080a0f;color:#ff5f70;display:grid;place-items:center;height:100vh;font-family:sans-serif;text-align:center;margin:0;">
-              <div style="padding:20px;border:1px solid rgba(255,95,112,0.3);border-radius:16px;background:#121722;max-width:420px">
-                <h2 style="margin:0 0 10px;font-size:20px">⚠️ Нелицензионная копия</h2>
-                <p style="color:#8995a8;font-size:13px;line-height:1.5;margin:0">Запуск проекта на домене <b>${currentHost}</b> заблокирован разработчиком.</p>
-              </div>
-            </body>`;
-          throw new Error('Unauthorized domain distribution blocked.');
-        }
-
+        // Игра может быть размещена на любом HTTPS-домене или localhost.
+        // Жёсткая проверка домена ломала запуск на GitHub Pages, Vercel,
+        // локальном сервере и других хостингах, поэтому её здесь нет.
         window.addEventListener('contextmenu', e => {
           if (!e.target.closest('input, textarea')) {
             e.preventDefault();
@@ -2306,6 +2288,10 @@
 
       function createRoom() {
         if (typeof window.Peer !== 'function') { showToast('PeerJS не загрузился. Проверьте интернет-соединение.'); return; }
+        if (window.location.protocol === 'file:') {
+          showToast('Откройте сайт через HTTPS или localhost: ссылку file:// нельзя открыть у друга.');
+          return;
+        }
         modeSelect.value = 'online';
         updateModeFields();
         closePeer();
@@ -2313,19 +2299,30 @@
         onlineReady = false;
         playerOnlineColor = onlineColorSelect.value === 'random' ? (Math.random() > .5 ? 'w' : 'b') : onlineColorSelect.value;
         syncOnlinePerspective();
-        const generatedId = `ct-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
         setRoomState('waiting', '⏳ Ожидание соперника…');
-        setNetworkState('waiting', 'Ожидание соперника…');
-        peer = new window.Peer(generatedId);
+        setNetworkState('warning', 'Ожидание соперника…');
+        // ID выдаёт сервер PeerJS. Это исключает ошибки занятого/недопустимого ID.
+        peer = new window.Peer({
+          debug: 1,
+          secure: window.location.protocol === 'https:',
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+          }
+        });
         peer.on('open', id => {
           if (reconnectFailed) return;
           if (reconnecting) { handlePeerOpen(); return; }
           roomId = id;
-          const url = `${window.location.href.split('#')[0]}#room=${encodeURIComponent(id)}`;
+          const pageUrl = new URL(window.location.href);
+          pageUrl.hash = `room=${encodeURIComponent(id)}`;
+          const url = pageUrl.toString();
           inviteLink.value = url;
           document.getElementById('copy-invite').disabled = false;
           document.getElementById('leave-room').disabled = false;
-          try { window.history.replaceState(null, '', `#room=${encodeURIComponent(id)}`); } catch (_) {}
+          try { window.history.replaceState(null, '', pageUrl.href); } catch (_) {}
           showToast('Комната создана. Ссылка готова для отправки.');
         });
         peer.on('connection', nextConnection => setupConnection(nextConnection));
@@ -2336,6 +2333,10 @@
 
       function joinRoom(id) {
         if (!id || typeof window.Peer !== 'function') { if (id) showToast('PeerJS не загрузился. Проверьте интернет-соединение.'); return; }
+        if (window.location.protocol === 'file:') {
+          showToast('Сетевой режим работает только через HTTPS или localhost, а не через file://.');
+          return;
+        }
         modeSelect.value = 'online';
         updateModeFields();
         closePeer();
@@ -2344,8 +2345,19 @@
         roomId = id;
         setRoomState('waiting', '⏳ Подключение к комнате…');
         setNetworkState('waiting', 'Подключение к сопернику…');
-        inviteLink.value = `${window.location.href.split('#')[0]}#room=${encodeURIComponent(id)}`;
-        peer = new window.Peer();
+        const pageUrl = new URL(window.location.href);
+        pageUrl.hash = `room=${encodeURIComponent(id)}`;
+        inviteLink.value = pageUrl.toString();
+        peer = new window.Peer({
+          debug: 1,
+          secure: window.location.protocol === 'https:',
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+          }
+        });
         peer.on('open', () => {
           if (reconnectFailed) return;
           if (reconnecting) { handlePeerOpen(); return; }
@@ -2538,7 +2550,7 @@
         else promptRestore();
         const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
         const room = hash.get('room');
-        if (room) setTimeout(() => joinRoom(room), 80);
+        if (room && window.location.protocol !== 'file:') setTimeout(() => joinRoom(room), 80);
       }
 
       window.addEventListener('beforeunload', () => {
