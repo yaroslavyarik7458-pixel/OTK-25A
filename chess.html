@@ -860,6 +860,34 @@
       let onlineHost = false;
       let playerOnlineColor = null;
       let roomId = '';
+      // Единый конфиг сигналинга: не полагаемся на устаревшие дефолты PeerJS.
+      // Сам игровой трафик после сигналинга идёт напрямую между браузерами.
+      const peerOptions = () => ({
+        host: '0.peerjs.com',
+        port: 443,
+        path: '/',
+        secure: true,
+        debug: 0,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun.cloudflare.com:3478' },
+            { urls: 'stun:global.stun.twilio.com:3478' }
+          ]
+        }
+      });
+      const isCurrentPeer = candidate => peer === candidate && candidate && !candidate.destroyed;
+      const peerErrorText = error => {
+        const type = error && error.type ? error.type : 'unknown';
+        const labels = {
+          'peer-unavailable': 'Комната не найдена или соперник ещё не открыл ссылку',
+          'network': 'ошибка сети',
+          'server-error': 'ошибка signaling-сервера',
+          'socket-error': 'соединение с signaling-сервером прервано',
+          'socket-closed': 'signaling-сервер закрыл соединение'
+        };
+        return labels[type] || 'не удалось установить сетевое соединение';
+      };
       let onlineReady = false;
       let lastAcceptedRemotePly = -1;
       let wakeLockSentinel = null;
@@ -2278,12 +2306,13 @@
         nextConnection.on('error', onDisconnect);
       }
 
-      function peerError() {
+      function peerError(error) {
         if (reconnecting || reconnectFailed) return;
         if (remotePeerId) { startReconnect(); return; }
-        setRoomState('lost', '🔴 Не удалось установить PeerJS-соединение');
+        const detail = peerErrorText(error);
+        setRoomState('lost', '🔴 ' + detail);
         setNetworkState('lost', '🔴 Связь потеряна');
-        showToast('Проверьте интернет-соединение и разрешение WebRTC.');
+        showToast('Онлайн: ' + detail + '. Проверьте HTTPS и интернет-соединение.');
       }
 
       function createRoom() {
@@ -2302,16 +2331,7 @@
         setRoomState('waiting', '⏳ Ожидание соперника…');
         setNetworkState('warning', 'Ожидание соперника…');
         // ID выдаёт сервер PeerJS. Это исключает ошибки занятого/недопустимого ID.
-        peer = new window.Peer({
-          debug: 1,
-          secure: window.location.protocol === 'https:',
-          config: {
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:global.stun.twilio.com:3478' }
-            ]
-          }
-        });
+        peer = new window.Peer(peerOptions());
         peer.on('open', id => {
           if (reconnectFailed) return;
           if (reconnecting) { handlePeerOpen(); return; }
@@ -2348,16 +2368,7 @@
         const pageUrl = new URL(window.location.href);
         pageUrl.hash = `room=${encodeURIComponent(id)}`;
         inviteLink.value = pageUrl.toString();
-        peer = new window.Peer({
-          debug: 1,
-          secure: window.location.protocol === 'https:',
-          config: {
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:global.stun.twilio.com:3478' }
-            ]
-          }
-        });
+        peer = new window.Peer(peerOptions());
         peer.on('open', () => {
           if (reconnectFailed) return;
           if (reconnecting) { handlePeerOpen(); return; }
